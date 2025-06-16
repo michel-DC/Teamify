@@ -72,6 +72,10 @@ const data = {
           url: "dashboard/events/new",
         },
         {
+          title: "Progression",
+          url: "dashboard/event/progress",
+        },
+        {
           title: "Mes invitations",
           url: "dashboard/events/invitations",
         },
@@ -121,7 +125,7 @@ const data = {
       title: "Messages",
       url: "/messages",
       icon: Command,
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Discussions",
@@ -137,7 +141,7 @@ const data = {
       title: "Paramètres",
       url: "/settings",
       icon: Settings2,
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Profil",
@@ -158,23 +162,7 @@ const data = {
       ],
     },
   ],
-  events: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+  events: [],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -214,6 +202,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     fetchData();
   }, []);
 
+  React.useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch("/api/dashboard/events/data");
+        const data = await response.json();
+
+        if (data.events) {
+          const lastThreeEvents = data.events.slice(-3).map((event: any) => ({
+            name: event.title,
+            url: "#",
+            icon: Calendar,
+          }));
+
+          setUserData((prev) => ({
+            ...prev,
+            events: lastThreeEvents,
+          }));
+        }
+      } catch (error) {
+        console.error("Impossible de fetch les données, ressayer plus tard.");
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -223,7 +237,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         const data = await response.json();
         setProfileImage(data.profileImage);
       } catch (error) {
-        console.error("Error fetching profile image:", error);
+        console.error("Impossible de fetch les données, ressayer plus tard.");
       }
     };
 
