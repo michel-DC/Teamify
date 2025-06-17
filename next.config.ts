@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  images: {
-    domains: ["images.unsplash.com", "img.freepik.com"],
-  },
+  // images: {
+  //   domains: ["images.unsplash.com", "img.freepik.com"],
+  // },
   webpack: (config, { isServer }) => {
     // Ajouter l'insensibilité à la casse
     config.module.rules.push({

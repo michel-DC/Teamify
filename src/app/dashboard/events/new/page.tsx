@@ -1,4 +1,4 @@
-import { EventForm } from "@/components/dashboard/events/event-form-new";
+import { EventForm } from "@/components/dashboard/events/new/event-form-new";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";

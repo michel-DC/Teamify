@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import PreparationBanner from "@/components/dashboard/events/todo/PreparationBanner";
 
 type EventDetails = {
   id: number;
@@ -21,6 +22,7 @@ type EventDetails = {
   budget: number | null;
   isCancelled: boolean;
   imageUrl: string | null;
+  preparationPercentage?: number;
 };
 
 export default function EventDetailsPage() {
@@ -164,6 +166,9 @@ export default function EventDetailsPage() {
           <p className="text-muted-foreground">
             {event.description || "Aucune description disponible"}
           </p>
+        </div>
+        <div className="px-12">
+          <PreparationBanner percentage={event.preparationPercentage ?? 0} />
         </div>
       </div>
     </div>

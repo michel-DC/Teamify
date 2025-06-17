@@ -53,6 +53,17 @@ model Event {
   isPublic     Boolean       @default(true)
   isCancelled  Boolean       @default(false)
   organization Organization  @relation(fields: [orgId], references: [id])
+  preparationPercentage Int   @default(0)
+  preparationTodos PreparationTodo[]
+}
+
+model PreparationTodo {
+  id        Int      @id @default(autoincrement())
+  title     String
+  done      Boolean  @default(false)
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   Int
+  createdAt DateTime @default(now())
 }
 
 enum OrgSize {

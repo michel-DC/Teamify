@@ -1,8 +1,8 @@
-import CalendarOverview from "@/components/dashboard/events/calendar-overview";
-import { EventEvolutionChart } from "@/components/dashboard/events/event-evolution-chart";
-import { EventsTableWrapper } from "@/components/dashboard/events/events-table-wrapper";
-import { SectionCards } from "@/components/dashboard/events/section-card-event";
-import { SiteHeader } from "@/components/dashboard/events/site-header";
+import CalendarOverview from "@/components/dashboard/events/dashboard/calendar-overview";
+import { EventEvolutionChart } from "@/components/dashboard/events/dashboard/event-evolution-chart";
+import { EventsTableWrapper } from "@/components/dashboard/events/dashboard/events-table-wrapper";
+import { SectionCards } from "@/components/dashboard/events/dashboard/section-card-event";
+import { SiteHeader } from "@/components/dashboard/events/dashboard/site-header";
 import { Separator } from "@/components/ui/separator";
 
 export default function EventOverview() {

@@ -34,7 +34,7 @@ export default function Page() {
         {
           duration: 2500,
           onAutoClose: () => {
-            router.push("/hello");
+            router.push("/create-organization");
           },
         }
       );

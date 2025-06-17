@@ -91,7 +91,7 @@ export const LoginForm = () => {
               if (userData.hasOrganization) {
                 router.push("/dashboard");
               } else {
-                router.push("/hello");
+                router.push("/create-organization");
               }
             },
           }
