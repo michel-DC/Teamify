@@ -1,31 +1,11 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Poppins } from "next/font/google";
 import "../styles/globals.css";
 
-const sfPro = localFont({
-  src: [
-    {
-      path: "../fonts/SF-Pro-Display-Regular.otf",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../fonts/SF-Pro-Display-Medium.otf",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../fonts/SF-Pro-Display-Semibold.otf",
-      weight: "600",
-      style: "normal",
-    },
-    {
-      path: "../fonts/SF-Pro-Display-Bold.otf",
-      weight: "700",
-      style: "normal",
-    },
-  ],
-  variable: "--font-sf-pro",
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -41,12 +21,12 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${sfPro.variable} h-full bg-background text-foreground`}
+      className={`${poppins.variable} h-full bg-background text-foreground`}
     >
       <head>
         <link rel="icon" href="/images/logo/favicon.png" type="image/x-icon" />
       </head>
-      <body className={sfPro.className}>{children}</body>
+      <body className={poppins.className}>{children}</body>
     </html>
   );
 }

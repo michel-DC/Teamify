@@ -168,7 +168,10 @@ export default function EventDetailsPage() {
           </p>
         </div>
         <div className="px-12">
-          <PreparationBanner percentage={event.preparationPercentage ?? 0} />
+          <PreparationBanner
+            percentage={event.preparationPercentage ?? 0}
+            eventId={event.id}
+          />
         </div>
       </div>
     </div>
