@@ -185,9 +185,9 @@ export function DataTable({ data }: { data: Event[] }) {
     <Card className="pt-0">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle>Calendrier des événements</CardTitle>
+          <CardTitle>Tableau d'évènements</CardTitle>
           <CardDescription>
-            Calendrier intéractif des évènements futur
+            Tableau intéractif listant l'ensemble de vos évènements
           </CardDescription>
         </div>
       </CardHeader>

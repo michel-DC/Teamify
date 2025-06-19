@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import PreparationBanner from "@/components/dashboard/events/todo/PreparationBanner";
+import { StatCardDetails } from "@/components/dashboard/events/details/stat-card-details";
 
 type EventDetails = {
   id: number;
@@ -84,9 +83,9 @@ export default function EventDetailsPage() {
   return (
     <div className="container mx-auto py-8">
       <div className="flex flex-col gap-8">
-        <div className="flex flex-col md:flex-row gap-8 items-start">
+        <div className="flex flex-col md:flex-row gap-8 items-center">
           {event.imageUrl && (
-            <div className="md:w-1/2 w-full flex justify-center mt-12">
+            <div className="md:w-1/2 w-full flex justify-center">
               <Image
                 src={event.imageUrl}
                 alt={event.title}
@@ -96,76 +95,30 @@ export default function EventDetailsPage() {
               />
             </div>
           )}
-          <div className="flex-1 flex flex-col gap-4 md:pt-6">
-            <h1 className="text-4xl font-bold mb-2">{event.title}</h1>
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <span className="font-semibold">Catégorie :</span>
-                <Badge variant="outline">{event.category}</Badge>
-              </div>
-              <div className="flex gap-2">
-                <span className="font-semibold">Statut :</span>
-                <Badge variant="outline">{event.status}</Badge>
-              </div>
-              <div className="flex gap-2">
-                <span className="font-semibold">Lieu :</span>
-                <span>{event.location}</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="font-semibold">Capacité :</span>
-                <span>{event.capacity} personnes</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="font-semibold">Budget :</span>
-                <span>{event.budget ? `${event.budget}€` : "Non défini"}</span>
-              </div>
-              <div className="flex gap-2">
-                <span className="font-semibold">Date de début :</span>
-                <span>
-                  {event.startDate
-                    ? new Date(event.startDate).toLocaleDateString()
-                    : "Non définie"}
-                </span>
-              </div>
-              <div className="flex gap-2">
-                <span className="font-semibold">Date de fin :</span>
-                <span>
-                  {event.endDate
-                    ? new Date(event.endDate).toLocaleDateString()
-                    : "Non définie"}
-                </span>
-              </div>
-              <div className="flex gap-2 items-center">
-                <span className="font-semibold">État :</span>
-                <div
-                  className={`size-2 rounded-full ${
-                    !event.isCancelled ? "bg-green-500" : "bg-red-500"
-                  }`}
-                />
-                <span
-                  className={
-                    !event.isCancelled ? "text-green-600" : "text-red-600"
-                  }
-                >
-                  {!event.isCancelled ? "Actif" : "Annulé"}
-                </span>
-              </div>
-            </div>
-            <div className="flex gap-4 mt-6">
-              <Button className="bg-green-700 hover:bg-green-800 text-white">
+          <div className="flex-1 flex flex-col gap-4 items-center justify-center">
+            <h1 className="text-4xl font-bold text-center">{event.title}</h1>
+            <div className="flex gap-4">
+              <Button
+                className="bg-green-700 hover:bg-green-800 text-white"
+                onClick={() =>
+                  router.push(`/dashboard/events/edit/${event.id}`)
+                }
+              >
                 Modifier l'évènement
               </Button>
-              <Button className="bg-red-600 hover:bg-red-700 text-white">
+              <Button
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={() =>
+                  router.push(`/dashboard/events/delete/${event.id}`)
+                }
+              >
                 Supprimer l'évènement
               </Button>
             </div>
           </div>
         </div>
-        <div className="mt-8 flex flex-col gap-2 items-center justify-center">
-          <h3 className="font-semibold mb-2">Description :</h3>
-          <p className="text-muted-foreground">
-            {event.description || "Aucune description disponible"}
-          </p>
+        <div className="mt-8 px-4">
+          <StatCardDetails event={event} />
         </div>
         <div className="px-12">
           <PreparationBanner
