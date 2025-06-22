@@ -55,6 +55,18 @@ model Event {
   organization Organization  @relation(fields: [orgId], references: [id])
   preparationPercentage Int   @default(0)
   preparationTodos PreparationTodo[]
+  preparationTodoGroups PreparationTodoGroup[]
+}
+
+model PreparationTodoGroup {
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String   @default("#3b82f6")
+  order     Int      @default(0)
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   Int
+  todos     PreparationTodo[]
+  createdAt DateTime @default(now())
 }
 
 model PreparationTodo {
@@ -63,6 +75,9 @@ model PreparationTodo {
   done      Boolean  @default(false)
   event     Event    @relation(fields: [eventId], references: [id])
   eventId   Int
+  order     Int      @default(0)
+  group     PreparationTodoGroup? @relation(fields: [groupId], references: [id])
+  groupId   Int?
   createdAt DateTime @default(now())
 }
 

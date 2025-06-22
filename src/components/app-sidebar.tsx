@@ -59,25 +59,21 @@ const data = {
     },
     {
       title: "Événements",
-      url: "dashboard/events",
+      url: "/dashboard/events",
       icon: Calendar,
       isActive: true,
       items: [
         {
           title: "Tous les événements",
-          url: "dashboard/events",
+          url: "/dashboard/events",
         },
         {
           title: "Créer un événement",
-          url: "dashboard/events/new",
-        },
-        {
-          title: "Progression",
-          url: "dashboard/event/progress",
+          url: "/dashboard/events/new",
         },
         {
           title: "Mes invitations",
-          url: "dashboard/events/invitations",
+          url: "/dashboard/events/invitations",
         },
       ],
     },
@@ -89,15 +85,15 @@ const data = {
       items: [
         {
           title: "Mes organisations",
-          url: "dashboard/organizations",
+          url: "/dashboard/organizations",
         },
         {
           title: "Créer une organisation",
-          url: "dashboard/organizations/new",
+          url: "/dashboard/organizations/new",
         },
         {
           title: "Inviter un membre",
-          url: "dashboard/organizations/invite",
+          url: "/dashboard/organizations/invite",
         },
       ],
     },
@@ -109,15 +105,15 @@ const data = {
       items: [
         {
           title: "Toutes les équipes",
-          url: "dashboard/teams",
+          url: "/dashboard/teams",
         },
         {
           title: "Créer une équipe",
-          url: "dashboard/teams/new",
+          url: "/dashboard/teams/new",
         },
         {
           title: "Gérer les membres",
-          url: "dashboard/teams/members",
+          url: "/dashboard/teams/members",
         },
       ],
     },
@@ -129,11 +125,11 @@ const data = {
       items: [
         {
           title: "Discussions",
-          url: "dashboard/messages",
+          url: "/dashboard/messages",
         },
         {
           title: "Nouveau message",
-          url: "dashboard/messages/new",
+          url: "/dashboard/messages/new",
         },
       ],
     },
@@ -145,19 +141,19 @@ const data = {
       items: [
         {
           title: "Profil",
-          url: "dashboard/settings/profile",
+          url: "/dashboard/settings/profile",
         },
         {
           title: "Notifications",
-          url: "dashboard/settings/notifications",
+          url: "/dashboard/settings/notifications",
         },
         {
           title: "Sécurité",
-          url: "dashboard/settings/security",
+          url: "/dashboard/settings/security",
         },
         {
           title: "Facturation",
-          url: "dashboard/settings/billing",
+          url: "/dashboard/settings/billing",
         },
       ],
     },

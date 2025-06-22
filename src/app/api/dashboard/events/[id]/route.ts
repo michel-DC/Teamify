@@ -58,3 +58,92 @@ export async function GET(
     );
   }
 }
+
+export async function PATCH(
+  request: Request,
+  context: { params: { id: string } }
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const eventId = parseInt(context.params.id, 10);
+    if (isNaN(eventId)) {
+      return NextResponse.json(
+        { message: "ID d'événement invalide." },
+        { status: 400 }
+      );
+    }
+
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
+      include: { organization: true },
+    });
+
+    if (!event || event.organization?.ownerId !== user.id) {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    }
+
+    const body = await request.json();
+
+    const updatedEvent = await prisma.event.update({
+      where: { id: eventId },
+      data: {
+        ...body,
+        startDate: body.startDate ? new Date(body.startDate) : undefined,
+        endDate: body.endDate ? new Date(body.endDate) : undefined,
+      },
+    });
+
+    return NextResponse.json({ event: updatedEvent });
+  } catch (error) {
+    console.error("Error updating event:", error);
+    return NextResponse.json(
+      { message: "Failed to update event." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  context: { params: { id: string } }
+) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const eventId = parseInt(context.params.id, 10);
+    if (isNaN(eventId)) {
+      return NextResponse.json(
+        { message: "ID d'événement invalide." },
+        { status: 400 }
+      );
+    }
+
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
+      include: { organization: true },
+    });
+
+    if (!event || event.organization?.ownerId !== user.id) {
+      return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
+    }
+
+    await prisma.event.delete({
+      where: { id: eventId },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    return NextResponse.json(
+      { message: "Failed to delete event." },
+      { status: 500 }
+    );
+  }
+}
