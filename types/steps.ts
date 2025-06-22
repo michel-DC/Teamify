@@ -1,5 +1,3 @@
-// types/steps.ts
-
 export interface StepProps {
   next?: () => void;
   prev?: () => void;
@@ -10,6 +8,7 @@ export interface StepProps {
     memberCount: number;
     size: string;
     mission: string;
+    file?: File;
   };
   setFormData: React.Dispatch<
     React.SetStateAction<{
@@ -19,6 +18,7 @@ export interface StepProps {
       memberCount: number;
       size: string;
       mission: string;
+      file?: File;
     }>
   >;
 }

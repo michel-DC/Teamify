@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "../styles/globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const poppins = Poppins({
   subsets: ["latin"],
-  display: "swap",
-  variable: "--font-space-grotesk",
   weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -22,12 +21,12 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${spaceGrotesk.variable} h-full bg-background text-foreground`}
+      className={`${poppins.variable} h-full bg-background text-foreground`}
     >
       <head>
         <link rel="icon" href="/images/logo/favicon.png" type="image/x-icon" />
       </head>
-      <body className={spaceGrotesk.className}>{children}</body>
+      <body className={poppins.className}>{children}</body>
     </html>
   );
 }

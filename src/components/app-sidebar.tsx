@@ -59,20 +59,21 @@ const data = {
     },
     {
       title: "Événements",
-      url: "/events",
+      url: "/dashboard/events",
       icon: Calendar,
+      isActive: true,
       items: [
         {
           title: "Tous les événements",
-          url: "/events",
+          url: "/dashboard/events",
         },
         {
           title: "Créer un événement",
-          url: "/events/new",
+          url: "/dashboard/events/new",
         },
         {
           title: "Mes invitations",
-          url: "/events/invitations",
+          url: "/dashboard/events/invitations",
         },
       ],
     },
@@ -80,18 +81,19 @@ const data = {
       title: "Organisations",
       url: "/organizations",
       icon: GalleryVerticalEnd,
+      isActive: true,
       items: [
         {
           title: "Mes organisations",
-          url: "/organizations",
+          url: "/dashboard/organizations",
         },
         {
           title: "Créer une organisation",
-          url: "/organizations/new",
+          url: "/dashboard/organizations/new",
         },
         {
           title: "Inviter un membre",
-          url: "/organizations/invite",
+          url: "/dashboard/organizations/invite",
         },
       ],
     },
@@ -99,18 +101,19 @@ const data = {
       title: "Équipes",
       url: "/teams",
       icon: Users,
+      isActive: true,
       items: [
         {
           title: "Toutes les équipes",
-          url: "/teams",
+          url: "/dashboard/teams",
         },
         {
           title: "Créer une équipe",
-          url: "/teams/new",
+          url: "/dashboard/teams/new",
         },
         {
           title: "Gérer les membres",
-          url: "/teams/members",
+          url: "/dashboard/teams/members",
         },
       ],
     },
@@ -118,14 +121,15 @@ const data = {
       title: "Messages",
       url: "/messages",
       icon: Command,
+      isActive: false,
       items: [
         {
           title: "Discussions",
-          url: "/messages",
+          url: "/dashboard/messages",
         },
         {
           title: "Nouveau message",
-          url: "/messages/new",
+          url: "/dashboard/messages/new",
         },
       ],
     },
@@ -133,43 +137,28 @@ const data = {
       title: "Paramètres",
       url: "/settings",
       icon: Settings2,
+      isActive: false,
       items: [
         {
           title: "Profil",
-          url: "/settings/profile",
+          url: "/dashboard/settings/profile",
         },
         {
           title: "Notifications",
-          url: "/settings/notifications",
+          url: "/dashboard/settings/notifications",
         },
         {
           title: "Sécurité",
-          url: "/settings/security",
+          url: "/dashboard/settings/security",
         },
         {
           title: "Facturation",
-          url: "/settings/billing",
+          url: "/dashboard/settings/billing",
         },
       ],
     },
   ],
-  events: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+  events: [],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -192,7 +181,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             },
             teams: [
               {
-                name: user.organization?.name,
+                name: user.organization?.name || "Mon Organisation",
                 profileImage: user.organization?.profileImage || "",
               },
             ],
@@ -209,13 +198,63 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     fetchData();
   }, []);
 
+  React.useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch("/api/dashboard/events/data");
+        const data = await response.json();
+
+        if (data.events) {
+          const lastThreeEvents = data.events.slice(-3).map((event: any) => ({
+            name: event.title,
+            url: "#",
+            icon: Calendar,
+          }));
+
+          setUserData((prev) => ({
+            ...prev,
+            events: lastThreeEvents,
+          }));
+        }
+      } catch (error) {
+        console.error("Impossible de fetch les données, ressayer plus tard.");
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
+  const [profileImage, setProfileImage] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const response = await fetch("/api/organization/profile-image");
+        const data = await response.json();
+        setProfileImage(data.profileImage);
+      } catch (error) {
+        console.error("Impossible de fetch les données, ressayer plus tard.");
+      }
+    };
+
+    fetchProfileImage();
+  }, []);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher
           teams={userData.teams.map((team) => ({
             name: team.name,
-            logo: () => <img src={team.profileImage} alt={team.name} />,
+            logo: profileImage
+              ? () => (
+                  <img
+                    src={profileImage}
+                    alt={team.name}
+                    className="size-4 rounded-full"
+                  />
+                )
+              : GalleryVerticalEnd,
           }))}
         />
       </SidebarHeader>

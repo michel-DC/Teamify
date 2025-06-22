@@ -35,15 +35,16 @@ model Organization {
 
 model Event {
   id           Int           @id @default(autoincrement())
-  ownerId      Int           @unique
+  ownerId      Int           
   owner        User          @relation(fields: [ownerId], references: [id])
   title        String
   description  String?
-  date         DateTime
+  startDate    DateTime?      
+  endDate      DateTime?      
   location     String
   imageUrl     String?
   capacity     Int
-  status       EventStatus   @default(DRAFT)
+  status       EventStatus   @default(PUBLIE)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   orgId        Int
@@ -52,6 +53,32 @@ model Event {
   isPublic     Boolean       @default(true)
   isCancelled  Boolean       @default(false)
   organization Organization  @relation(fields: [orgId], references: [id])
+  preparationPercentage Int   @default(0)
+  preparationTodos PreparationTodo[]
+  preparationTodoGroups PreparationTodoGroup[]
+}
+
+model PreparationTodoGroup {
+  id        Int      @id @default(autoincrement())
+  name      String
+  color     String   @default("#3b82f6")
+  order     Int      @default(0)
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   Int
+  todos     PreparationTodo[]
+  createdAt DateTime @default(now())
+}
+
+model PreparationTodo {
+  id        Int      @id @default(autoincrement())
+  title     String
+  done      Boolean  @default(false)
+  event     Event    @relation(fields: [eventId], references: [id])
+  eventId   Int
+  order     Int      @default(0)
+  group     PreparationTodoGroup? @relation(fields: [groupId], references: [id])
+  groupId   Int?
+  createdAt DateTime @default(now())
 }
 
 enum OrgSize {
@@ -61,16 +88,15 @@ enum OrgSize {
 }
 
 enum EventStatus {
-  DRAFT
-  PUBLISHED
-  COMPLETED
-  CANCELLED
+  BROUILLON
+  PUBLIE
+  TERMINE
+  ANNULE
 }
 
 enum EventCategory {
   REUNION
   SEMINAIRE
-  // FÊTE
   CONFERENCE
   FORMATION
   ATELIER

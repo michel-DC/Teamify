@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
@@ -19,6 +19,7 @@ import {
 } from "@tabler/icons-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import Head from "next/head";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -90,7 +91,7 @@ export const LoginForm = () => {
               if (userData.hasOrganization) {
                 router.push("/dashboard");
               } else {
-                router.push("/hello");
+                router.push("/create-organization");
               }
             },
           }
