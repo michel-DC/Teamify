@@ -15,8 +15,10 @@ model User {
   firstname    String?
   lastname     String?
   createdAt    DateTime      @default(now())
-  organization Organization?
+  organizations Organization[]
   event        Event[]
+  invitations  Invitation[]
+  organizationCount Int      @default(0)
 }
 
 model Organization {
@@ -28,34 +30,50 @@ model Organization {
   size         OrgSize
   mission      String
   createdAt    DateTime @default(now())
-  ownerId      Int      @unique
+  ownerId      Int
   events       Event[]
   owner        User     @relation(fields: [ownerId], references: [id])
 }
 
 model Event {
-  id           Int           @id @default(autoincrement())
-  ownerId      Int           
-  owner        User          @relation(fields: [ownerId], references: [id])
-  title        String
-  description  String?
-  startDate    DateTime?      
-  endDate      DateTime?      
-  location     String
-  imageUrl     String?
-  capacity     Int
-  status       EventStatus   @default(PUBLIE)
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  orgId        Int
-  budget       Float?
-  category     EventCategory @default(REUNION)
-  isPublic     Boolean       @default(true)
-  isCancelled  Boolean       @default(false)
-  organization Organization  @relation(fields: [orgId], references: [id])
-  preparationPercentage Int   @default(0)
-  preparationTodos PreparationTodo[]
+  id                    Int                    @id @default(autoincrement())
+  publicId              String                 @unique @default(cuid())
+  ownerId               Int
+  owner                 User                   @relation(fields: [ownerId], references: [id])
+  title                 String
+  description           String?
+  startDate             DateTime?
+  endDate               DateTime?
+  location              String
+  imageUrl              String?
+  capacity              Int
+  status                EventStatus            @default(PUBLIE)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  orgId                 Int
+  budget                Float?
+  category              EventCategory          @default(REUNION)
+  isPublic              Boolean                @default(true)
+  isCancelled           Boolean                @default(false)
+  organization          Organization           @relation(fields: [orgId], references: [id])
+  preparationPercentage Int                    @default(0)
+  preparationTodos      PreparationTodo[]
   preparationTodoGroups PreparationTodoGroup[]
+  invitations           Invitation[]
+}
+
+model Invitation {
+  id        Int              @id @default(autoincrement())
+  eventId   Int
+  userId    Int
+  email     String
+  status    InvitationStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  event     Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([eventId, email])
 }
 
 model PreparationTodoGroup {
@@ -79,6 +97,12 @@ model PreparationTodo {
   group     PreparationTodoGroup? @relation(fields: [groupId], references: [id])
   groupId   Int?
   createdAt DateTime @default(now())
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
 }
 
 enum OrgSize {

@@ -4,9 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "@/components/ui/spotlight";
-import { Button } from "@/components/ui/Button";
-import { Navbar } from "@/components/_layout/Navbar";
-import { Footer } from "@/components/_layout/Footer";
+import { Button } from "@/components/ui/button";
+import { Navbar } from "@/components/ui/navbar";
+import { Footer } from "@/components/ui/footer";
 import { Separator } from "@/components/ui/separator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -16,6 +16,8 @@ import {
   faArrowRight,
   faRocket,
 } from "@fortawesome/free-solid-svg-icons";
+import { HeroSection } from "@/components/ui/hero-section";
+import { FeatureSection } from "@/components/ui/feature-section";
 
 const features = [
   {

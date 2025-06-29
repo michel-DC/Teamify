@@ -7,31 +7,39 @@ export async function GET() {
     const user = await getCurrentUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
-    }
-
-    const organization = await prisma.organization.findUnique({
-      where: { ownerId: user.id },
-    });
-
-    if (!organization) {
       return NextResponse.json(
-        { message: "Aucune organisation trouvée pour cet utilisateur." },
-        { status: 404 }
+        { error: "Non autorisé. Veuillez vous connecter." },
+        { status: 401 }
       );
     }
 
     const events = await prisma.event.findMany({
       where: {
-        orgId: organization.id,
+        ownerId: user.id,
+      },
+      include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
       },
     });
 
-    return NextResponse.json({ events });
+    const eventsWithPublicId = events.map((event) => ({
+      ...event,
+      id: event.publicId,
+    }));
+
+    return NextResponse.json({ events: eventsWithPublicId }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching user events:", error);
+    console.error("[API_EVENTS_DATA_ERROR]", error);
     return NextResponse.json(
-      { message: "Failed to fetch events." },
+      { error: "Erreur serveur lors de la récupération des événements" },
       { status: 500 }
     );
   }

@@ -1,4 +1,3 @@
-// app/api/user/has-organization/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -14,19 +13,17 @@ export async function GET() {
       );
     }
 
-    const organizationsCount = await prisma.organization.count({
+    const organizations = await prisma.organization.findMany({
       where: {
         ownerId: user.id,
       },
     });
 
-    const hasOrganization = organizationsCount > 0;
-
-    return NextResponse.json({ hasOrganization }, { status: 200 });
+    return NextResponse.json({ organizations }, { status: 200 });
   } catch (error) {
-    console.error("[API_HAS_ORGANIZATION_ERROR]", error);
+    console.error("[API_ORG_FETCH_ERROR]", error);
     return NextResponse.json(
-      { error: "Erreur serveur lors de la vérification de l'organisation" },
+      { error: "Erreur serveur lors de la récupération des organisations" },
       { status: 500 }
     );
   }

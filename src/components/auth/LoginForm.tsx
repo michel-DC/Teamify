@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
@@ -76,11 +76,10 @@ export const LoginForm = () => {
             duration: 2500,
             onAutoClose: async () => {
               const userResponse = await fetch("/api/user/has-organization", {
-                method: "POST",
+                method: "GET",
                 headers: {
                   "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email: data.user.email }),
               });
 
               const userData = await userResponse.json();

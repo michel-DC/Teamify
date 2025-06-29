@@ -14,17 +14,17 @@ type Organization = {
 };
 
 export function useOrganization() {
-  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchOrganization = async () => {
+    const fetchOrganizations = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const res = await fetch("/api/user/organization", {
+        const res = await fetch("/api/user/organizations", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -37,20 +37,20 @@ export function useOrganization() {
         }
 
         const data = await res.json();
-        setOrganization(data.organization);
+        setOrganizations(data.organizations || []);
       } catch (err: any) {
-        console.error("Erreur lors de la récupération de l'organisation:", err);
+        console.error("Erreur lors de la récupération des organisations:", err);
         setError(err.message || "Erreur inconnue");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrganization();
+    fetchOrganizations();
   }, []);
 
   return {
-    organization,
+    organizations,
     loading,
     error,
   };

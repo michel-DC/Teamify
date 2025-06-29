@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { writeFile } from "fs/promises";
 import { join } from "path";
 import { EventCategory, EventStatus } from "@prisma/client";
+import { nanoid } from "nanoid";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -104,7 +105,8 @@ export async function POST(req: Request) {
 
     const event = await prisma.event.create({
       data: {
-        owner: { connect: { id: user.id } },
+        publicId: nanoid(12),
+        ownerId: user.id,
         title,
         description,
         startDate,
@@ -117,7 +119,7 @@ export async function POST(req: Request) {
         category,
         isPublic,
         isCancelled: false,
-        organization: { connect: { id: orgId } },
+        orgId,
       },
     });
 

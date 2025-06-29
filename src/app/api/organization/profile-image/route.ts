@@ -1,31 +1,36 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { prisma } from "@/lib/prisma"; // ou ta config Prisma
 
 export async function GET() {
-  const user = await getCurrentUser();
+  try {
+    const user = await getCurrentUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-  }
+    if (!user) {
+      return NextResponse.json(
+        { error: "Non autorisé. Veuillez vous connecter." },
+        { status: 401 }
+      );
+    }
 
-  const organization = await prisma.organization.findUnique({
-    where: {
-      ownerId: user.id,
-    },
-    select: {
-      profileImage: true,
-    },
-  });
+    const organization = await prisma.organization.findFirst({
+      where: {
+        ownerId: user.id,
+      },
+      select: {
+        profileImage: true,
+      },
+    });
 
-  if (!organization) {
     return NextResponse.json(
-      { error: "Aucune organisation trouvée" },
-      { status: 404 }
+      { profileImage: organization?.profileImage || null },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("[API_PROFILE_IMAGE_ERROR]", error);
+    return NextResponse.json(
+      { error: "Erreur serveur lors de la récupération de l'image" },
+      { status: 500 }
     );
   }
-
-  return NextResponse.json({
-    profileImage: organization.profileImage || null,
-  });
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
@@ -28,11 +28,30 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { toast, Toaster } from "sonner";
-import { useOrganization } from "@/hooks/useOrganization";
 
-export default function CreateEventPage() {
+interface Event {
+  id: number;
+  publicId: string;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  imageUrl: string;
+  capacity: number;
+  status: string;
+  budget: number;
+  category: string;
+  isPublic: boolean;
+  isCancelled: boolean;
+  orgId: number;
+}
+
+export default function EditEventPage() {
+  const params = useParams();
   const router = useRouter();
-  const { organizations, loading } = useOrganization();
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -44,19 +63,48 @@ export default function CreateEventPage() {
     budget: "",
     category: "REUNION",
     isPublic: true,
-    orgId: "",
   });
-  const [file, setFile] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!loading && organizations.length > 0 && !formData.orgId) {
-      setFormData((prev) => ({
-        ...prev,
-        orgId: organizations[0].id.toString(),
-      }));
+    const fetchEvent = async () => {
+      try {
+        const response = await fetch(`/api/dashboard/events/${params.slug}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          const event = data.event;
+          setFormData({
+            title: event.title || "",
+            description: event.description || "",
+            startDate: event.startDate
+              ? new Date(event.startDate).toISOString().slice(0, 16)
+              : "",
+            endDate: event.endDate
+              ? new Date(event.endDate).toISOString().slice(0, 16)
+              : "",
+            location: event.location || "",
+            capacity: event.capacity?.toString() || "",
+            status: event.status || "PUBLIE",
+            budget: event.budget?.toString() || "",
+            category: event.category || "REUNION",
+            isPublic: event.isPublic ?? true,
+          });
+        } else {
+          toast.error(data.error || "Événement non trouvé");
+          router.push("/dashboard/events");
+        }
+      } catch (error) {
+        toast.error("Erreur lors du chargement de l'événement");
+        router.push("/dashboard/events");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (params.slug) {
+      fetchEvent();
     }
-  }, [organizations, loading, formData.orgId]);
+  }, [params.slug, router]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({
@@ -65,38 +113,39 @@ export default function CreateEventPage() {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const submitFormData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      submitFormData.append(key, value.toString());
-    });
-
-    if (file) {
-      submitFormData.append("file", file);
-    }
-
     try {
-      const response = await fetch("/api/dashboard/events", {
-        method: "POST",
-        body: submitFormData,
+      const updateData = {
+        title: formData.title,
+        description: formData.description,
+        startDate: new Date(formData.startDate).toISOString(),
+        endDate: new Date(formData.endDate).toISOString(),
+        location: formData.location,
+        capacity: parseInt(formData.capacity),
+        status: formData.status,
+        budget: formData.budget ? parseFloat(formData.budget) : null,
+        category: formData.category,
+        isPublic: formData.isPublic,
+      };
+
+      const response = await fetch(`/api/dashboard/events/${params.slug}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateData),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("Événement créé avec succès !");
-        router.push("/dashboard/events");
+        toast.success("Événement modifié avec succès !");
+        router.push(`/dashboard/events/details/${params.slug}`);
       } else {
-        toast.error(result.error || "Erreur lors de la création");
+        toast.error(result.error || "Erreur lors de la modification");
       }
     } catch (error) {
       toast.error("Erreur réseau");
@@ -106,34 +155,22 @@ export default function CreateEventPage() {
   };
 
   if (loading) {
-    return <div>Chargement...</div>;
-  }
-
-  if (organizations.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-96">
-          <CardHeader>
-            <CardTitle>Aucune organisation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="mb-4">
-              Vous devez créer une organisation avant de pouvoir créer un
-              événement.
-            </p>
-            <Button onClick={() => router.push("/dashboard/organizations/new")}>
-              Créer une organisation
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <div className="flex items-center justify-center min-h-screen">
+            <div>Chargement...</div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
     );
   }
 
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="flex flex-col">
+      <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
@@ -153,53 +190,29 @@ export default function CreateEventPage() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Créer un événement</BreadcrumbPage>
+                  <BreadcrumbPage>Modifier l'événement</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex-1 flex flex-col gap-4 p-4 pt-0 max-w-7xl mx-auto w-full">
+
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <Toaster position="top-center" richColors />
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
-              <CardTitle>Créer un nouvel événement</CardTitle>
+              <CardTitle>Modifier l'événement</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Titre de l'événement</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) =>
-                        handleInputChange("title", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="orgId">Organisation</Label>
-                    <Select
-                      value={formData.orgId}
-                      onValueChange={(value) =>
-                        handleInputChange("orgId", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner une organisation" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {organizations.map((org) => (
-                          <SelectItem key={org.id} value={org.id.toString()}>
-                            {org.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="title">Titre de l'événement</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -324,16 +337,6 @@ export default function CreateEventPage() {
                   </Select>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="file">Image de l'événement</Label>
-                  <Input
-                    id="file"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                </div>
-
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="isPublic"
@@ -345,13 +348,27 @@ export default function CreateEventPage() {
                   <Label htmlFor="isPublic">Événement public</Label>
                 </div>
 
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Création en cours..." : "Créer l'événement"}
-                </Button>
+                <div className="flex gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() =>
+                      router.push(`/dashboard/events/details/${params.slug}`)
+                    }
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting
+                      ? "Modification en cours..."
+                      : "Modifier l'événement"}
+                  </Button>
+                </div>
               </form>
             </CardContent>
           </Card>

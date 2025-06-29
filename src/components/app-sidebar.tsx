@@ -37,7 +37,7 @@ const data = {
   teams: [
     {
       name: "",
-      profileImage: "",
+      logo: GalleryVerticalEnd,
     },
   ],
   navMain: [
@@ -182,7 +182,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             teams: [
               {
                 name: user.organization?.name || "Mon Organisation",
-                profileImage: user.organization?.profileImage || "",
+                logo: GalleryVerticalEnd,
               },
             ],
           }));
@@ -224,39 +224,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     fetchEvents();
   }, []);
 
-  const [profileImage, setProfileImage] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    const fetchProfileImage = async () => {
-      try {
-        const response = await fetch("/api/organization/profile-image");
-        const data = await response.json();
-        setProfileImage(data.profileImage);
-      } catch (error) {
-        console.error("Impossible de fetch les données, ressayer plus tard.");
-      }
-    };
-
-    fetchProfileImage();
-  }, []);
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher
-          teams={userData.teams.map((team) => ({
-            name: team.name,
-            logo: profileImage
-              ? () => (
-                  <img
-                    src={profileImage}
-                    alt={team.name}
-                    className="size-4 rounded-full"
-                  />
-                )
-              : GalleryVerticalEnd,
-          }))}
-        />
+        <TeamSwitcher teams={userData.teams} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={userData.navMain} />

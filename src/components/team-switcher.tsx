@@ -103,16 +103,8 @@ export function TeamSwitcher({
                       alt={team.name}
                       className="h-6 w-6 rounded-full"
                     />
-                  ) : typeof team.logo === "function" ? (
-                    <team.logo className="h-6 w-6" />
-                  ) : typeof team.logo === "string" ? (
-                    <img
-                      src={team.logo}
-                      alt={team.name}
-                      className="h-6 w-6 rounded-full"
-                    />
                   ) : (
-                    <GalleryVerticalEnd className="h-6 w-6" />
+                    <team.logo className="h-6 w-6" />
                   )}
                 </div>
                 {team.name}
@@ -125,7 +117,7 @@ export function TeamSwitcher({
                 <Plus className="size-4" />
               </div>
               <div className="text-muted-foreground font-medium">
-                <a href="dahsboard/organizations/new">
+                <a href="/dashboard/organizations/new">
                   Ajouter une organisation
                 </a>
               </div>
