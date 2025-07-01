@@ -15,8 +15,6 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -26,7 +24,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { toast, Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
 
@@ -131,232 +128,211 @@ export default function CreateEventPage() {
   }
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset className="flex flex-col">
-        <header className="flex h-16 shrink-0 items-center gap-2">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard">
-                    Tableau de bord
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/dashboard/events">
-                    Événements
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Créer un événement</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-        </header>
-        <div className="flex-1 flex flex-col gap-4 p-4 pt-0 max-w-7xl mx-auto w-full">
-          <Toaster position="top-center" richColors />
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle>Créer un nouvel événement</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Titre de l'événement</Label>
-                    <Input
-                      id="title"
-                      value={formData.title}
-                      onChange={(e) =>
-                        handleInputChange("title", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
+    <div className="flex flex-col h-full">
+      <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink href="/dashboard">Tableau de bord</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink href="/dashboard/events">
+                Événements
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Créer un événement</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </header>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="orgId">Organisation</Label>
-                    <Select
-                      value={formData.orgId}
-                      onValueChange={(value) =>
-                        handleInputChange("orgId", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionner une organisation" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {organizations.map((org) => (
-                          <SelectItem key={org.id} value={org.id.toString()}>
-                            {org.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
+      <div className="flex-1 flex flex-col gap-4 p-6 max-w-7xl mx-auto w-full">
+        <Toaster position="top-center" richColors />
+        <Card className="max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle>Créer un nouvel événement</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      handleInputChange("description", e.target.value)
-                    }
-                    rows={3}
+                  <Label htmlFor="title">Titre de l'événement</Label>
+                  <Input
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
+                    required
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="startDate">Date de début</Label>
-                    <Input
-                      id="startDate"
-                      type="datetime-local"
-                      value={formData.startDate}
-                      onChange={(e) =>
-                        handleInputChange("startDate", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="endDate">Date de fin</Label>
-                    <Input
-                      id="endDate"
-                      type="datetime-local"
-                      value={formData.endDate}
-                      onChange={(e) =>
-                        handleInputChange("endDate", e.target.value)
-                      }
-                      required
-                    />
+                <div className="space-y-2">
+                  <Label>Organisation</Label>
+                  <div className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
+                    {organizations.find(
+                      (org) => org.id.toString() === formData.orgId
+                    )?.name || "Organisation sélectionnée"}
                   </div>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Lieu</Label>
-                    <Input
-                      id="location"
-                      value={formData.location}
-                      onChange={(e) =>
-                        handleInputChange("location", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
+                  rows={3}
+                />
+              </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="capacity">Capacité</Label>
-                    <Input
-                      id="capacity"
-                      type="number"
-                      value={formData.capacity}
-                      onChange={(e) =>
-                        handleInputChange("capacity", e.target.value)
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="budget">Budget (€)</Label>
-                    <Input
-                      id="budget"
-                      type="number"
-                      step="0.01"
-                      value={formData.budget}
-                      onChange={(e) =>
-                        handleInputChange("budget", e.target.value)
-                      }
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Catégorie</Label>
-                    <Select
-                      value={formData.category}
-                      onValueChange={(value) =>
-                        handleInputChange("category", value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="REUNION">Réunion</SelectItem>
-                        <SelectItem value="CONFERENCE">Conférence</SelectItem>
-                        <SelectItem value="FORMATION">Formation</SelectItem>
-                        <SelectItem value="SOCIAL">Social</SelectItem>
-                        <SelectItem value="AUTRE">Autre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Date de début</Label>
+                  <Input
+                    id="startDate"
+                    type="datetime-local"
+                    value={formData.startDate}
+                    onChange={(e) =>
+                      handleInputChange("startDate", e.target.value)
+                    }
+                    required
+                  />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="status">Statut</Label>
+                  <Label htmlFor="endDate">Date de fin</Label>
+                  <Input
+                    id="endDate"
+                    type="datetime-local"
+                    value={formData.endDate}
+                    onChange={(e) =>
+                      handleInputChange("endDate", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location">Lieu</Label>
+                  <Input
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) =>
+                      handleInputChange("location", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="capacity">Capacité</Label>
+                  <Input
+                    id="capacity"
+                    type="number"
+                    value={formData.capacity}
+                    onChange={(e) =>
+                      handleInputChange("capacity", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="budget">Budget (€)</Label>
+                  <Input
+                    id="budget"
+                    type="number"
+                    step="0.01"
+                    value={formData.budget}
+                    onChange={(e) =>
+                      handleInputChange("budget", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="category">Catégorie</Label>
                   <Select
-                    value={formData.status}
+                    value={formData.category}
                     onValueChange={(value) =>
-                      handleInputChange("status", value)
+                      handleInputChange("category", value)
                     }
                   >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="BROUILLON">Brouillon</SelectItem>
-                      <SelectItem value="PUBLIE">Publié</SelectItem>
-                      <SelectItem value="ARCHIVE">Archivé</SelectItem>
+                      <SelectItem value="REUNION">Réunion</SelectItem>
+                      <SelectItem value="SEMINAIRE">Séminaire</SelectItem>
+                      <SelectItem value="CONFERENCE">Conférence</SelectItem>
+                      <SelectItem value="FORMATION">Formation</SelectItem>
+                      <SelectItem value="ATELIER">Atelier</SelectItem>
+                      <SelectItem value="NETWORKING">Networking</SelectItem>
+                      <SelectItem value="CEREMONIE">Cérémonie</SelectItem>
+                      <SelectItem value="EXPOSITION">Exposition</SelectItem>
+                      <SelectItem value="CONCERT">Concert</SelectItem>
+                      <SelectItem value="SPECTACLE">Spectacle</SelectItem>
+                      <SelectItem value="AUTRE">Autre</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="file">Image de l'événement</Label>
-                  <Input
-                    id="file"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="isPublic"
-                    checked={formData.isPublic}
-                    onCheckedChange={(checked) =>
-                      handleInputChange("isPublic", checked as boolean)
-                    }
-                  />
-                  <Label htmlFor="isPublic">Événement public</Label>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSubmitting}
+              <div className="space-y-2">
+                <Label htmlFor="status">Statut</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={(value) => handleInputChange("status", value)}
                 >
-                  {isSubmitting ? "Création en cours..." : "Créer l'événement"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BROUILLON">Brouillon</SelectItem>
+                    <SelectItem value="PUBLIE">Publié</SelectItem>
+                    <SelectItem value="TERMINE">Terminé</SelectItem>
+                    <SelectItem value="ANNULE">Annulé</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="file">Image de l'événement</Label>
+                <Input
+                  id="file"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isPublic"
+                  checked={formData.isPublic}
+                  onCheckedChange={(checked) =>
+                    handleInputChange("isPublic", checked as boolean)
+                  }
+                />
+                <Label htmlFor="isPublic">Événement public</Label>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Création en cours..." : "Créer l'événement"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }

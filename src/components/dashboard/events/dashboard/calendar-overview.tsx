@@ -82,9 +82,9 @@ export default function CalendarOverview() {
     <Card className="pt-0">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle>Calendrier des événements</CardTitle>
+          <CardTitle>Calendrier de vos disponibilités </CardTitle>
           <CardDescription>
-            Calendrier intéractif des évènements futur
+            Calendrier intéractif de vos disponibilités
           </CardDescription>
         </div>
       </CardHeader>
