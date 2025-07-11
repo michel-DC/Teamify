@@ -5,17 +5,9 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import PreparationBanner from "@/components/dashboard/events/todo/PreparationBanner";
+import PreparationBanner from "@/components/dashboard/events/todo/preparation-banner";
 import { StatCardDetails } from "@/components/dashboard/events/details/stat-card-details";
 import InvitationTable from "@/components/dashboard/events/details/invitation-table";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 
 type EventDetails = {
   id: number;

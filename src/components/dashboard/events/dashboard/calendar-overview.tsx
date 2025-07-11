@@ -18,9 +18,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { addDays, eachDayOfInterval, format, isToday } from "date-fns";
+import {
+  addDays,
+  eachDayOfInterval,
+  format,
+  isToday,
+  addMonths,
+  subMonths,
+} from "date-fns";
 import { fr } from "date-fns/locale";
-import { CalendarIcon, CircleIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  CircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from "lucide-react";
 import clsx from "clsx";
 
 interface Event {
@@ -56,6 +68,7 @@ export default function CalendarOverview() {
   const [hoveredCategory, setHoveredCategory] = React.useState<string | null>(
     null
   );
+  const [currentMonth, setCurrentMonth] = React.useState(new Date());
 
   React.useEffect(() => {
     const fetchEvents = async () => {
@@ -100,6 +113,14 @@ export default function CalendarOverview() {
     });
     return counts;
   }, [events]);
+
+  const handlePreviousMonth = () => {
+    setCurrentMonth(subMonths(currentMonth, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentMonth(addMonths(currentMonth, 1));
+  };
 
   const renderDay = (date: Date) => {
     const dateKey = format(date, "yyyy-MM-dd");
@@ -223,7 +244,7 @@ export default function CalendarOverview() {
 
         {/* Légende des catégories */}
         {Object.keys(categoriesWithCount).length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -273,26 +294,21 @@ export default function CalendarOverview() {
         )}
       </CardHeader>
 
-      <CardContent className="p-6">
-        <div className="w-full">
+      <CardContent className="p-6 flex flex-col items-center justify-center min-h-[420px]">
+        <div className="w-full flex justify-center items-center">
           <Calendar
             mode="range"
             selected={dateRange}
             onSelect={setDateRange}
             numberOfMonths={2}
-            className="w-full"
+            month={currentMonth}
+            onMonthChange={setCurrentMonth}
+            className="w-full max-w-3xl"
             classNames={{
               months: "flex flex-col sm:flex-row gap-4",
               month: "space-y-4",
               caption: "flex justify-center pt-1 relative items-center",
               caption_label: "text-sm font-medium",
-              nav: "space-x-1 flex items-center",
-              nav_button: clsx(
-                "h-7 w-7 bg-transparent p-0 hover:opacity-100 opacity-50",
-                "hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
-              ),
-              nav_button_previous: "absolute left-1",
-              nav_button_next: "absolute right-1",
               table: "w-full border-collapse space-y-1",
               head_row: "flex",
               head_cell:
@@ -316,10 +332,35 @@ export default function CalendarOverview() {
           />
         </div>
 
-        {/* Message si aucun événement */}
+        {/* Navigation en dessous du calendrier */}
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePreviousMonth}
+            className="flex items-center gap-2"
+          >
+            <ChevronLeftIcon className="h-4 w-4" />
+            Mois précédent
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleNextMonth}
+            className="flex items-center gap-2"
+          >
+            Mois suivant
+            <ChevronRightIcon className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* 
+          // Affiche un message centré si aucun événement n'est programmé.
+          // Le message et l'icône sont également centrés verticalement et horizontalement.
+        */}
         {events.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <CalendarIcon className="h-12 w-12 mx-auto mb-3 opacity-20" />
+          <div className="flex flex-col items-center justify-center w-full py-8 text-muted-foreground">
+            <CalendarIcon className="h-12 w-12 mb-3 opacity-20" />
             <p className="text-sm">Aucun événement programmé</p>
           </div>
         )}

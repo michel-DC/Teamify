@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { ChartConfig } from "@/components/ui/chart";
 import {
   Table,
