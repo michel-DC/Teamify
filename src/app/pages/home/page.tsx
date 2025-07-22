@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "@/components/ui/spotlight";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/_layout/Navbar";
 import { Footer } from "@/components/_layout/Footer";
 import { Separator } from "@/components/ui/separator";

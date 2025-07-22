@@ -9,7 +9,7 @@ import * as z from "zod";
 import { EventCategory, EventStatus } from "@prisma/client";
 import Image from "next/image";
 
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,

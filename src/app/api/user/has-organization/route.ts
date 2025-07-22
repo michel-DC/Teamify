@@ -1,40 +1,32 @@
 // app/api/user/has-organization/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
-export async function POST(request: Request) {
+export async function GET() {
   try {
-    // Récupère l'email de la requête
-    const { email } = await request.json();
-
-    if (!email) {
-      return NextResponse.json(
-        { error: "Un email est requis" },
-        { status: 400 }
-      );
-    }
-
-    // Cherche l'utilisateur par son email
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: { organization: true }, // On inclut l'organisation si elle existe
-    });
+    const user = await getCurrentUser();
 
     if (!user) {
       return NextResponse.json(
-        { error: "Utilisateur non trouvé" },
-        { status: 404 }
+        { error: "Non autorisé. Veuillez vous connecter." },
+        { status: 401 }
       );
     }
 
-    // Vérifie si l'utilisateur a une organisation
-    const hasOrganization = user.organization !== null;
+    const organizationsCount = await prisma.organization.count({
+      where: {
+        ownerId: user.id,
+      },
+    });
+
+    const hasOrganization = organizationsCount > 0;
 
     return NextResponse.json({ hasOrganization }, { status: 200 });
   } catch (error) {
-    console.error("Erreur lors de la vérification de l'organisation :", error);
+    console.error("[API_HAS_ORGANIZATION_ERROR]", error);
     return NextResponse.json(
-      { error: "Erreur interne du serveur" },
+      { error: "Erreur serveur lors de la vérification de l'organisation" },
       { status: 500 }
     );
   }

@@ -1,0 +1,50 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
+
+export async function GET(
+  request: Request,
+  { params }: { params: { slug: string } }
+) {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Non autorisé. Veuillez vous connecter." },
+        { status: 401 }
+      );
+    }
+
+    const event = await prisma.event.findFirst({
+      where: {
+        publicId: params.slug,
+        ownerId: user.id,
+      },
+    });
+
+    if (!event) {
+      return NextResponse.json(
+        { error: "Événement non trouvé" },
+        { status: 404 }
+      );
+    }
+
+    const todos = await prisma.preparationTodo.findMany({
+      where: {
+        eventId: event.id,
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    return NextResponse.json({ todos }, { status: 200 });
+  } catch (error) {
+    console.error("[API_PREPARATION_FETCH_ERROR]", error);
+    return NextResponse.json(
+      { error: "Erreur serveur lors de la récupération des tâches" },
+      { status: 500 }
+    );
+  }
+}

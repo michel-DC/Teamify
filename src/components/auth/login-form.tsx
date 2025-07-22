@@ -3,27 +3,30 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/Input";
-import { Label } from "../ui/label";
-import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 import { Sun, Moon } from "lucide-react";
+import {
+  IconBrandGoogle,
+  IconBrandApple,
+  IconBrandFacebook,
+} from "@tabler/icons-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import Head from "next/head";
 
-export const RegisterForm = () => {
+export const LoginForm = () => {
   const router = useRouter();
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  const [firstname, setFirstname] = useState("");
-  const [lastname, setLastname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -51,40 +54,56 @@ export const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const res = await fetch("../api/auth/register", {
+      const res = await fetch("../api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstname, lastname, email, password }),
+        body: JSON.stringify({ email, password }),
       });
 
-      const text = await res.text();
-      console.log("Raw response:", text);
+      const data = await res.json();
 
       if (res.ok) {
-        const data = JSON.parse(text);
-        toast.success(`Bienvenue sur teamify ${lastname} !`, {
-          duration: 4000,
-          onAutoClose: () => {
-            router.push("/auth/login");
-          },
-        });
+        console.log("Login success:", data);
+
+        localStorage.setItem("isLoggedIn", "true");
+
+        toast.success(
+          `Vous êtes maintenant connecté en tant que ${data.user.firstname}!`,
+          {
+            duration: 2500,
+            onAutoClose: async () => {
+              const userResponse = await fetch("/api/user/has-organization", {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+              });
+
+              const userData = await userResponse.json();
+
+              document.cookie = "isLoggedIn=true; path=/";
+              document.cookie = `hasOrganization=${userData.hasOrganization}; path=/`;
+
+              if (userData.hasOrganization) {
+                router.push("/dashboard");
+              } else {
+                router.push("/create-organization");
+              }
+            },
+          }
+        );
+
+        console.log("Redirection en cours...");
       } else {
-        try {
-          const data = JSON.parse(text);
-          setError(data.error || "Une erreur est survenue");
-          console.error("Registration error:", data);
-        } catch (err) {
-          setError("Erreur serveur: réponse non valide");
-          console.error("Failed to parse error response:", text);
+        if (res.status === 500) {
+          console.log("Erreur 500 détails:", data);
+          setError("Erreur serveur (500). Veuillez contacter le support.");
+        } else {
+          setError(data.error || "Erreur lors de la connexion");
+          console.error("Login error:", data);
         }
       }
     } catch (err) {
@@ -97,7 +116,7 @@ export const RegisterForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <button
+      <Button
         onClick={toggleTheme}
         className="fixed top-4 right-4 p-2 rounded-full bg-card hover:bg-accent transition-colors duration-200 shadow-lg"
         aria-label="Toggle theme"
@@ -107,22 +126,11 @@ export const RegisterForm = () => {
         ) : (
           <Sun className="w-5 h-5 text-foreground" />
         )}
-      </button>
+      </Button>
 
       <Toaster position="top-center" richColors />
       <Card className="w-full max-w-4xl shadow-xl">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <div className="hidden md:block relative bg-gradient-to-br from-primary/10 to-secondary/10">
-            <div className="absolute inset-0 bg-background/50" />
-            <Image
-              alt="register-page-image-illus"
-              src="/images/svg/auth.svg"
-              width={400}
-              height={400}
-              className="absolute inset-0 h-full w-full object-contain"
-              priority
-            />
-          </div>
           <form className="p-8" onSubmit={handleSubmit}>
             <div className="space-y-6">
               <Link
@@ -133,36 +141,13 @@ export const RegisterForm = () => {
                 Retour à l'accueil
               </Link>
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold text-center">Bienvenue</h1>
+                <h1 className="text-3xl font-bold text-center">Vous revoilà</h1>
                 <p className="text-muted-foreground text-center">
-                  Inscrivez-vous pour accéder à votre espace et créer votre
+                  Connectez-vous pour accéder à votre espace et créer votre
                   évènement
                 </p>
               </div>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstname">Prénom</Label>
-                    <Input
-                      id="firstname"
-                      value={firstname}
-                      onChange={(e) => setFirstname(e.target.value)}
-                      placeholder="Tyler"
-                      type="text"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastname">Nom</Label>
-                    <Input
-                      id="lastname"
-                      value={lastname}
-                      onChange={(e) => setLastname(e.target.value)}
-                      placeholder="Durden"
-                      type="text"
-                    />
-                  </div>
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Adresse mail</Label>
                   <Input
@@ -172,30 +157,28 @@ export const RegisterForm = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="email@gmail.com"
                     required
+                    className="w-full"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">Mot de passe</Label>
+                  <div className="flex items-center">
+                    <Label htmlFor="password">Mot de passe</Label>
+                    <Link
+                      href="/auth/forgot"
+                      className="ml-auto text-sm underline-offset-2 hover:underline"
+                      prefetch={false}
+                    >
+                      Mot de passe oublié ?
+                    </Link>
+                  </div>
                   <Input
                     id="password"
                     type="password"
                     value={password}
+                    placeholder="••••••••"
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
                     required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmpassword">
-                    Confirmez votre mot de passe
-                  </Label>
-                  <Input
-                    id="confirmpassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -203,20 +186,55 @@ export const RegisterForm = () => {
                 <p className="text-sm text-center text-destructive">{error}</p>
               )}
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Création en cours..." : "S'inscrire"}
+                {loading ? "Connexion en cours..." : "Se connecter"}
               </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Ou continuez avec
+                  </span>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <Button variant="outline" type="button" className="w-full">
+                  <IconBrandGoogle className="w-4 h-4 mr-2" />
+                  <span>Google</span>
+                </Button>
+                <Button variant="outline" type="button" className="w-full">
+                  <IconBrandApple className="w-4 h-4 mr-2" />
+                  <span>Apple</span>
+                </Button>
+                <Button variant="outline" type="button" className="w-full">
+                  <IconBrandFacebook className="w-4 h-4 mr-2" />
+                  <span>Facebook</span>
+                </Button>
+              </div>
               <div className="text-center text-sm">
-                Déjà un compte ?{" "}
+                Pas encore de compte ?{" "}
                 <Link
-                  href="/auth/login"
+                  href="/auth/register"
                   className="font-medium underline underline-offset-4 hover:text-primary"
                   prefetch={false}
                 >
-                  Connectez-vous
+                  Créer en un
                 </Link>
               </div>
             </div>
           </form>
+          <div className="hidden md:block relative bg-gradient-to-br from-primary/10 to-secondary/10">
+            <div className="absolute inset-0 bg-background/50" />
+            <Image
+              alt="login-page-image-illus"
+              src="/images/svg/auth.svg"
+              width={600}
+              height={600}
+              className="absolute inset-0 h-full w-full object-contain"
+              priority
+            />
+          </div>
         </CardContent>
       </Card>
       <div className="fixed bottom-4 text-muted-foreground text-center text-xs">

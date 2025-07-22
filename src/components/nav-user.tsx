@@ -31,7 +31,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "./ui/Button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import router, { redirect } from "next/navigation";
 

@@ -1,26 +1,43 @@
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
-  const users = await prisma.user.findMany({
-    include: { organization: true },
-  });
+  try {
+    const user = await getCurrentUser();
 
-  const data = users.map((user) => ({
-    id: user.id,
-    name: [user.firstname, user.lastname].filter(Boolean).join(" "),
-    email: user.email,
-    profilePicture: user.organization?.profileImage || null,
-    organization: user.organization
-      ? {
-          name: user.organization.name,
-          profileImage: user.organization.profileImage,
-          size: user.organization.size,
-          memberCount: user.organization.memberCount,
-          mission: user.organization.mission,
-        }
-      : null,
-  }));
+    if (!user) {
+      return NextResponse.json(
+        { error: "Non autorisé. Veuillez vous connecter." },
+        { status: 401 }
+      );
+    }
 
-  return NextResponse.json(data);
+    const userData = await prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        organizations: true,
+      },
+    });
+
+    if (!userData) {
+      return NextResponse.json(
+        { error: "Utilisateur non trouvé" },
+        { status: 404 }
+      );
+    }
+
+    const userWithOrganizations = {
+      ...userData,
+      organization: userData.organizations[0] || null,
+    };
+
+    return NextResponse.json([userWithOrganizations], { status: 200 });
+  } catch (error) {
+    console.error("[API_DASHBOARD_ERROR]", error);
+    return NextResponse.json(
+      { error: "Erreur serveur lors de la récupération des données" },
+      { status: 500 }
+    );
+  }
 }
