@@ -44,7 +44,7 @@ export function NavEvents({
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
               <a href={item.url}>
-                <item.icon />
+                {/* <item.icon /> */}
                 <span>{item.name}</span>
               </a>
             </SidebarMenuButton>
