@@ -1,4 +1,12 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "non‑stable": false,
+      "stable": false,
+      "main": true
+    }
+  },
   "buildCommand": "prisma generate && next build",
   "installCommand": "pnpm install",
   "framework": "nextjs",
