@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "clean": "rm -rf .next output dist build",
+    "build": "pnpm run clean && prisma generate && next build",
     "start": "next start",
     "lint": "next lint"
   },
