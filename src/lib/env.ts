@@ -1,6 +1,6 @@
 // Vérification des variables d'environnement requises
 export function validateEnv() {
-  const requiredEnvVars = ["DATABASE_URL", "NEXTAUTH_URL", "NEXTAUTH_SECRET"];
+  const requiredEnvVars = ["DATABASE_URL"];
 
   const missingVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
 
