@@ -1,9 +1,9 @@
-import { HomePage } from "@/app/pages/home/page";
+import DevelopmentPage from "@/app/pages/home/page-developement";
 
 export default function Home() {
   return (
     <main>
-      <HomePage />
+      <DevelopmentPage />
     </main>
   );
 }
