@@ -54,7 +54,7 @@ export default function DeleteEventPage() {
           toast.error(data.error || "Événement non trouvé");
           router.push("/dashboard/events");
         }
-      } catch (error) {
+      } catch {
         toast.error("Erreur lors du chargement de l'événement");
         router.push("/dashboard/events");
       } finally {
@@ -123,7 +123,7 @@ export default function DeleteEventPage() {
       <Card className="w-full max-w-lg border-destructive/20">
         <CardHeader className="text-center">
           <CardTitle className="text-destructive">
-            Supprimer l'événement
+            Supprimer l&apos;événement
           </CardTitle>
           <CardDescription>
             Vous êtes sur le point de supprimer définitivement cet événement.
@@ -166,10 +166,7 @@ export default function DeleteEventPage() {
           </div>
 
           <div className="pt-4 border-t">
-            <DeleteEventModal
-              eventSlug={params.slug as string}
-              eventTitle={event.title}
-            />
+            <DeleteEventModal eventSlug={params.slug as string} />
           </div>
         </CardContent>
       </Card>

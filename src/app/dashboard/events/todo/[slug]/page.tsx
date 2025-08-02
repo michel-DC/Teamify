@@ -69,7 +69,7 @@ export default function EventTodoPage() {
         } else {
           setTodos([]);
         }
-      } catch (error) {
+      } catch {
         toast.error("Erreur lors du chargement des données");
         router.push("/dashboard/events");
       } finally {
@@ -124,7 +124,7 @@ export default function EventTodoPage() {
       } else {
         toast.error("Erreur lors de la mise à jour");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erreur réseau");
     }
   };
@@ -170,8 +170,8 @@ export default function EventTodoPage() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">
-                L'événement demandé n'existe pas ou vous n'avez pas les droits
-                pour le voir.
+                L&apos;événement demandé n&apos;existe pas ou vous n&apos;avez
+                pas les droits pour le voir.
               </p>
               <Button onClick={() => router.push("/dashboard/events")}>
                 Retour aux événements
@@ -229,7 +229,9 @@ export default function EventTodoPage() {
 
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold">Préparation de l'événement</h1>
+            <h1 className="text-3xl font-bold">
+              Préparation de l&apos;événement
+            </h1>
             <p className="text-muted-foreground mt-2">{event.title}</p>
           </div>
           <Button
@@ -273,7 +275,8 @@ export default function EventTodoPage() {
           <Card>
             <CardContent className="py-8 text-center">
               <p className="text-muted-foreground mb-4">
-                Aucune tâche de préparation n'a été créée pour cet événement.
+                Aucune tâche de préparation n&apos;a été créée pour cet
+                événement.
               </p>
               <Button>
                 <Plus className="h-4 w-4 mr-2" />

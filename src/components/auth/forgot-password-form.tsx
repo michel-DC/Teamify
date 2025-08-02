@@ -89,7 +89,7 @@ export const ForgotPassword = () => {
           className="flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200 mb-4"
         >
           <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4 mr-2" />
-          Retour à l'accueil
+          Retour à l&apos;accueil
         </Link>
         <h2 className="text-lg sm:text-xl font-medium text-foreground">
           Réinitialiser votre mot de passe
@@ -125,7 +125,7 @@ export const ForgotPassword = () => {
             className="flex justify-center items-center pt-4 text-sm text-muted-foreground hover:text-foreground transition-all duration-200"
             prefetch={false}
           >
-            Vous possedez déjà un compte ? Se connecter
+            Vous possédez déjà un compte ? Se connecter
           </Link>
 
           <div className="my-6 sm:my-8 h-[1px] w-full bg-border" />

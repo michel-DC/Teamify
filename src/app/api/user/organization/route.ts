@@ -13,7 +13,7 @@ export async function GET() {
       );
     }
 
-    const organization = await prisma.organization.findUnique({
+    const organization = await prisma.organization.findFirst({
       where: {
         ownerId: user.id,
       },

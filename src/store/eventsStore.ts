@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 // Types pour les événements
-interface Event {
+export interface Event {
   id: string;
   title: string;
   description?: string;

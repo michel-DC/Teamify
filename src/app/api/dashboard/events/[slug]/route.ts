@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -16,9 +16,11 @@ export async function GET(
       );
     }
 
+    const { slug } = await params;
+
     const event = await prisma.event.findFirst({
       where: {
-        publicId: params.slug,
+        publicId: slug,
         ownerId: user.id,
       },
       include: {
@@ -50,7 +52,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -63,10 +65,11 @@ export async function PUT(
     }
 
     const body = await request.json();
+    const { slug } = await params;
 
     const event = await prisma.event.findFirst({
       where: {
-        publicId: params.slug,
+        publicId: slug,
         ownerId: user.id,
       },
     });
@@ -105,7 +108,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -117,9 +120,11 @@ export async function DELETE(
       );
     }
 
+    const { slug } = await params;
+
     const event = await prisma.event.findFirst({
       where: {
-        publicId: params.slug,
+        publicId: slug,
         ownerId: user.id,
       },
     });

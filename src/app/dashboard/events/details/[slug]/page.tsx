@@ -107,7 +107,7 @@ export default function EventDetailsPage() {
                     router.push(`/dashboard/events/edit/${params.slug}`)
                   }
                 >
-                  Modifier l'évènement
+                  Modifier l&apos;évènement
                 </Button>
                 <Button
                   variant="destructive"
@@ -115,7 +115,7 @@ export default function EventDetailsPage() {
                     router.push(`/dashboard/events/delete/${params.slug}`)
                   }
                 >
-                  Supprimer l'évènement
+                  Supprimer l&apos;évènement
                 </Button>
               </div>
             </div>

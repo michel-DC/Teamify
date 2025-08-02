@@ -1,17 +1,9 @@
-import CalendarOverview from "@/components/dashboard/events/dashboard/calendar-overview";
+// import CalendarOverview from "@/components/dashboard/events/dashboard/calendar-overview";
 import { EventEvolutionChart } from "@/components/dashboard/events/dashboard/event-evolution-chart";
 import { EventsTableWrapper } from "@/components/dashboard/events/dashboard/events-table-wrapper";
 import EventsSlider from "@/components/dashboard/events/dashboard/events-slider";
 import { SectionCards } from "@/components/dashboard/events/dashboard/section-card-event";
 import { SiteHeader } from "@/components/dashboard/events/dashboard/site-header";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 
 export default function EventOverview() {
@@ -36,9 +28,9 @@ export default function EventOverview() {
               <EventsTableWrapper />
             </div>
             <Separator className="my-6" />
-            <div className="px-12">
+            {/* <div className="px-12">
               <CalendarOverview />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

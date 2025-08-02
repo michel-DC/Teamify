@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useEventsStore } from "@/store/eventsStore";
+import type { Event } from "@/store/eventsStore";
 
 /**
  * Hook personnalisé pour gérer les événements
@@ -42,7 +43,7 @@ export function useRefreshEvents() {
 /**
  * Hook pour obtenir des événements filtrés ou transformés
  */
-export function useFilteredEvents(filterFn?: (event: any) => boolean) {
+export function useFilteredEvents(filterFn?: (event: Event) => boolean) {
   const { events, loading, error, initialized, fetchEvents } = useEventsStore();
 
   // Chargement automatique des événements au montage

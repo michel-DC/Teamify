@@ -125,7 +125,7 @@ export function EventEvolutionChart() {
         <div className="grid flex-1 gap-1">
           <CardTitle>Évolution des événements</CardTitle>
           <CardDescription>
-            Nombre d'événements créés sur la période sélectionnée
+            Nombre d&apos;événements créés sur la période sélectionnée
           </CardDescription>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>

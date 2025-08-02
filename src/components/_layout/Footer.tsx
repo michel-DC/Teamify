@@ -15,7 +15,7 @@ export const Footer = () => {
           <div>
             <h3 className="mb-4 text-xl font-bold">Teamify</h3>
             <p className="text-gray-400">
-              Simplifiez l'organisation de vos événements avec Teamify.
+              Simplifiez l&apos;organisation de vos événements avec Teamify.
             </p>
           </div>
           <div>

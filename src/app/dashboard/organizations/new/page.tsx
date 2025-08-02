@@ -14,8 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -80,7 +78,7 @@ export default function NewOrganizationPage() {
       } else {
         toast.error(result.error || "Erreur lors de la création");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erreur réseau");
     } finally {
       setIsSubmitting(false);
@@ -124,7 +122,7 @@ export default function NewOrganizationPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="name">Nom de l'organisation</Label>
+                <Label htmlFor="name">Nom de l&apos;organisation</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -158,7 +156,7 @@ export default function NewOrganizationPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="size">Taille de l'organisation</Label>
+                  <Label htmlFor="size">Taille de l&apos;organisation</Label>
                   <Select
                     value={formData.size}
                     onValueChange={(value) => handleInputChange("size", value)}
@@ -182,7 +180,7 @@ export default function NewOrganizationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mission">Mission de l'organisation</Label>
+                <Label htmlFor="mission">Mission de l&apos;organisation</Label>
                 <Textarea
                   id="mission"
                   value={formData.mission}
@@ -193,7 +191,7 @@ export default function NewOrganizationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="file">Logo de l'organisation</Label>
+                <Label htmlFor="file">Logo de l&apos;organisation</Label>
                 <Input
                   id="file"
                   type="file"
@@ -203,7 +201,9 @@ export default function NewOrganizationPage() {
               </div>
 
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Création en cours..." : "Créer l'organisation"}
+                {isSubmitting
+                  ? "Création en cours..."
+                  : "Créer l&apos;organisation"}
               </Button>
             </form>
           </CardContent>

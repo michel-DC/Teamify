@@ -1,16 +1,12 @@
 "use client";
 
 import {
-  BadgeCheck,
-  Bell,
   ChevronsUpDown,
   CircleUser,
   SunMoon,
   LogOut,
   Sparkles,
   Settings,
-  Moon,
-  Sun,
 } from "lucide-react";
 
 import { useState, useEffect } from "react";
@@ -31,9 +27,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import router, { redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 export function NavUser({
   user,
@@ -127,7 +122,7 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
-                Passer à l'abonnement pro
+                Passer à l&apos;abonnement pro
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

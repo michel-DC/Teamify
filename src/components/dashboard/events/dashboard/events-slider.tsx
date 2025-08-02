@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface Event {
@@ -191,10 +192,13 @@ export default function EventsSlider() {
                         )}
                       >
                         {!isPlaceholder && event.imageUrl ? (
-                          <img
+                          <Image
                             src={event.imageUrl}
                             alt={event.title}
+                            width={288}
+                            height={80}
                             className="w-full h-full object-cover rounded-t-lg"
+                            unoptimized
                           />
                         ) : (
                           <div className="flex items-center justify-center h-full">

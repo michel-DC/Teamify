@@ -115,7 +115,7 @@ export function EventForm({ orgId }: EventFormProps) {
       toast.success("Événement créé avec succès");
       router.refresh();
       router.push("/dashboard/events");
-    } catch (error) {
+    } catch {
       toast.error("Une erreur est survenue");
     } finally {
       setIsLoading(false);
@@ -163,7 +163,7 @@ export function EventForm({ orgId }: EventFormProps) {
               name="startDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date de début de l'évènement</FormLabel>
+                  <FormLabel>Date de début de l&apos;évènement</FormLabel>
                   <FormControl>
                     <Input type="datetime-local" {...field} />
                   </FormControl>
@@ -177,7 +177,7 @@ export function EventForm({ orgId }: EventFormProps) {
               name="endDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date de fin de l'évènement</FormLabel>
+                  <FormLabel>Date de fin de l&apos;évènement</FormLabel>
                   <FormControl>
                     <Input type="datetime-local" {...field} />
                   </FormControl>
@@ -285,7 +285,7 @@ export function EventForm({ orgId }: EventFormProps) {
             />
           </div>
 
-          <FormLabel>Image de l'événement</FormLabel>
+          <FormLabel>Image de l&apos;événement</FormLabel>
           <Input
             type="file"
             name="file"
@@ -309,7 +309,7 @@ export function EventForm({ orgId }: EventFormProps) {
             disabled={isLoading}
             className="w-full cursor-pointer"
           >
-            {isLoading ? "Création..." : "Créer l'événement"}
+            {isLoading ? "Création..." : "Créer l&apos;événement"}
           </Button>
         </form>
       </Form>

@@ -1,21 +1,13 @@
 import { useRouter } from "next/navigation";
 import { StepProps } from "../../../../types/steps";
 import Image from "next/image";
-import { useEffect } from "react";
 import { toast } from "sonner";
 
-export default function Welcome({
-  next,
-  prev,
-  formData,
-  setFormData,
-}: StepProps) {
+export default function Welcome({ next }: Pick<StepProps, "next">) {
+  const router = useRouter();
+
   const handleNext = () => {
     if (next) next();
-  };
-
-  const handlePrev = () => {
-    if (prev) prev();
   };
 
   const handleExit = () => {
@@ -26,8 +18,6 @@ export default function Welcome({
       },
     });
   };
-
-  const router = useRouter();
 
   return (
     <div className="space-y-6">
@@ -41,7 +31,7 @@ export default function Welcome({
         />
       </div>
       <h1 className="text-3xl font-bold text-foreground">
-        Bienvenue sur notre plateforme !
+        Bienvenue sur notre plateforme&nbsp;!
       </h1>
       <p className="text-muted-foreground">
         Nous sommes ravis de vous accueillir. Vous êtes sur le point de créer

@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -19,7 +18,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  addDays,
   eachDayOfInterval,
   format,
   isToday,
@@ -238,7 +236,7 @@ export default function CalendarOverview() {
           {/* Indicateur du jour actuel */}
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <div className="w-2 h-2 rounded-full bg-primary" />
-            <span>Aujourd'hui</span>
+            <span>Aujourd&apos;hui</span>
           </div>
         </div>
 

@@ -1,20 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { IconGripVertical } from "@tabler/icons-react";
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  Row,
   useReactTable,
 } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ChartConfig } from "@/components/ui/chart";
 import {
   Table,
   TableBody,
@@ -30,6 +22,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export type Event = {
   id: number;
@@ -44,25 +37,6 @@ export type Event = {
   budget: number | null;
   isCancelled: boolean;
 };
-
-function DragHandle({ id }: { id: number }) {
-  const { attributes, listeners } = useSortable({
-    id,
-  });
-
-  return (
-    <Button
-      {...attributes}
-      {...listeners}
-      variant="ghost"
-      size="icon"
-      className="text-muted-foreground size-7 hover:bg-transparent"
-    >
-      <IconGripVertical className="text-muted-foreground size-3" />
-      <span className="sr-only">Drag to reorder</span>
-    </Button>
-  );
-}
 
 const columns: ColumnDef<Event>[] = [
   {
@@ -132,47 +106,16 @@ const columns: ColumnDef<Event>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const router = useRouter();
-      return (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() =>
-            router.push(`/dashboard/events/details/${row.original.id}`)
-          }
-        >
-          Voir plus
-        </Button>
-      );
-    },
+    cell: ({ row }) => (
+      <a
+        href={`/dashboard/events/details/${row.original.id}`}
+        className="btn btn-outline btn-sm"
+      >
+        Voir plus
+      </a>
+    ),
   },
 ];
-
-function DraggableRow({ row }: { row: Row<Event> }) {
-  const { transform, transition, setNodeRef, isDragging } = useSortable({
-    id: row.original.id,
-  });
-
-  return (
-    <TableRow
-      data-state={row.getIsSelected() && "selected"}
-      data-dragging={isDragging}
-      ref={setNodeRef}
-      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition: transition,
-      }}
-    >
-      {row.getVisibleCells().map((cell) => (
-        <TableCell key={cell.id}>
-          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-        </TableCell>
-      ))}
-    </TableRow>
-  );
-}
 
 export function DataTable({ data }: { data: Event[] }) {
   const table = useReactTable({
@@ -185,9 +128,9 @@ export function DataTable({ data }: { data: Event[] }) {
     <Card className="pt-0">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
-          <CardTitle>Tableau d'évènements</CardTitle>
+          <CardTitle>Tableau d&apos;évènements</CardTitle>
           <CardDescription>
-            Tableau intéractif listant l'ensemble de vos évènements
+            Tableau intéractif listant l&apos;ensemble de vos évènements
           </CardDescription>
         </div>
       </CardHeader>
@@ -241,23 +184,3 @@ export function DataTable({ data }: { data: Event[] }) {
     </Card>
   );
 }
-
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
-// Create a separate component for the drag handle
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "var(--primary)",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "var(--primary)",
-  },
-} satisfies ChartConfig;

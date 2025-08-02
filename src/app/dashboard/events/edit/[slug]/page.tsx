@@ -17,35 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { toast, Toaster } from "sonner";
-
-interface Event {
-  id: number;
-  publicId: string;
-  title: string;
-  description: string;
-  startDate: string;
-  endDate: string;
-  location: string;
-  imageUrl: string;
-  capacity: number;
-  status: string;
-  budget: number;
-  category: string;
-  isPublic: boolean;
-  isCancelled: boolean;
-  orgId: number;
-}
 
 export default function EditEventPage() {
   const params = useParams();
@@ -93,7 +65,7 @@ export default function EditEventPage() {
           toast.error(data.error || "Événement non trouvé");
           router.push("/dashboard/events");
         }
-      } catch (error) {
+      } catch {
         toast.error("Erreur lors du chargement de l'événement");
         router.push("/dashboard/events");
       } finally {
@@ -147,7 +119,7 @@ export default function EditEventPage() {
       } else {
         toast.error(result.error || "Erreur lors de la modification");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erreur réseau");
     } finally {
       setIsSubmitting(false);
@@ -173,12 +145,12 @@ export default function EditEventPage() {
         <Toaster position="top-center" richColors />
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>Modifier l'événement</CardTitle>
+            <CardTitle>Modifier l&apos;événement</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">Titre de l'événement</Label>
+                <Label htmlFor="title">Titre de l&apos;événement</Label>
                 <Input
                   id="title"
                   value={formData.title}
