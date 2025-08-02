@@ -5,6 +5,7 @@
   "env": {
     "NODE_ENV": "production"
   },
+  "ignoredBuildStep": "if [ \"$VERCEL_GIT_BRANCH\" = \"non-stable\" ]; then exit 0; fi",
   "functions": {
     "src/app/api/**/*.ts": {
       "maxDuration": 30
