@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -47,17 +47,17 @@ export default function PreparationTodoList({
     "#84cc16",
   ];
 
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     setLoading(true);
     const res = await fetch(`/api/dashboard/events/${eventId}/preparation`);
     const data = await res.json();
     setGroups(data.groups);
     setLoading(false);
-  };
+  }, [eventId]);
 
   useEffect(() => {
     fetchGroups();
-  }, [eventId, fetchGroups]);
+  }, [fetchGroups]);
 
   const addGroup = async () => {
     if (!newGroupName.trim()) return;

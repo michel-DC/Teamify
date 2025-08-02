@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -31,54 +31,58 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fakeInvitations: Invitation[] = [
-    {
-      id: 1,
-      email: "alice.martin@example.com",
-      name: "Alice Martin",
-      status: "ACCEPTED",
-      sentAt: "2024-01-15T10:30:00Z",
-      respondedAt: "2024-01-15T14:20:00Z",
-    },
-    {
-      id: 2,
-      email: "bob.dupont@example.com",
-      name: "Bob Dupont",
-      status: "PENDING",
-      sentAt: "2024-01-14T09:15:00Z",
-    },
-    {
-      id: 3,
-      email: "claire.bernard@example.com",
-      name: "Claire Bernard",
-      status: "ACCEPTED",
-      sentAt: "2024-01-13T16:45:00Z",
-      respondedAt: "2024-01-14T08:30:00Z",
-    },
-    {
-      id: 4,
-      email: "david.rousseau@example.com",
-      name: "David Rousseau",
-      status: "DECLINED",
-      sentAt: "2024-01-12T11:20:00Z",
-      respondedAt: "2024-01-12T18:45:00Z",
-    },
-    {
-      id: 5,
-      email: "emma.leroy@example.com",
-      name: "Emma Leroy",
-      status: "PENDING",
-      sentAt: "2024-01-11T13:10:00Z",
-    },
-    {
-      id: 6,
-      email: "felix.moreau@example.com",
-      name: "Félix Moreau",
-      status: "ACCEPTED",
-      sentAt: "2024-01-10T15:30:00Z",
-      respondedAt: "2024-01-11T09:15:00Z",
-    },
-  ];
+  // Données d'invitation statiques pour la démo
+  const fakeInvitations = useMemo<Invitation[]>(
+    () => [
+      {
+        id: 1,
+        email: "alice.martin@example.com",
+        name: "Alice Martin",
+        status: "ACCEPTED",
+        sentAt: "2024-01-15T10:30:00Z",
+        respondedAt: "2024-01-15T14:20:00Z",
+      },
+      {
+        id: 2,
+        email: "bob.dupont@example.com",
+        name: "Bob Dupont",
+        status: "PENDING",
+        sentAt: "2024-01-14T09:15:00Z",
+      },
+      {
+        id: 3,
+        email: "claire.bernard@example.com",
+        name: "Claire Bernard",
+        status: "ACCEPTED",
+        sentAt: "2024-01-13T16:45:00Z",
+        respondedAt: "2024-01-14T08:30:00Z",
+      },
+      {
+        id: 4,
+        email: "david.rousseau@example.com",
+        name: "David Rousseau",
+        status: "DECLINED",
+        sentAt: "2024-01-12T11:20:00Z",
+        respondedAt: "2024-01-12T18:45:00Z",
+      },
+      {
+        id: 5,
+        email: "emma.leroy@example.com",
+        name: "Emma Leroy",
+        status: "PENDING",
+        sentAt: "2024-01-11T13:10:00Z",
+      },
+      {
+        id: 6,
+        email: "felix.moreau@example.com",
+        name: "Félix Moreau",
+        status: "ACCEPTED",
+        sentAt: "2024-01-10T15:30:00Z",
+        respondedAt: "2024-01-11T09:15:00Z",
+      },
+    ],
+    []
+  );
 
   useEffect(() => {
     const fetchInvitations = async () => {
