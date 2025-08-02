@@ -23,11 +23,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ["bcrypt"],
-  },
+  // Configuration pour Next.js 15
   // Optimisations pour la production
-  swcMinify: true,
   compress: true,
   poweredByHeader: false,
   // Configuration pour permettre le déploiement avec des warnings

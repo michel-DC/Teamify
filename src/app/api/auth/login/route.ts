@@ -1,7 +1,7 @@
 // app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { generateToken } from "@/lib/auth";
 import { serialize } from "cookie";
 
@@ -24,8 +24,9 @@ export async function POST(req: Request) {
 
     // Génération du token - notez la correction ici
     const token = await generateToken(user.id);
-    
-    const cookie = serialize("token", token, {  // Pas besoin de "await token"
+
+    const cookie = serialize("token", token, {
+      // Pas besoin de "await token"
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
