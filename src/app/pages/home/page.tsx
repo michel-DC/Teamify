@@ -13,8 +13,6 @@ import {
   faCalendarAlt,
   faUsers,
   faChartLine,
-  faArrowRight,
-  faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 
 const features = [
@@ -124,7 +122,7 @@ export const HomePage = () => {
               Avec nous vous pourrez :
             </h2>
             <p className="mx-auto mt-2 max-w-lg text-gray-400">
-              Découvrez nos outils pour simplifier l'organisation de vos
+              Découvrez nos outils pour simplifier l&apos;organisation de vos
               événements.
             </p>
             <div className="mt-16 w-full max-w-5xl">
@@ -152,11 +150,11 @@ export const HomePage = () => {
               <div className="mt-24 flex flex-col md:flex-row items-center justify-between gap-12">
                 <div className="space-y-8 max-w-2xl">
                   <h2 className="text-4xl font-bold text-gray-200">
-                    Prêt à révolutionner votre gestion d'événements ?
+                    Prêt à révolutionner votre gestion d&apos;événements ?
                   </h2>
                   <p className="text-lg text-gray-400">
-                    Rejoignez des milliers d'équipes qui ont simplifié leur
-                    organisation avec Teamify. Commencez dès aujourd'hui et
+                    Rejoignez des milliers d&apos;équipes qui ont simplifié leur
+                    organisation avec Teamify. Commencez dès aujourd&apos;hui et
                     découvrez une nouvelle façon de collaborer.
                   </p>
                   <Link href="/auth/register">

@@ -4,12 +4,7 @@ import { StepProps } from "../../../../types/steps";
 import Image from "next/image";
 import { useState } from "react";
 
-export default function Step3({
-  next,
-  prev,
-  formData,
-  setFormData,
-}: StepProps) {
+export default function Step3({ next, prev, setFormData }: StepProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 

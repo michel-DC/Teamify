@@ -13,13 +13,12 @@ import { Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
-import router, { redirect } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 export default function StepWizard() {
   const [step, setStep] = useState(1);
   const [theme, setTheme] = useState<"light" | "dark">("light");
-  const { organization, loading } = useOrganization();
+  const { organizations, loading } = useOrganization();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
@@ -36,7 +35,7 @@ export default function StepWizard() {
   }, []);
 
   useEffect(() => {
-    if (organization) {
+    if (organizations && organizations.length > 0) {
       toast.error(
         `Vous possédez déjà une organisation, rendez-vous sur le dashboard.`,
         {
@@ -47,7 +46,7 @@ export default function StepWizard() {
         }
       );
     }
-  }, [organization, loading, router]);
+  }, [organizations, loading]);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -83,11 +82,7 @@ export default function StepWizard() {
         return (
           <div>
             <Toaster position="top-center" richColors />
-            <Welcome
-              next={next}
-              formData={formData}
-              setFormData={setFormData}
-            />
+            <Welcome next={next} />
           </div>
         );
       case 2:

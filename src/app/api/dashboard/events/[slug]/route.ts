@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/lib/auth";
 
 export async function GET(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -16,9 +16,11 @@ export async function GET(
       );
     }
 
+    const { slug } = await params;
+
     const event = await prisma.event.findFirst({
       where: {
-        publicId: params.slug,
+        publicId: slug,
         ownerId: user.id,
       },
       include: {
@@ -40,7 +42,10 @@ export async function GET(
 
     return NextResponse.json({ event }, { status: 200 });
   } catch (error) {
-    console.error("[API_EVENT_FETCH_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la récupération de l'événement",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la récupération de l'événement" },
       { status: 500 }
@@ -50,7 +55,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -63,10 +68,11 @@ export async function PUT(
     }
 
     const body = await request.json();
+    const { slug } = await params;
 
     const event = await prisma.event.findFirst({
       where: {
-        publicId: params.slug,
+        publicId: slug,
         ownerId: user.id,
       },
     });
@@ -95,7 +101,10 @@ export async function PUT(
 
     return NextResponse.json({ event: updatedEvent }, { status: 200 });
   } catch (error) {
-    console.error("[API_EVENT_UPDATE_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la mise à jour de l'événement",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la mise à jour de l'événement" },
       { status: 500 }
@@ -105,7 +114,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const user = await getCurrentUser();
@@ -117,9 +126,11 @@ export async function DELETE(
       );
     }
 
+    const { slug } = await params;
+
     const event = await prisma.event.findFirst({
       where: {
-        publicId: params.slug,
+        publicId: slug,
         ownerId: user.id,
       },
     });
@@ -142,7 +153,10 @@ export async function DELETE(
       { status: 200 }
     );
   } catch (error) {
-    console.error("[API_EVENT_DELETE_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la suppression de l'événement",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la suppression de l'événement" },
       { status: 500 }

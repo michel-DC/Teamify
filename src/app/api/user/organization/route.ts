@@ -13,7 +13,7 @@ export async function GET() {
       );
     }
 
-    const organization = await prisma.organization.findUnique({
+    const organization = await prisma.organization.findFirst({
       where: {
         ownerId: user.id,
       },
@@ -28,7 +28,10 @@ export async function GET() {
 
     return NextResponse.json({ organization }, { status: 200 });
   } catch (error) {
-    console.error("[API_ORG_FETCH_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la récupération de l'organisation",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la récupération de l'organisation" },
       { status: 500 }

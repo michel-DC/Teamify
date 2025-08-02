@@ -13,10 +13,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-type EventData = {
-  endDate: string | null;
-};
-
 export default function PreparationBanner({
   percentage,
   eventId,
@@ -56,10 +52,6 @@ export default function PreparationBanner({
     fetchEventData();
   }, [eventId]);
 
-  let color = "text-red-600";
-  if (percentage >= 50) color = "text-green-600";
-  else if (percentage >= 15) color = "text-orange-500";
-
   let barColor = "bg-red-400";
   if (percentage >= 50) barColor = "bg-green-500";
   else if (percentage >= 15) barColor = "bg-orange-400";
@@ -97,7 +89,7 @@ export default function PreparationBanner({
       </CardContent>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
         <div className="line-clamp-1 flex gap-2 font-medium">
-          Préparation de l'événement <IconTrendingUp className="size-4" />
+          Préparation de l&apos;événement <IconTrendingUp className="size-4" />
         </div>
         <div className="text-muted-foreground">
           Progression globale de la préparation de votre événement

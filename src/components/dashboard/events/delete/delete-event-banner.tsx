@@ -19,13 +19,11 @@ import { IconAlertTriangle, IconTrash } from "@tabler/icons-react";
 
 interface DeleteEventModalProps {
   eventSlug: string;
-  eventTitle: string;
   children?: React.ReactNode;
 }
 
 export default function DeleteEventModal({
   eventSlug,
-  eventTitle,
   children,
 }: DeleteEventModalProps) {
   const router = useRouter();
@@ -38,7 +36,7 @@ export default function DeleteEventModal({
   const handleDelete = async () => {
     if (!isConfirmationValid) {
       toast.error(
-        "Veuillez confirmer la suppression en tapant le slug de l'événement."
+        "Veuillez confirmer la suppression en tapant le slug de l&apos;événement."
       );
       return;
     }
@@ -57,8 +55,8 @@ export default function DeleteEventModal({
       setIsOpen(false);
       router.push(`/dashboard/events/details/${eventSlug}`);
       router.refresh();
-    } catch (error) {
-      toast.error("Erreur lors de la suppression de l'événement.");
+    } catch {
+      toast.error("Erreur lors de la suppression de l&apos;événement.");
     } finally {
       setIsDeleting(false);
     }
@@ -79,7 +77,7 @@ export default function DeleteEventModal({
         {children || (
           <Button variant="destructive" className="gap-2">
             <IconTrash className="h-4 w-4" />
-            Supprimer l'événement
+            Supprimer l&apos;événement
           </Button>
         )}
       </DialogTrigger>
@@ -87,7 +85,7 @@ export default function DeleteEventModal({
         <DialogHeader className="text-center">
           <DialogTitle className="flex items-center justify-center gap-2 text-destructive">
             <IconAlertTriangle className="h-5 w-5" />
-            Supprimer définitivement l'événement
+            Supprimer définitivement l&apos;événement
           </DialogTitle>
           <DialogDescription className="text-center space-y-3 pt-2">
             <p>

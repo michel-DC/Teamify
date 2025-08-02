@@ -80,8 +80,8 @@ export default function EditEventForm({ eventId }: EditEventFormProps) {
               : "",
           });
         }
-      } catch (error) {
-        toast.error("Erreur lors de la récupération de l'événement.");
+      } catch {
+        toast.error("Erreur lors de la récupération de l&apos;événement.");
       } finally {
         setLoading(false);
       }
@@ -104,8 +104,8 @@ export default function EditEventForm({ eventId }: EditEventFormProps) {
       toast.success("Événement mis à jour avec succès!");
       router.push("/dashboard/events");
       router.refresh();
-    } catch (error) {
-      toast.error("Erreur lors de la mise à jour de l'événement.");
+    } catch {
+      toast.error("Erreur lors de la mise à jour de l&apos;événement.");
     }
   };
 
@@ -116,7 +116,7 @@ export default function EditEventForm({ eventId }: EditEventFormProps) {
   return (
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Modifier l'événement</CardTitle>
+        <CardTitle>Modifier l&apos;événement</CardTitle>
       </CardHeader>
       <CardContent>
         <form

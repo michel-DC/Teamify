@@ -37,7 +37,10 @@ export async function GET() {
 
     return NextResponse.json({ events: eventsWithPublicId }, { status: 200 });
   } catch (error) {
-    console.error("[API_EVENTS_DATA_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la récupération des événements",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la récupération des événements" },
       { status: 500 }

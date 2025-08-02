@@ -1,6 +1,6 @@
-import { PrismaClient } from ".prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -39,7 +39,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Compte créé !", user: newUser });
   } catch (error) {
-    console.error("Erreur lors de la création de l'utilisateur :", error);
+    console.error(
+      "Une erreur est survenue lors de la création de l'utilisateur",
+      error
+    );
     return NextResponse.json(
       { error: "Une erreur serveur est survenue." },
       { status: 500 }

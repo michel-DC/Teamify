@@ -35,7 +35,7 @@ const iconMap = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Utilisation du hook personnalisé pour les données de la sidebar
-  const { data, loading } = useSidebarData();
+  const { data } = useSidebarData();
 
   // Transformation des données pour les icônes de navigation
   const navMainWithIcons = data.navMain.map((item) => ({

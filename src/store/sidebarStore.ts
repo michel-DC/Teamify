@@ -250,11 +250,13 @@ export const useSidebarStore = create<SidebarStore>()(
           // Traiter les données d'événements
           let processedEvents: Event[] = [];
           if (eventsData && eventsData.events) {
-            processedEvents = eventsData.events.slice(-3).map((event: any) => ({
-              name: event.title,
-              url: "#",
-              icon: "Calendar",
-            }));
+            processedEvents = eventsData.events
+              .slice(-3)
+              .map((event: Record<string, unknown>) => ({
+                name: typeof event.title === "string" ? event.title : "",
+                url: "#",
+                icon: "Calendar",
+              }));
           }
 
           // Mettre à jour le store

@@ -2,18 +2,9 @@
 
 import { StepProps } from "../../../../types/steps";
 
-export default function Step1({
-  next,
-  prev,
-  formData,
-  setFormData,
-}: StepProps) {
+export default function Step1({ next, formData, setFormData }: StepProps) {
   const handleNext = () => {
     if (next) next();
-  };
-
-  const handlePrev = () => {
-    if (prev) prev();
   };
 
   return (

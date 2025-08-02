@@ -1,5 +1,3 @@
-import { Toaster } from "@/components/ui/sonner";
-import router from "next/router";
 import { toast } from "sonner";
 
 export const useAuth = () => {

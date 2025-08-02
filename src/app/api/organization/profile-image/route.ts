@@ -27,7 +27,10 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
-    console.error("[API_PROFILE_IMAGE_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la récupération de l'image de profil",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la récupération de l'image" },
       { status: 500 }

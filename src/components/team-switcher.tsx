@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, GalleryVerticalEnd, Plus } from "lucide-react";
+import { ChevronsUpDown, Plus } from "lucide-react";
+import Image from "next/image";
 
 import {
   DropdownMenu,
@@ -16,8 +17,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function TeamSwitcher({
   teams,
@@ -27,8 +28,8 @@ export function TeamSwitcher({
     logo: React.ElementType;
   }[];
 }) {
-  const { isMobile } = useSidebar();
   const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const isMobile = useIsMobile();
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -66,10 +67,12 @@ export function TeamSwitcher({
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                 {profileImage ? (
-                  <img
+                  <Image
                     src={profileImage}
                     alt={activeTeam.name}
-                    className="size-4 rounded-full"
+                    width={16}
+                    height={16}
+                    className="rounded-full"
                   />
                 ) : (
                   <activeTeam.logo className="size-4" />
@@ -98,10 +101,12 @@ export function TeamSwitcher({
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">
                   {profileImage ? (
-                    <img
+                    <Image
                       src={profileImage}
                       alt={team.name}
-                      className="h-6 w-6 rounded-full"
+                      width={24}
+                      height={24}
+                      className="rounded-full"
                     />
                   ) : (
                     <team.logo className="h-6 w-6" />

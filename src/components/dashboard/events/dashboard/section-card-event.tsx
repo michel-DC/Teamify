@@ -135,7 +135,7 @@ export function SectionCards() {
       <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
         <Card className="@container/card">
           <CardHeader>
-            <CardDescription>Nombre d'évènements</CardDescription>
+            <CardDescription>Nombre d&apos;évènements</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               {eventCount !== null ? eventCount : "Loading..."}
             </CardTitle>
@@ -151,7 +151,7 @@ export function SectionCards() {
               Vos évènements <IconTrendingUp className="size-4" />
             </div>
             <div className="text-muted-foreground">
-              Nombre total d'évènements au nom de cette organisation
+              Nombre total d&apos;évènements au nom de cette organisation
             </div>
           </CardFooter>
         </Card>
@@ -198,7 +198,7 @@ export function SectionCards() {
           </CardHeader>
           <CardFooter className="flex-col items-start gap-1.5 text-sm">
             <div className="line-clamp-1 flex gap-2 font-medium">
-              L'utilisation de cette catégorie{" "}
+              L&apos;utilisation de cette catégorie{" "}
               <IconTrendingUp className="size-4" />
             </div>
             <div className="text-muted-foreground">
@@ -226,7 +226,7 @@ export function SectionCards() {
               Ville la plus populaire <IconTrendingUp className="size-4" />
             </div>
             <div className="text-muted-foreground">
-              La ville où se déroulent le plus d'évènements de cette
+              La ville où se déroulent le plus d&apos;évènements de cette
               organisation
             </div>
           </CardFooter>
@@ -257,7 +257,7 @@ export function SectionCards() {
 
         <Card className="@container/card">
           <CardHeader>
-            <CardDescription>Nombre d'évènement public</CardDescription>
+            <CardDescription>Nombre d&apos;évènement public</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               {publicEventCount !== null ? publicEventCount : "Loading..."}
             </CardTitle>
@@ -273,14 +273,14 @@ export function SectionCards() {
               Évènements publics <IconTrendingUp className="size-4" />
             </div>
             <div className="text-muted-foreground">
-              Nombre d'évènements visibles par tous
+              Nombre d&apos;évènements visibles par tous
             </div>
           </CardFooter>
         </Card>
 
         <Card className="@container/card">
           <CardHeader>
-            <CardDescription>Nombre d'événements terminés</CardDescription>
+            <CardDescription>Nombre d&apos;événements terminés</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               {finishEventCount !== null ? finishEventCount : "Loading..."}
             </CardTitle>
@@ -296,14 +296,14 @@ export function SectionCards() {
               Évènements terminés <IconTrendingUp className="size-4" />
             </div>
             <div className="text-muted-foreground">
-              Nombre total d'évènements terminés
+              Nombre total d&apos;évènements terminés
             </div>
           </CardFooter>
         </Card>
 
         <Card className="@container/card">
           <CardHeader>
-            <CardDescription>Nombre d'évènements annulé</CardDescription>
+            <CardDescription>Nombre d&apos;évènements annulé</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
               {cancelledEventCount !== null
                 ? cancelledEventCount
@@ -321,7 +321,7 @@ export function SectionCards() {
               Évènements annulé <IconTrendingDown className="size-4" />
             </div>
             <div className="text-muted-foreground">
-              Nombre total d'évènements annulés
+              Nombre total d&apos;évènements annulés
             </div>
           </CardFooter>
         </Card>

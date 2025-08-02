@@ -34,7 +34,10 @@ export async function GET() {
 
     return NextResponse.json([userWithOrganizations], { status: 200 });
   } catch (error) {
-    console.error("[API_DASHBOARD_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la récupération des données",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la récupération des données" },
       { status: 500 }

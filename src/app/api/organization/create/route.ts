@@ -63,7 +63,10 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("[ORGANIZATION_CREATE_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la création de l'organisation",
+      error
+    );
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

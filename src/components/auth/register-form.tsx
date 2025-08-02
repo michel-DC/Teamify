@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "../ui/label";
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
@@ -70,7 +69,6 @@ export const RegisterForm = () => {
       console.log("Raw response:", text);
 
       if (res.ok) {
-        const data = JSON.parse(text);
         toast.success(`Bienvenue sur teamify ${lastname} !`, {
           duration: 4000,
           onAutoClose: () => {
@@ -79,17 +77,16 @@ export const RegisterForm = () => {
         });
       } else {
         try {
-          const data = JSON.parse(text);
-          setError(data.error || "Une erreur est survenue");
-          console.error("Registration error:", data);
-        } catch (err) {
+          setError(JSON.parse(text).error || "Une erreur est survenue");
+          console.error("Registration error:", JSON.parse(text));
+        } catch {
           setError("Erreur serveur: réponse non valide");
           console.error("Failed to parse error response:", text);
         }
       }
-    } catch (err) {
+    } catch {
       setError("Erreur réseau");
-      console.error("Network error:", err);
+      console.error("Network error");
     } finally {
       setLoading(false);
     }
@@ -130,7 +127,7 @@ export const RegisterForm = () => {
                 className="flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4 mr-2" />
-                Retour à l'accueil
+                Retour à l&apos;accueil
               </Link>
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold text-center">Bienvenue</h1>
@@ -203,7 +200,7 @@ export const RegisterForm = () => {
                 <p className="text-sm text-center text-destructive">{error}</p>
               )}
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Création en cours..." : "S'inscrire"}
+                {loading ? "Création en cours..." : "S&apos;inscrire"}
               </Button>
               <div className="text-center text-sm">
                 Déjà un compte ?{" "}
@@ -222,7 +219,7 @@ export const RegisterForm = () => {
       <div className="fixed bottom-4 text-muted-foreground text-center text-xs">
         En cliquant sur continuer, vous acceptez nos{" "}
         <a href="#" className="underline hover:text-primary">
-          Conditions d'utilisation
+          Conditions d&apos;utilisation
         </a>{" "}
         et <a href="#">Politique de confidentialité</a>.
       </div>

@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { Sun, Moon } from "lucide-react";
 import {
@@ -19,7 +18,6 @@ import {
 } from "@tabler/icons-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
-import Head from "next/head";
 
 export const LoginForm = () => {
   const router = useRouter();
@@ -138,7 +136,7 @@ export const LoginForm = () => {
                 className="flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
               >
                 <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4 mr-2" />
-                Retour à l'accueil
+                Retour à l&apos;accueil
               </Link>
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold text-center">Vous revoilà</h1>
@@ -213,13 +211,13 @@ export const LoginForm = () => {
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Pas encore de compte ?{" "}
+                Pas encore de compte&nbsp;?{" "}
                 <Link
                   href="/auth/register"
                   className="font-medium underline underline-offset-4 hover:text-primary"
                   prefetch={false}
                 >
-                  Créer en un
+                  Créer un compte
                 </Link>
               </div>
             </div>
@@ -240,7 +238,7 @@ export const LoginForm = () => {
       <div className="fixed bottom-4 text-muted-foreground text-center text-xs">
         En cliquant sur continuer, vous acceptez nos{" "}
         <a href="#" className="underline hover:text-primary">
-          Conditions d'utilisation
+          Conditions d&apos;utilisation
         </a>{" "}
         et <a href="#">Politique de confidentialité</a>.
       </div>

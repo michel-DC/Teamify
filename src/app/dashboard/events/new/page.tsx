@@ -23,7 +23,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
 import { toast, Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
 
@@ -95,7 +94,7 @@ export default function CreateEventPage() {
       } else {
         toast.error(result.error || "Erreur lors de la création");
       }
-    } catch (error) {
+    } catch {
       toast.error("Erreur réseau");
     } finally {
       setIsSubmitting(false);
@@ -159,7 +158,7 @@ export default function CreateEventPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Titre de l'événement</Label>
+                  <Label htmlFor="title">Titre de l&apos;événement</Label>
                   <Input
                     id="title"
                     value={formData.title}
@@ -306,7 +305,7 @@ export default function CreateEventPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="file">Image de l'événement</Label>
+                <Label htmlFor="file">Image de l&apos;événement</Label>
                 <Input
                   id="file"
                   type="file"

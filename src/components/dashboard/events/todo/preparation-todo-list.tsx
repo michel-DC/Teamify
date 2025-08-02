@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -35,7 +35,6 @@ export default function PreparationTodoList({
   const [newGroupName, setNewGroupName] = useState("");
   const [newTodoTitle, setNewTodoTitle] = useState("");
   const [editingGroup, setEditingGroup] = useState<number | null>(null);
-  const [editingTodo, setEditingTodo] = useState<number | null>(null);
 
   const colors = [
     "#3b82f6",
@@ -48,17 +47,17 @@ export default function PreparationTodoList({
     "#84cc16",
   ];
 
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     setLoading(true);
     const res = await fetch(`/api/dashboard/events/${eventId}/preparation`);
     const data = await res.json();
     setGroups(data.groups);
     setLoading(false);
-  };
+  }, [eventId]);
 
   useEffect(() => {
     fetchGroups();
-  }, [eventId]);
+  }, [fetchGroups]);
 
   const addGroup = async () => {
     if (!newGroupName.trim()) return;
@@ -73,7 +72,7 @@ export default function PreparationTodoList({
     });
     setNewGroupName("");
     fetchGroups();
-    onChange && onChange();
+    onChange?.();
   };
 
   const addTodo = async (groupId: number) => {
@@ -88,7 +87,7 @@ export default function PreparationTodoList({
     });
     setNewTodoTitle("");
     fetchGroups();
-    onChange && onChange();
+    onChange?.();
   };
 
   const toggleTodo = async (todoId: number, done: boolean) => {
@@ -101,7 +100,7 @@ export default function PreparationTodoList({
       }),
     });
     fetchGroups();
-    onChange && onChange();
+    onChange?.();
   };
 
   const deleteTodo = async (todoId: number) => {
@@ -111,7 +110,7 @@ export default function PreparationTodoList({
       body: JSON.stringify({ type: "todo", id: todoId }),
     });
     fetchGroups();
-    onChange && onChange();
+    onChange?.();
   };
 
   const deleteGroup = async (groupId: number) => {
@@ -121,7 +120,7 @@ export default function PreparationTodoList({
       body: JSON.stringify({ type: "group", id: groupId }),
     });
     fetchGroups();
-    onChange && onChange();
+    onChange?.();
   };
 
   const updateGroup = async (groupId: number, name: string, color: string) => {
@@ -135,7 +134,7 @@ export default function PreparationTodoList({
     });
     setEditingGroup(null);
     fetchGroups();
-    onChange && onChange();
+    onChange?.();
   };
 
   const getGroupProgress = (todos: PreparationTodo[]) => {
