@@ -22,11 +22,10 @@ export async function POST(req: Request) {
       );
     }
 
-    // Génération du token - notez la correction ici
+    // Génération du token
     const token = await generateToken(user.id);
 
     const cookie = serialize("token", token, {
-      // Pas besoin de "await token"
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
@@ -41,7 +40,7 @@ export async function POST(req: Request) {
     res.headers.set("Set-Cookie", cookie);
     return res;
   } catch (error) {
-    console.error("Erreur d'authentification:", error);
+    console.error("Une erreur est survenue lors de la connexion", error);
     return NextResponse.json(
       { error: "Erreur du serveur lors de la connexion" },
       { status: 500 }

@@ -24,7 +24,10 @@ export async function GET() {
 
     return NextResponse.json({ hasOrganization }, { status: 200 });
   } catch (error) {
-    console.error("[API_HAS_ORGANIZATION_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la vérification de l'organisation",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la vérification de l'organisation" },
       { status: 500 }

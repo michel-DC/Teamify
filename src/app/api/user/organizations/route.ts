@@ -21,7 +21,10 @@ export async function GET() {
 
     return NextResponse.json({ organizations }, { status: 200 });
   } catch (error) {
-    console.error("[API_ORG_FETCH_ERROR]", error);
+    console.error(
+      "Une erreur est survenue lors de la récupération des organisations",
+      error
+    );
     return NextResponse.json(
       { error: "Erreur serveur lors de la récupération des organisations" },
       { status: 500 }
