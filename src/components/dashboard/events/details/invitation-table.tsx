@@ -93,7 +93,7 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
     };
 
     fetchInvitations();
-  }, [eventId]);
+  }, [eventId, fakeInvitations]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {

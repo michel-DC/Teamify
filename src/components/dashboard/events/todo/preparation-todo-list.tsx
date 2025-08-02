@@ -57,7 +57,7 @@ export default function PreparationTodoList({
 
   useEffect(() => {
     fetchGroups();
-  }, [eventId]);
+  }, [eventId, fetchGroups]);
 
   const addGroup = async () => {
     if (!newGroupName.trim()) return;
