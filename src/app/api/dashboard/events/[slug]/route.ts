@@ -18,9 +18,10 @@ export async function GET(
 
     const { slug } = await params;
 
+    // Recherche par eventCode ou publicId
     const event = await prisma.event.findFirst({
       where: {
-        publicId: slug,
+        OR: [{ eventCode: slug }, { publicId: slug }],
         ownerId: user.id,
       },
       include: {
@@ -70,9 +71,10 @@ export async function PUT(
     const body = await request.json();
     const { slug } = await params;
 
+    // Recherche par eventCode ou publicId
     const event = await prisma.event.findFirst({
       where: {
-        publicId: slug,
+        OR: [{ eventCode: slug }, { publicId: slug }],
         ownerId: user.id,
       },
     });
@@ -128,9 +130,10 @@ export async function DELETE(
 
     const { slug } = await params;
 
+    // Recherche par eventCode ou publicId
     const event = await prisma.event.findFirst({
       where: {
-        publicId: slug,
+        OR: [{ eventCode: slug }, { publicId: slug }],
         ownerId: user.id,
       },
     });

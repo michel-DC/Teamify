@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     isPublic: formData.get("isPublic"),
     isCancelled: formData.get("isCancelled"),
     orgId: formData.get("orgId"),
+    eventCode: formData.get("eventCode"),
     hasFile: !!formData.get("file"),
   });
 
@@ -43,6 +44,7 @@ export async function POST(req: Request) {
     : null;
   const category = formData.get("category") as EventCategory;
   const isPublic = formData.get("isPublic") === "true";
+  const eventCode = formData.get("eventCode") as string;
   const file = formData.get("file") as File;
   const orgId = parseInt(formData.get("orgId") as string);
 
@@ -59,6 +61,7 @@ export async function POST(req: Request) {
     isPublic,
     isCancelled: false,
     orgId,
+    eventCode,
     hasFile: !!file,
   });
 
@@ -94,6 +97,7 @@ export async function POST(req: Request) {
     if (!budget) missingFields.push("budget");
     if (!category) missingFields.push("category");
     if (!orgId || isNaN(orgId)) missingFields.push("orgId");
+    if (!eventCode) missingFields.push("eventCode");
 
     if (missingFields.length > 0) {
       console.log("Missing fields:", missingFields);
@@ -103,24 +107,54 @@ export async function POST(req: Request) {
       );
     }
 
-    const event = await prisma.event.create({
-      data: {
-        publicId: nanoid(12),
-        ownerId: user.id,
-        title,
-        description,
-        startDate,
-        endDate,
-        location,
-        imageUrl,
-        capacity: Number(capacity),
-        status,
-        budget,
-        category,
-        isPublic,
-        isCancelled: false,
-        orgId,
-      },
+    // Vérifie si le code d'événement existe déjà
+    const existingEvent = await prisma.event.findUnique({
+      where: { eventCode },
+    });
+
+    if (existingEvent) {
+      return NextResponse.json(
+        { error: "Ce code d'événement existe déjà" },
+        { status: 400 }
+      );
+    }
+
+    const publicId = nanoid(12);
+
+    // Crée l'événement et l'entrée EventByCode en transaction
+    const event = await prisma.$transaction(async (tx) => {
+      const newEvent = await tx.event.create({
+        data: {
+          publicId,
+          eventCode,
+          ownerId: user.id,
+          title,
+          description,
+          startDate,
+          endDate,
+          location,
+          imageUrl,
+          capacity: Number(capacity),
+          status,
+          budget,
+          category,
+          isPublic,
+          isCancelled: false,
+          orgId,
+        },
+      });
+
+      // Crée l'entrée dans EventByCode
+      await tx.eventByCode.create({
+        data: {
+          eventCode,
+          publicId,
+          ownerId: user.id,
+          title,
+        },
+      });
+
+      return newEvent;
     });
 
     return NextResponse.json(

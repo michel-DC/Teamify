@@ -36,14 +36,17 @@ export type Event = {
   category: string;
   budget: number | null;
   isCancelled: boolean;
+  eventCode: string;
 };
 
 const columns: ColumnDef<Event>[] = [
   {
-    accessorKey: "id",
-    header: "ID",
+    accessorKey: "eventCode",
+    header: "Code",
     cell: ({ row }) => (
-      <span className="text-muted-foreground">#{row.original.id}</span>
+      <span className="font-mono font-bold text-primary">
+        {row.original.eventCode}
+      </span>
     ),
   },
   {
@@ -108,7 +111,7 @@ const columns: ColumnDef<Event>[] = [
     id: "actions",
     cell: ({ row }) => (
       <a
-        href={`/dashboard/events/details/${row.original.id}`}
+        href={`/dashboard/events/details/${row.original.eventCode}`}
         className="btn btn-outline btn-sm"
       >
         Voir plus

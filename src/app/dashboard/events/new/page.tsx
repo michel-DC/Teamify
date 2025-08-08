@@ -29,6 +29,8 @@ import { useOrganization } from "@/hooks/useOrganization";
 export default function CreateEventPage() {
   const router = useRouter();
   const { organizations, loading } = useOrganization();
+  const [eventCode, setEventCode] = useState<string>("");
+  const [isGeneratingCode, setIsGeneratingCode] = useState(true);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -44,6 +46,29 @@ export default function CreateEventPage() {
   });
   const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  /**
+   * Génère un code d'événement unique au chargement de la page
+   */
+  useEffect(() => {
+    const generateEventCode = async () => {
+      try {
+        const response = await fetch("/api/dashboard/events/generate-code");
+        if (response.ok) {
+          const data = await response.json();
+          setEventCode(data.eventCode);
+        } else {
+          toast.error("Erreur lors de la génération du code");
+        }
+      } catch (error) {
+        toast.error("Erreur réseau lors de la génération du code");
+      } finally {
+        setIsGeneratingCode(false);
+      }
+    };
+
+    generateEventCode();
+  }, []);
 
   useEffect(() => {
     if (!loading && organizations.length > 0 && !formData.orgId) {
@@ -75,6 +100,9 @@ export default function CreateEventPage() {
     Object.entries(formData).forEach(([key, value]) => {
       submitFormData.append(key, value.toString());
     });
+
+    // Ajoute le code d'événement aux données
+    submitFormData.append("eventCode", eventCode);
 
     if (file) {
       submitFormData.append("file", file);
@@ -150,12 +178,28 @@ export default function CreateEventPage() {
 
       <div className="flex-1 flex flex-col gap-4 p-6 max-w-7xl mx-auto w-full">
         <Toaster position="top-center" richColors />
+
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle>Créer un nouvel événement</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Affichage du code d'événement à l'intérieur du formulaire */}
+              {!isGeneratingCode && eventCode && (
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">
+                    Code de l'événement
+                  </Label>
+                  <div className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-2xl font-mono font-bold text-primary tracking-wider items-center justify-center">
+                    {eventCode}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Ce code sera utilisé pour identifier votre événement
+                  </p>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="title">Titre de l&apos;événement</Label>

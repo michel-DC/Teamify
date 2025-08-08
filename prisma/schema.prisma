@@ -38,6 +38,7 @@ model Organization {
 model Event {
   id                    Int                    @id @default(autoincrement())
   publicId              String                 @unique @default(cuid())
+  eventCode             String                 @unique
   ownerId               Int
   owner                 User                   @relation(fields: [ownerId], references: [id])
   title                 String
@@ -96,6 +97,15 @@ model PreparationTodo {
   order     Int      @default(0)
   group     PreparationTodoGroup? @relation(fields: [groupId], references: [id])
   groupId   Int?
+  createdAt DateTime @default(now())
+}
+
+model EventByCode {
+  id        Int      @id @default(autoincrement())
+  eventCode String   @unique
+  publicId  String
+  ownerId   Int
+  title     String
   createdAt DateTime @default(now())
 }
 

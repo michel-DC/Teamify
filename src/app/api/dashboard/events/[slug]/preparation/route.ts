@@ -24,7 +24,7 @@ export async function GET(
     // Recherche l'événement correspondant au slug et appartenant à l'utilisateur
     const event = await prisma.event.findFirst({
       where: {
-        publicId: slug,
+        OR: [{ eventCode: slug }, { publicId: slug }],
         ownerId: user.id,
       },
     });
