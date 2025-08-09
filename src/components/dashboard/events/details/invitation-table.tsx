@@ -13,6 +13,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Mail, UserPlus, Users } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/Input";
 
 interface Invitation {
   id: number;
@@ -30,6 +38,12 @@ interface InvitationTableProps {
 export default function InvitationTable({ eventId }: InvitationTableProps) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Dialog state
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteSubmitting, setInviteSubmitting] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
 
   // Données d'invitation statiques pour la démo
   const fakeInvitations = useMemo<Invitation[]>(
@@ -154,6 +168,44 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
 
   const stats = getStats();
 
+  /**
+   * @param Ajoute une invitation en attente en local (démo)
+   */
+  const handleInviteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviteError(null);
+
+    const email = inviteEmail.trim();
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailOk) {
+      setInviteError("Adresse email invalide");
+      return;
+    }
+
+    setInviteSubmitting(true);
+    try {
+      // Ici on pourrait appeler POST /api/events/{id}/invitations
+      const nextId = invitations.reduce((m, i) => Math.max(m, i.id), 0) + 1;
+      const now = new Date().toISOString();
+      setInvitations((prev) => [
+        {
+          id: nextId,
+          email,
+          name: email.split("@")[0],
+          status: "PENDING",
+          sentAt: now,
+        },
+        ...prev,
+      ]);
+      setInviteOpen(false);
+      setInviteEmail("");
+    } catch (err) {
+      setInviteError("Une erreur est survenue. Réessayez.");
+    } finally {
+      setInviteSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -189,7 +241,11 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
             <Mail className="h-5 w-5" />
             Invitations envoyées
           </CardTitle>
-          <Button size="sm" className="gap-2">
+          <Button
+            size="sm"
+            className="gap-2"
+            onClick={() => setInviteOpen(true)}
+          >
             <UserPlus className="h-4 w-4" />
             Inviter des participants
           </Button>
@@ -227,7 +283,7 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
             <p className="text-muted-foreground">
               Aucune invitation envoyée pour cet événement
             </p>
-            <Button className="mt-4 gap-2">
+            <Button className="mt-4 gap-2" onClick={() => setInviteOpen(true)}>
               <UserPlus className="h-4 w-4" />
               Envoyer des invitations
             </Button>
@@ -269,6 +325,45 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
           </div>
         )}
       </CardContent>
+
+      {/* Dialog d'invitation */}
+      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Inviter un participant</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleInviteSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="invite-email" className="text-sm font-medium">
+                Adresse email
+              </label>
+              <Input
+                id="invite-email"
+                type="email"
+                placeholder="ex: jean.dupont@example.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                required
+              />
+              {inviteError && (
+                <p className="text-sm text-destructive">{inviteError}</p>
+              )}
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setInviteOpen(false)}
+              >
+                Annuler
+              </Button>
+              <Button type="submit" disabled={inviteSubmitting}>
+                {inviteSubmitting ? "Envoi..." : "Envoyer l'invitation"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

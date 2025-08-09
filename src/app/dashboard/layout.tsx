@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import {
   SidebarProvider,
-  SidebarTrigger,
+  // SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -26,7 +26,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <SidebarInset
         className={`${poppins.variable} h-full bg-background text-foreground`}
       >
-        <SidebarTrigger />
+        {/* <SidebarTrigger /> */}
         <ClientGate>{children}</ClientGate>
       </SidebarInset>
     </SidebarProvider>

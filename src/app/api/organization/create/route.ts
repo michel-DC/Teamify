@@ -53,17 +53,26 @@ export async function POST(req: Request) {
       profileImage = `/uploads/organizations/${fileName}`;
     }
 
-    const organization = await prisma.organization.create({
-      data: {
-        name,
-        bio,
-        profileImage,
-        memberCount: 1,
-        organizationType,
-        mission,
-        owner: { connect: { uid: user.uid } },
-        location: location as any,
-      },
+    const organization = await prisma.$transaction(async (tx) => {
+      const createdOrg = await tx.organization.create({
+        data: {
+          name,
+          bio,
+          profileImage,
+          memberCount: 1,
+          organizationType,
+          mission,
+          owner: { connect: { uid: user.uid } },
+          location: location as any,
+        },
+      });
+
+      await tx.user.update({
+        where: { uid: user.uid },
+        data: { organizationCount: { increment: 1 } },
+      });
+
+      return createdOrg;
     });
 
     return NextResponse.json(
