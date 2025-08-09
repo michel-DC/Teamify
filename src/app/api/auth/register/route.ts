@@ -5,10 +5,10 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  const { email, password, firstname, lastname } = await req.json();
-  console.log("Received data:", { email, password, firstname, lastname });
+  const { email, firstname, passwordHash, lastname } = await req.json();
+  console.log("Received data:", { email, firstname, lastname, passwordHash });
 
-  if (!email || !password) {
+  if (!email || !passwordHash) {
     return NextResponse.json(
       { error: "Email et mot de passe sont requis." },
       { status: 400 }
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     }
 
     const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const hashedPassword = await bcrypt.hash(passwordHash, saltRounds);
 
     const newUser = await prisma.user.create({
       data: {

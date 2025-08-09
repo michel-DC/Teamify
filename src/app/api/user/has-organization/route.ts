@@ -1,4 +1,3 @@
-// app/api/user/has-organization/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
@@ -14,9 +13,12 @@ export async function GET() {
       );
     }
 
+    /**
+     * Vérification du nombre d'organisations appartenant à l'utilisateur
+     */
     const organizationsCount = await prisma.organization.count({
       where: {
-        ownerId: user.id,
+        ownerUid: user.uid,
       },
     });
 

@@ -44,7 +44,7 @@ export async function GET() {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    console.log(`✅ Utilisateur authentifié: ${user.id}`);
+    console.log(`✅ Utilisateur authentifié: ${user.uid}`);
 
     let eventCode: string;
     let attempts = 0;

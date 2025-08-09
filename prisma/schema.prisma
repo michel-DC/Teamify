@@ -9,38 +9,42 @@ datasource db {
 }
 
 model User {
-  id           Int           @id @default(autoincrement())
-  email        String        @unique
-  password     String
-  firstname    String?
-  lastname     String?
-  createdAt    DateTime      @default(now())
-  organizations Organization[]
-  event        Event[]
-  invitations  Invitation[]
-  organizationCount Int      @default(0)
+  uid               String         @id @default(cuid())
+  email             String         @unique
+  password          String
+  firstname         String?
+  lastname          String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  organizations     Organization[]
+  event             Event[]
+  invitations       Invitation[]
+  organizationCount Int            @default(0)
+  userByRole        UserByRole?
 }
 
 model Organization {
-  id           Int      @id @default(autoincrement())
-  name         String
-  bio          String?
-  profileImage String?
-  memberCount  Int
-  size         OrgSize
-  mission      String
-  createdAt    DateTime @default(now())
-  ownerId      Int
-  events       Event[]
-  owner        User     @relation(fields: [ownerId], references: [id])
+  id             Int               @id @default(autoincrement())
+  name           String
+  bio            String?
+  profileImage   String?
+  memberCount    Int
+  organizationType OrganizationType
+  mission        String
+  location       Json?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  ownerUid       String
+  events         Event[]
+  owner          User              @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
 }
 
 model Event {
   id                    Int                    @id @default(autoincrement())
   publicId              String                 @unique @default(cuid())
   eventCode             String                 @unique
-  ownerId               Int
-  owner                 User                   @relation(fields: [ownerId], references: [id])
+  ownerUid              String
+  owner                 User                   @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
   title                 String
   description           String?
   startDate             DateTime?
@@ -56,7 +60,7 @@ model Event {
   category              EventCategory          @default(REUNION)
   isPublic              Boolean                @default(true)
   isCancelled           Boolean                @default(false)
-  organization          Organization           @relation(fields: [orgId], references: [id])
+  organization          Organization           @relation(fields: [orgId], references: [id], onDelete: Cascade)
   preparationPercentage Int                    @default(0)
   preparationTodos      PreparationTodo[]
   preparationTodoGroups PreparationTodoGroup[]
@@ -66,47 +70,59 @@ model Event {
 model Invitation {
   id        Int              @id @default(autoincrement())
   eventId   Int
-  userId    Int
+  userUid   String
   email     String
   status    InvitationStatus @default(PENDING)
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
   event     Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user      User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+
   @@unique([eventId, email])
 }
 
 model PreparationTodoGroup {
-  id        Int      @id @default(autoincrement())
+  id        Int               @id @default(autoincrement())
   name      String
-  color     String   @default("#3b82f6")
-  order     Int      @default(0)
-  event     Event    @relation(fields: [eventId], references: [id])
+  color     String            @default("#3b82f6")
+  order     Int               @default(0)
+  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId   Int
   todos     PreparationTodo[]
-  createdAt DateTime @default(now())
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
 }
 
 model PreparationTodo {
-  id        Int      @id @default(autoincrement())
+  id        Int                   @id @default(autoincrement())
   title     String
-  done      Boolean  @default(false)
-  event     Event    @relation(fields: [eventId], references: [id])
+  done      Boolean               @default(false)
+  event     Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId   Int
-  order     Int      @default(0)
-  group     PreparationTodoGroup? @relation(fields: [groupId], references: [id])
+  order     Int                   @default(0)
+  group     PreparationTodoGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId   Int?
-  createdAt DateTime @default(now())
+  createdAt DateTime              @default(now())
+  updatedAt DateTime              @updatedAt
 }
 
 model EventByCode {
   id        Int      @id @default(autoincrement())
   eventCode String   @unique
   publicId  String
-  ownerId   Int
+  ownerUid  String
   title     String
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserByRole {
+  userUid       String  @id
+  userFirstName String?
+  userRole      Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User    @relation(fields: [userUid], references: [uid], onDelete: Cascade)
 }
 
 enum InvitationStatus {
@@ -115,10 +131,12 @@ enum InvitationStatus {
   DECLINED
 }
 
-enum OrgSize {
-  PETITE
-  MOYENNE
-  GRANDE
+enum OrganizationType {
+  ASSOCIATION
+  PME
+  ENTREPRISE
+  STARTUP
+  AUTO_ENTREPRENEUR
 }
 
 enum EventStatus {

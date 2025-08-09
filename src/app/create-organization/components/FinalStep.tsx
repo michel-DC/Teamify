@@ -3,18 +3,29 @@
 import { useRouter } from "next/navigation";
 import { StepProps } from "../../../../types/steps";
 import Image from "next/image";
+import { useState } from "react";
+import { toast, Toaster } from "sonner";
 
 export default function FinalStep({ formData }: StepProps) {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
+  /**
+   * @param Soumission du formulaire de création d'organisation
+   *
+   * Gère l'envoi des données au backend, affiche les erreurs éventuelles et redirige en cas de succès.
+   */
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
       formDataToSend.append("bio", formData.bio);
-      formDataToSend.append("memberCount", formData.memberCount.toString());
-      formDataToSend.append("size", formData.size);
+      formDataToSend.append("organizationType", formData.organizationType);
       formDataToSend.append("mission", formData.mission);
+      if (formData.location) {
+        formDataToSend.append("location", JSON.stringify(formData.location));
+      }
 
       if (formData.file) {
         formDataToSend.append("file", formData.file);
@@ -27,21 +38,29 @@ export default function FinalStep({ formData }: StepProps) {
       });
 
       if (res.ok) {
-        router.push("/dashboard");
+        toast.success("Organisation créée avec succès !", {
+          duration: 3000,
+          onAutoClose: () => {
+            router.push("/dashboard");
+          },
+        });
       } else {
         const errorData = await res.json();
-        alert(`Erreur: ${errorData.error || res.statusText}`);
+        toast.error(`Erreur: ${errorData.error || res.statusText}`);
       }
     } catch (err) {
       console.error("Erreur:", err);
-      alert("Erreur lors de la création de l'organisation.");
+      toast.error("Erreur lors de la création de l'organisation.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="space-y-4">
+      <Toaster position="top-center" richColors />
       <h1 className="text-2xl font-bold text-foreground">
-        Félicitations, votre organisation est créée&nbsp;!
+        Félicitations, votre organisation est prête !
       </h1>
       <ul className="list-disc pl-5 space-y-1 text-foreground">
         <li>
@@ -51,11 +70,12 @@ export default function FinalStep({ formData }: StepProps) {
           <strong className="font-medium">Description :</strong> {formData.bio}
         </li>
         <li>
-          <strong className="font-medium">Membres :</strong>{" "}
-          {formData.memberCount}
+          <strong className="font-medium">Type :</strong>{" "}
+          {formData.organizationType}
         </li>
         <li>
-          <strong className="font-medium">Taille :</strong> {formData.size}
+          <strong className="font-medium">Ville :</strong>{" "}
+          {formData.location?.displayName}
         </li>
         <li>
           <strong className="font-medium">Mission :</strong> {formData.mission}
@@ -72,9 +92,11 @@ export default function FinalStep({ formData }: StepProps) {
       </ul>
       <button
         onClick={handleSubmit}
-        className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        disabled={loading}
+        className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
+        aria-busy={loading}
       >
-        Créer l&apos;organisation
+        {loading ? "Création en cours..." : "Créer l'organisation"}
       </button>
     </div>
   );

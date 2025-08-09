@@ -7,7 +7,9 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    // Récupère l'utilisateur actuellement authentifié
+    /**
+     * Récupère l'utilisateur actuellement authentifié
+     */
     const user = await getCurrentUser();
 
     // Vérifie si l'utilisateur est authentifié
@@ -21,11 +23,13 @@ export async function GET(
     // Récupère les paramètres
     const { slug } = await params;
 
-    // Recherche l'événement correspondant au slug et appartenant à l'utilisateur
+    /**
+     * Recherche l'événement correspondant au slug et appartenant à l'utilisateur
+     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerId: user.id,
+        ownerUid: user.uid,
       },
     });
 
@@ -37,7 +41,9 @@ export async function GET(
       );
     }
 
-    // Récupère la liste des tâches de préparation associées à l'événement
+    /**
+     * Récupère la liste des tâches de préparation associées à l'événement
+     */
     const todos = await prisma.preparationTodo.findMany({
       where: {
         eventId: event.id,

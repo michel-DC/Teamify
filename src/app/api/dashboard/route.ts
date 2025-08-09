@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     const userData = await prisma.user.findUnique({
-      where: { id: user.id },
+      where: { uid: user.uid },
       include: {
         organizations: true,
       },

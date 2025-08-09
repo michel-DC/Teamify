@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
@@ -32,11 +32,79 @@ export default function NewOrganizationPage() {
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
-    memberCount: "",
-    size: "PETITE",
+    organizationType: "ASSOCIATION",
     mission: "",
+    location: null as {
+      city: string;
+      lat: number;
+      lon: number;
+      displayName?: string;
+    } | null,
   });
   const [file, setFile] = useState<File | null>(null);
+
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<
+    Array<{ display_name: string; lat: string; lon: string }>
+  >([]);
+  const [loadingCities, setLoadingCities] = useState(false);
+  const debouncedQuery = useMemo(() => query, [query]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    async function fetchCities() {
+      if (!debouncedQuery || debouncedQuery.length < 2) {
+        setResults([]);
+        return;
+      }
+      setLoadingCities(true);
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(
+          debouncedQuery
+        )}&accept-language=fr`;
+        const res = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            Accept: "application/json",
+            "User-Agent": "teamify.com/1.0 (+https://teamify.com)",
+            Referer: "https://teamify.com",
+          },
+        });
+        if (res.ok) {
+          const data = (await res.json()) as Array<{
+            display_name: string;
+            lat: string;
+            lon: string;
+          }>;
+          setResults(data);
+        }
+      } catch {
+      } finally {
+        setLoadingCities(false);
+      }
+    }
+    const t = setTimeout(fetchCities, 350);
+    return () => {
+      controller.abort();
+      clearTimeout(t);
+    };
+  }, [debouncedQuery]);
+
+  const handleSelectCity = (r: {
+    display_name: string;
+    lat: string;
+    lon: string;
+  }) => {
+    setFormData((prev) => ({
+      ...prev,
+      location: {
+        city: r.display_name,
+        lat: parseFloat(r.lat),
+        lon: parseFloat(r.lon),
+        displayName: r.display_name,
+      },
+    }));
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -56,16 +124,19 @@ export default function NewOrganizationPage() {
     setIsSubmitting(true);
 
     const submitFormData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      submitFormData.append(key, value);
-    });
-
+    submitFormData.append("name", formData.name);
+    submitFormData.append("bio", formData.bio);
+    submitFormData.append("organizationType", formData.organizationType);
+    submitFormData.append("mission", formData.mission);
+    if (formData.location) {
+      submitFormData.append("location", JSON.stringify(formData.location));
+    }
     if (file) {
       submitFormData.append("file", file);
     }
 
     try {
-      const response = await fetch("/api/organization", {
+      const response = await fetch("/api/organization/create", {
         method: "POST",
         body: submitFormData,
       });
@@ -141,42 +212,69 @@ export default function NewOrganizationPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="memberCount">Nombre de membres</Label>
-                  <Input
-                    id="memberCount"
-                    type="number"
-                    value={formData.memberCount}
-                    onChange={(e) =>
-                      handleInputChange("memberCount", e.target.value)
-                    }
-                    required
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="orgType">Type d&apos;organisation</Label>
+                <Select
+                  value={formData.organizationType}
+                  onValueChange={(value) =>
+                    handleInputChange("organizationType", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ASSOCIATION">Association</SelectItem>
+                    <SelectItem value="PME">PME</SelectItem>
+                    <SelectItem value="ENTREPRISE">Entreprise</SelectItem>
+                    <SelectItem value="STARTUP">Startup</SelectItem>
+                    <SelectItem value="AUTO_ENTREPRENEUR">
+                      Auto-entrepreneur
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="size">Taille de l&apos;organisation</Label>
-                  <Select
-                    value={formData.size}
-                    onValueChange={(value) => handleInputChange("size", value)}
+              <div className="space-y-2">
+                <Label>Ville</Label>
+                <Input
+                  placeholder="Saisissez une ville (ex: Paris)"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  aria-autocomplete="list"
+                  aria-controls="city-suggestions"
+                />
+                {loadingCities && (
+                  <p className="text-sm text-muted-foreground">Recherche...</p>
+                )}
+                {results.length > 0 && (
+                  <ul
+                    id="city-suggestions"
+                    className="max-h-48 overflow-auto border border-border rounded-md divide-y"
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PETITE">
-                        Petite (1-10 membres)
-                      </SelectItem>
-                      <SelectItem value="MOYENNE">
-                        Moyenne (11-50 membres)
-                      </SelectItem>
-                      <SelectItem value="GRANDE">
-                        Grande (50+ membres)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                    {results.map((r, idx) => (
+                      <li
+                        key={`${r.lat}-${r.lon}-${idx}`}
+                        role="option"
+                        tabIndex={0}
+                        className="p-2 hover:bg-accent cursor-pointer text-foreground"
+                        onClick={() => handleSelectCity(r)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && handleSelectCity(r)
+                        }
+                      >
+                        {r.display_name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {formData.location && (
+                  <div className="text-sm text-muted-foreground">
+                    Sélectionné: {formData.location.displayName} (
+                    {formData.location.lat.toFixed(4)},{" "}
+                    {formData.location.lon.toFixed(4)})
+                  </div>
+                )}
               </div>
 
               <div className="space-y-2">

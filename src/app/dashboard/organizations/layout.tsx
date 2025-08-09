@@ -8,7 +8,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Teamify | Vos évènements",
+  title: "Teamify | Vos organisations",
   description: "...",
 };
 

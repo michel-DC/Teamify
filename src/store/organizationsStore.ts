@@ -8,14 +8,34 @@ interface Organization {
   bio?: string;
   profileImage: string;
   memberCount: number;
-  size: "PETITE" | "MOYENNE" | "GRANDE";
+  organizationType:
+    | "ASSOCIATION"
+    | "PME"
+    | "ENTREPRISE"
+    | "STARTUP"
+    | "AUTO_ENTREPRENEUR"
+    | string;
   mission: string;
   createdAt: string;
+  location?: {
+    city: string;
+    lat: number;
+    lon: number;
+    displayName?: string;
+  } | null;
+}
+
+interface Event {
+  id: number;
+  name: string;
+  description: string;
+  date: string;
 }
 
 interface OrganizationsStore {
   // État
   organizations: Organization[];
+  events: Event[];
   loading: boolean;
   initialized: boolean;
   lastFetch: number | null;
@@ -38,6 +58,7 @@ export const useOrganizationsStore = create<OrganizationsStore>()(
     (set, get) => ({
       // État initial
       organizations: [],
+      events: [],
       loading: false,
       initialized: false,
       lastFetch: null,

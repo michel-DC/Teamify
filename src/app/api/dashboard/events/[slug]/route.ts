@@ -18,11 +18,13 @@ export async function GET(
 
     const { slug } = await params;
 
-    // Recherche par eventCode ou publicId
+    /**
+     * Recherche par eventCode ou publicId avec l'UID utilisateur
+     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerId: user.id,
+        ownerUid: user.uid,
       },
       include: {
         organization: {
@@ -71,11 +73,13 @@ export async function PUT(
     const body = await request.json();
     const { slug } = await params;
 
-    // Recherche par eventCode ou publicId
+    /**
+     * Recherche par eventCode ou publicId avec l'UID utilisateur
+     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerId: user.id,
+        ownerUid: user.uid,
       },
     });
 
@@ -86,6 +90,9 @@ export async function PUT(
       );
     }
 
+    /**
+     * Mise à jour de l'événement
+     */
     const updatedEvent = await prisma.event.update({
       where: {
         id: event.id,
@@ -130,11 +137,13 @@ export async function DELETE(
 
     const { slug } = await params;
 
-    // Recherche par eventCode ou publicId
+    /**
+     * Recherche par eventCode ou publicId avec l'UID utilisateur
+     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerId: user.id,
+        ownerUid: user.uid,
       },
     });
 
@@ -145,6 +154,10 @@ export async function DELETE(
       );
     }
 
+    /**
+     * Suppression de l'événement avec suppression en cascade
+     * automatique des todos et invitations
+     */
     await prisma.event.delete({
       where: {
         id: event.id,

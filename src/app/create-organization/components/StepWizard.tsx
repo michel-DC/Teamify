@@ -5,9 +5,9 @@ import Welcome from "./welcome";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-import Step4 from "./Step4";
-import Step5 from "./Step5";
-import Step6 from "./Step6";
+import Step4 from "./Step4"; // localisation
+import Step5 from "./Step5"; // type d'organisation
+import Step6 from "./Step6"; // mission
 import FinalStep from "./FinalStep";
 import { Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -59,22 +59,20 @@ export default function StepWizard() {
     name: "",
     bio: "",
     profileImage: "",
-    memberCount: 0,
-    size: "",
+    organizationType: "",
     mission: "",
+    location: null as {
+      city: string;
+      lat: number;
+      lon: number;
+      displayName?: string;
+    } | null,
     file: undefined as File | undefined,
-  } as {
-    name: string;
-    bio: string;
-    profileImage: string;
-    memberCount: number;
-    size: string;
-    mission: string;
-    file?: File;
   });
 
   const next = () => setStep((s) => s + 1);
   const prev = () => setStep((s) => s - 1);
+  const exit = () => setStep((s) => s - 1);
 
   const renderStep = () => {
     switch (step) {
@@ -89,7 +87,7 @@ export default function StepWizard() {
         return (
           <Step1
             next={next}
-            prev={prev}
+            exit={exit}
             formData={formData}
             setFormData={setFormData}
           />
@@ -120,7 +118,7 @@ export default function StepWizard() {
             formData={formData}
             setFormData={setFormData}
           />
-        );
+        ); // localisation
       case 6:
         return (
           <Step5
@@ -129,7 +127,7 @@ export default function StepWizard() {
             formData={formData}
             setFormData={setFormData}
           />
-        );
+        ); // type
       case 7:
         return (
           <Step6
@@ -138,7 +136,7 @@ export default function StepWizard() {
             formData={formData}
             setFormData={setFormData}
           />
-        );
+        ); // mission
       case 8:
         return <FinalStep formData={formData} setFormData={setFormData} />;
       default:

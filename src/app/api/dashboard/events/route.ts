@@ -127,7 +127,7 @@ export async function POST(req: Request) {
         data: {
           publicId,
           eventCode,
-          ownerId: user.id,
+          ownerUid: user.uid,
           title,
           description,
           startDate,
@@ -149,7 +149,7 @@ export async function POST(req: Request) {
         data: {
           eventCode,
           publicId,
-          ownerId: user.id,
+          ownerUid: user.uid,
           title,
         },
       });

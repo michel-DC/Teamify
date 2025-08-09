@@ -13,9 +13,12 @@ export async function GET() {
       );
     }
 
+    /**
+     * Récupération de la première organisation de l'utilisateur
+     */
     const organization = await prisma.organization.findFirst({
       where: {
-        ownerId: user.id,
+        ownerUid: user.uid,
       },
     });
 

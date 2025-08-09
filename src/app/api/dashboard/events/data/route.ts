@@ -4,6 +4,9 @@ import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
+    /**
+     * Récupération de l'utilisateur connecté
+     */
     const user = await getCurrentUser();
 
     if (!user) {
@@ -13,9 +16,12 @@ export async function GET() {
       );
     }
 
+    /**
+     * Récupération des événements appartenant à l'utilisateur
+     */
     const events = await prisma.event.findMany({
       where: {
-        ownerId: user.id,
+        ownerUid: user.uid,
       },
       include: {
         organization: {

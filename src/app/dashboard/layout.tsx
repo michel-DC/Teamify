@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Space_Grotesk } from "next/font/google";
+import { Poppins } from "next/font/google";
 import {
   SidebarProvider,
   SidebarTrigger,
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import ClientGate from "./ClientGate";
 
-const spaceGrotesk = Space_Grotesk({
+const poppins = Poppins({
   subsets: ["latin"],
-  display: "swap",
-  variable: "--font-space-grotesk",
   weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -24,10 +24,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset
-        className={`${spaceGrotesk.variable} h-full bg-background text-foreground`}
+        className={`${poppins.variable} h-full bg-background text-foreground`}
       >
         <SidebarTrigger />
-        {children}
+        <ClientGate>{children}</ClientGate>
       </SidebarInset>
     </SidebarProvider>
   );
