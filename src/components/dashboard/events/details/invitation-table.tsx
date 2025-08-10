@@ -36,6 +36,7 @@ import {
   PaginationPrevious,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import { toast } from "sonner";
 
 interface Invitation {
   id: number;
@@ -48,9 +49,19 @@ interface Invitation {
 
 interface InvitationTableProps {
   eventId: number;
+  eventSlug?: string;
+  eventName?: string;
+  eventDate?: string;
+  eventLocation?: string;
 }
 
-export default function InvitationTable({ eventId }: InvitationTableProps) {
+export default function InvitationTable({
+  eventId,
+  eventSlug,
+  eventName = "Événement",
+  eventDate,
+  eventLocation,
+}: InvitationTableProps) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -282,7 +293,9 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
   const stats = getStats();
 
   /**
-   * @param Ajoute une invitation en attente en local (démo)
+   * @param Envoi d'une invitation par email via l'API
+   *
+   * Valide l'email et envoie l'invitation via l'API Resend
    */
   const handleInviteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -295,9 +308,38 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
       return;
     }
 
+    if (!eventSlug) {
+      setInviteError(
+        "Impossible d'envoyer l'invitation : slug d'événement manquant"
+      );
+      return;
+    }
+
     setInviteSubmitting(true);
     try {
-      // Ici on pourrait appeler POST /api/events/{id}/invitations
+      // Appel de l'API pour envoyer l'email
+      const response = await fetch(`/api/events/${eventSlug}/invitations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          eventName,
+          eventDate,
+          eventLocation,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || "Erreur lors de l'envoi de l'invitation"
+        );
+      }
+
+      // Ajout de l'invitation en local après envoi réussi
       const nextId = invitations.reduce((m, i) => Math.max(m, i.id), 0) + 1;
       const now = new Date().toISOString();
       setInvitations((prev) => [
@@ -310,12 +352,24 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
         },
         ...prev,
       ]);
+
       setInviteOpen(false);
       setInviteEmail("");
       // Retourner à la première page après ajout
       setCurrentPage(1);
+
+      // Notification de succès
+      toast.success(`Invitation envoyée avec succès à ${email}`, {
+        description:
+          "L'email a été envoyé et l'invitation est en attente de réponse.",
+      });
     } catch (err) {
-      setInviteError("Une erreur est survenue. Réessayez.");
+      console.error("Erreur envoi invitation:", err);
+      setInviteError(
+        err instanceof Error
+          ? err.message
+          : "Une erreur est survenue. Réessayez."
+      );
     } finally {
       setInviteSubmitting(false);
     }

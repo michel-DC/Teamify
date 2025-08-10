@@ -314,7 +314,15 @@ export default function EventDetailsPage() {
               />
             </div>
             <div>
-              <InvitationTable eventId={event.id} />
+              <InvitationTable
+                eventId={event.id}
+                eventSlug={params.slug}
+                eventName={event.title}
+                eventDate={
+                  event.startDate ? formatDate(event.startDate) : undefined
+                }
+                eventLocation={event.location}
+              />
             </div>
           </div>
         </div>
