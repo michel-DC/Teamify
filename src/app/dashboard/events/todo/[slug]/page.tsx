@@ -81,17 +81,17 @@ export default function EventTodoPage() {
 
   if (loading) {
     return (
-      <main>
+      <div>
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </main>
+      </div>
     );
   }
 
   if (!event) {
     return (
-      <main>
+      <div>
         <div className="flex items-center justify-center min-h-screen">
           <Card className="w-96">
             <CardHeader>
@@ -108,12 +108,12 @@ export default function EventTodoPage() {
             </CardContent>
           </Card>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main>
+    <div>
       <header className="flex h-16 shrink-0 items-center gap-2">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
@@ -211,6 +211,6 @@ export default function EventTodoPage() {
           onChange={handleKanbanChange}
         />
       </div>
-    </main>
+    </div>
   );
 }

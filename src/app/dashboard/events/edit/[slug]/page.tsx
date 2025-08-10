@@ -173,7 +173,7 @@ export default function EditEventPage() {
   }
 
   return (
-    <main className="min-h-screen grid place-items-center p-6">
+    <div className="min-h-screen grid place-items-center p-6">
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         <Toaster position="top-center" richColors />
         <Card className="max-w-2xl mx-auto">
@@ -350,6 +350,6 @@ export default function EditEventPage() {
           </CardContent>
         </Card>
       </div>
-    </main>
+    </div>
   );
 }

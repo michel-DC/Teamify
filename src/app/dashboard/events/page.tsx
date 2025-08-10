@@ -17,7 +17,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function EventOverview() {
   return (
-    <main>
+    <div>
       <header className="flex h-16 shrink-0 items-center gap-2">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
@@ -62,6 +62,6 @@ export default function EventOverview() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
