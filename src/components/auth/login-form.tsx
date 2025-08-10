@@ -276,7 +276,7 @@ export const LoginForm = ({
 
             {/* Lien d'inscription */}
             <div className="text-center text-xs sm:text-sm text-muted-foreground mt-4">
-              Pas encore de compte\u00a0?{" "}
+              Pas encore de compte ?{" "}
               <Link
                 href="/auth/register"
                 className="underline underline-offset-4 hover:text-primary transition-colors font-medium"

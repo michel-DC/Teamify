@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import ClientGate from "./ClientGate";
+import { DataPersistenceManager } from "@/components/data-persistence-manager";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
+      <DataPersistenceManager />
       <AppSidebar />
       <SidebarInset
         className={`${poppins.variable} h-full bg-background text-foreground`}
