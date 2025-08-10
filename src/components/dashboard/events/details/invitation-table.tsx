@@ -40,11 +40,11 @@ import { toast } from "sonner";
 
 interface Invitation {
   id: number;
-  email: string;
-  name: string;
+  receiverName: string;
+  receiverEmail: string;
   status: "PENDING" | "ACCEPTED" | "DECLINED";
   sentAt: string;
-  respondedAt?: string;
+  respondedAt?: string | null;
 }
 
 interface InvitationTableProps {
@@ -73,119 +73,41 @@ export default function InvitationTable({
   const [inviteSubmitting, setInviteSubmitting] = useState(false);
   const [inviteError, setInviteError] = useState<string | null>(null);
 
-  // Données d'invitation statiques pour la démo
-  const fakeInvitations = useMemo<Invitation[]>(
-    () => [
-      {
-        id: 1,
-        email: "alice.martin@example.com",
-        name: "Alice Martin",
-        status: "ACCEPTED",
-        sentAt: "2024-01-15T10:30:00Z",
-        respondedAt: "2024-01-15T14:20:00Z",
-      },
-      {
-        id: 2,
-        email: "bob.dupont@example.com",
-        name: "Bob Dupont",
-        status: "PENDING",
-        sentAt: "2024-01-14T09:15:00Z",
-      },
-      {
-        id: 3,
-        email: "claire.bernard@example.com",
-        name: "Claire Bernard",
-        status: "ACCEPTED",
-        sentAt: "2024-01-13T16:45:00Z",
-        respondedAt: "2024-01-14T08:30:00Z",
-      },
-      {
-        id: 4,
-        email: "david.rousseau@example.com",
-        name: "David Rousseau",
-        status: "DECLINED",
-        sentAt: "2024-01-12T11:20:00Z",
-        respondedAt: "2024-01-12T18:45:00Z",
-      },
-      {
-        id: 5,
-        email: "emma.leroy@example.com",
-        name: "Emma Leroy",
-        status: "PENDING",
-        sentAt: "2024-01-11T13:10:00Z",
-      },
-      {
-        id: 6,
-        email: "felix.moreau@example.com",
-        name: "Félix Moreau",
-        status: "ACCEPTED",
-        sentAt: "2024-01-10T15:30:00Z",
-        respondedAt: "2024-01-11T09:15:00Z",
-      },
-      {
-        id: 7,
-        email: "sophie.lefevre@example.com",
-        name: "Sophie Lefèvre",
-        status: "ACCEPTED",
-        sentAt: "2024-01-09T12:00:00Z",
-        respondedAt: "2024-01-10T10:30:00Z",
-      },
-      {
-        id: 8,
-        email: "thomas.girard@example.com",
-        name: "Thomas Girard",
-        status: "PENDING",
-        sentAt: "2024-01-08T14:20:00Z",
-      },
-      {
-        id: 9,
-        email: "marie.dubois@example.com",
-        name: "Marie Dubois",
-        status: "DECLINED",
-        sentAt: "2024-01-07T16:45:00Z",
-        respondedAt: "2024-01-08T09:15:00Z",
-      },
-      {
-        id: 10,
-        email: "pierre.martin@example.com",
-        name: "Pierre Martin",
-        status: "ACCEPTED",
-        sentAt: "2024-01-06T11:30:00Z",
-        respondedAt: "2024-01-07T08:45:00Z",
-      },
-      {
-        id: 11,
-        email: "julie.roux@example.com",
-        name: "Julie Roux",
-        status: "PENDING",
-        sentAt: "2024-01-05T13:15:00Z",
-      },
-      {
-        id: 12,
-        email: "nicolas.blanc@example.com",
-        name: "Nicolas Blanc",
-        status: "ACCEPTED",
-        sentAt: "2024-01-04T10:00:00Z",
-        respondedAt: "2024-01-05T07:30:00Z",
-      },
-    ],
-    []
-  );
-
+  /**
+   * @param Récupération des invitations depuis l'API
+   *
+   * Charge les invitations réelles depuis la base de données
+   */
   useEffect(() => {
     const fetchInvitations = async () => {
+      if (!eventSlug) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setInvitations(fakeInvitations);
+        setLoading(true);
+        const response = await fetch(
+          `/api/dashboard/events/${eventSlug}/invitations`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setInvitations(data.invitations || []);
+        } else {
+          console.error("Erreur lors du chargement des invitations");
+          toast.error("Erreur lors du chargement des invitations");
+        }
       } catch (error) {
         console.error("Erreur lors du chargement des invitations:", error);
+        toast.error("Erreur lors du chargement des invitations");
       } finally {
         setLoading(false);
       }
     };
 
     fetchInvitations();
-  }, [eventId, fakeInvitations]);
+  }, [eventSlug]);
 
   /**
    * @param Calcul de la pagination
@@ -295,7 +217,7 @@ export default function InvitationTable({
   /**
    * @param Envoi d'une invitation par email via l'API
    *
-   * Valide l'email et envoie l'invitation via l'API Resend
+   * Valide l'email et envoie l'invitation via l'API
    */
   const handleInviteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -340,18 +262,16 @@ export default function InvitationTable({
       }
 
       // Ajout de l'invitation en local après envoi réussi
-      const nextId = invitations.reduce((m, i) => Math.max(m, i.id), 0) + 1;
-      const now = new Date().toISOString();
-      setInvitations((prev) => [
-        {
-          id: nextId,
-          email,
-          name: email.split("@")[0],
-          status: "PENDING",
-          sentAt: now,
-        },
-        ...prev,
-      ]);
+      const newInvitation: Invitation = {
+        id: Date.now(), // ID temporaire
+        receiverName: email.split("@")[0],
+        receiverEmail: email,
+        status: "PENDING",
+        sentAt: new Date().toISOString(),
+        respondedAt: null,
+      };
+
+      setInvitations((prev) => [newInvitation, ...prev]);
 
       setInviteOpen(false);
       setInviteEmail("");
@@ -482,10 +402,10 @@ export default function InvitationTable({
                   {paginatedInvitations.map((invitation) => (
                     <TableRow key={invitation.id}>
                       <TableCell className="font-medium">
-                        {invitation.name}
+                        {invitation.receiverName}
                       </TableCell>
                       <TableCell className="text-muted-foreground">
-                        {invitation.email}
+                        {invitation.receiverEmail}
                       </TableCell>
                       <TableCell>{getStatusBadge(invitation.status)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">

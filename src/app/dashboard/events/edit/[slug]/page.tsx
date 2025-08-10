@@ -127,8 +127,8 @@ export default function EditEventPage() {
         endDate: formData.endDate
           ? new Date(formData.endDate).toISOString()
           : null,
-        location: formData.location,
-        capacity: formData.capacity ? parseInt(formData.capacity) : null,
+        location: formData.location || "", // Utiliser une chaîne vide si null/undefined
+        capacity: formData.capacity ? parseInt(formData.capacity) : 0, // Utiliser 0 au lieu de null
         status: formData.status,
         budget: formData.budget ? parseFloat(formData.budget) : null,
         category: formData.category,
@@ -151,7 +151,8 @@ export default function EditEventPage() {
       } else {
         toast.error(result.error || "Erreur lors de la modification");
       }
-    } catch {
+    } catch (error) {
+      console.error("[EditEvent] Erreur:", error);
       toast.error("Erreur réseau");
     } finally {
       setIsSubmitting(false);

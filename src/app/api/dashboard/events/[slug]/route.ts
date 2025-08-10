@@ -74,6 +74,12 @@ export async function PATCH(
     const body = await request.json();
     const { slug } = await params;
 
+    console.log("[PATCH] Données reçues:", {
+      slug,
+      body,
+      userUid: user.uid,
+    });
+
     /**
      * Recherche par eventCode ou publicId avec l'UID utilisateur
      */
@@ -83,6 +89,11 @@ export async function PATCH(
         ownerUid: user.uid,
       },
     });
+
+    console.log(
+      "[PATCH] Événement trouvé:",
+      event ? { id: event.id, title: event.title } : null
+    );
 
     if (!event) {
       return NextResponse.json(
@@ -102,7 +113,7 @@ export async function PATCH(
     if (body.title !== undefined) updateData.title = body.title;
     if (body.description !== undefined)
       updateData.description = body.description;
-    if (body.location !== undefined) updateData.location = body.location;
+    if (body.location !== undefined) updateData.location = body.location || ""; // Utiliser une chaîne vide si null/undefined
     if (body.isPublic !== undefined) updateData.isPublic = body.isPublic;
 
     // Traitement des dates
@@ -115,7 +126,7 @@ export async function PATCH(
 
     // Traitement des nombres
     if (body.capacity !== undefined) {
-      updateData.capacity = body.capacity ? parseInt(body.capacity) : null;
+      updateData.capacity = body.capacity ? parseInt(body.capacity) : 0; // Utiliser 0 au lieu de null
     }
     if (body.budget !== undefined) {
       updateData.budget = body.budget ? parseFloat(body.budget) : null;
@@ -128,6 +139,8 @@ export async function PATCH(
     if (body.category && Object.values(EventCategory).includes(body.category)) {
       updateData.category = body.category;
     }
+
+    console.log("[PATCH] Données de mise à jour:", updateData);
 
     /**
      * Mise à jour de l'événement
@@ -145,6 +158,12 @@ export async function PATCH(
           },
         },
       },
+    });
+
+    console.log("[PATCH] Événement mis à jour:", {
+      id: updatedEvent.id,
+      title: updatedEvent.title,
+      status: updatedEvent.status,
     });
 
     return NextResponse.json({ event: updatedEvent }, { status: 200 });

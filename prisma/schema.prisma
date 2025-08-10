@@ -18,7 +18,6 @@ model User {
   updatedAt         DateTime       @updatedAt
   organizations     Organization[]
   event             Event[]
-  invitations       Invitation[]
   organizationCount Int            @default(0)
   userByRole        UserByRole?
 }
@@ -70,17 +69,18 @@ model Event {
 }
 
 model Invitation {
-  id        Int              @id @default(autoincrement())
-  eventId   Int
-  userUid   String
-  email     String
-  status    InvitationStatus @default(PENDING)
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  event     Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  user      User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  id          Int              @id @default(autoincrement())
+  eventCode   String
+  receiverName String
+  receiverEmail String
+  status      InvitationStatus @default(PENDING)
+  sentAt      DateTime         @default(now())
+  respondedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  event       Event            @relation(fields: [eventCode], references: [eventCode], onDelete: Cascade)
 
-  @@unique([eventId, email])
+  @@unique([eventCode, receiverEmail])
 }
 
 model PreparationTodoGroup {
