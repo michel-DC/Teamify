@@ -15,10 +15,10 @@ import { useEffect, useState } from "react";
 
 export default function PreparationBanner({
   percentage,
-  eventId,
+  eventCode,
 }: {
   percentage: number;
-  eventId: number;
+  eventCode: string;
 }) {
   const [remainingDays, setRemainingDays] = useState<number | null>(null);
   const [daysColor, setDaysColor] = useState("text-red-600");
@@ -26,7 +26,7 @@ export default function PreparationBanner({
   useEffect(() => {
     const fetchEventData = async () => {
       try {
-        const response = await fetch(`/api/dashboard/events/${eventId}`);
+        const response = await fetch(`/api/dashboard/events/${eventCode}`);
         const data = await response.json();
 
         if (data.event?.endDate) {
@@ -50,7 +50,7 @@ export default function PreparationBanner({
     };
 
     fetchEventData();
-  }, [eventId]);
+  }, [eventCode]);
 
   let barColor = "bg-red-400";
   if (percentage >= 50) barColor = "bg-green-500";
@@ -95,7 +95,7 @@ export default function PreparationBanner({
           Progression globale de la préparation de votre événement
         </div>
         <div className="mt-4">
-          <Link href={`/dashboard/events/todo/${eventId}`}>
+          <Link href={`/dashboard/events/todo/${eventCode}`}>
             <Button>
               {percentage <= 0
                 ? "Commencer la progression"

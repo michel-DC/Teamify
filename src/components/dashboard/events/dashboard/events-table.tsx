@@ -23,6 +23,8 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 export type Event = {
   id: number;
@@ -120,6 +122,63 @@ const columns: ColumnDef<Event>[] = [
   },
 ];
 
+/**
+ * Convertit les données d'événements en format CSV et déclenche le téléchargement
+ */
+const exportToCSV = (data: Event[]) => {
+  // Définition des en-têtes CSV
+  const headers = [
+    "Code",
+    "Titre",
+    "Description",
+    "Catégorie",
+    "Statut",
+    "Lieu",
+    "Capacité",
+    "Date de début",
+    "Date de fin",
+    "Budget",
+    "Activité",
+  ];
+
+  // Conversion des données en lignes CSV
+  const csvRows = [
+    headers.join(","),
+    ...data.map((event) =>
+      [
+        event.eventCode,
+        `"${event.title}"`,
+        `"${event.description || ""}"`,
+        event.category,
+        event.status,
+        `"${event.location}"`,
+        event.capacity,
+        event.startDate ? new Date(event.startDate).toLocaleDateString() : "",
+        event.endDate ? new Date(event.endDate).toLocaleDateString() : "",
+        event.budget || "",
+        event.isCancelled ? "Inactif" : "Actif",
+      ].join(",")
+    ),
+  ];
+
+  const csvContent = csvRows.join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a");
+
+  if (link.download !== undefined) {
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `evenements_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+};
+
 export function DataTable({ data }: { data: Event[] }) {
   const table = useReactTable({
     data,
@@ -136,6 +195,15 @@ export function DataTable({ data }: { data: Event[] }) {
             Tableau intéractif listant l&apos;ensemble de vos évènements
           </CardDescription>
         </div>
+        <Button
+          onClick={() => exportToCSV(data)}
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Exporter CSV
+        </Button>
       </CardHeader>
       <CardContent className="">
         <div className="rounded-md border">

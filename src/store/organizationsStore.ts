@@ -16,13 +16,14 @@ interface Organization {
     | "AUTO_ENTREPRENEUR"
     | string;
   mission: string;
-  createdAt: string;
   location?: {
     city: string;
     lat: number;
     lon: number;
     displayName?: string;
   } | null;
+  members?: any[] | null;
+  createdAt: string;
 }
 
 interface Event {

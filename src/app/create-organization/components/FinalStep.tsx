@@ -23,6 +23,7 @@ export default function FinalStep({ formData }: StepProps) {
       formDataToSend.append("bio", formData.bio);
       formDataToSend.append("organizationType", formData.organizationType);
       formDataToSend.append("mission", formData.mission);
+      formDataToSend.append("memberCount", "1"); // Valeur par défaut
       if (formData.location) {
         formDataToSend.append("location", JSON.stringify(formData.location));
       }

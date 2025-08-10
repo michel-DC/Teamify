@@ -24,19 +24,21 @@ model User {
 }
 
 model Organization {
-  id             Int               @id @default(autoincrement())
-  name           String
-  bio            String?
-  profileImage   String?
-  memberCount    Int
-  organizationType OrganizationType
-  mission        String
-  location       Json?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  ownerUid       String
-  events         Event[]
-  owner          User              @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
+  id           Int             @id @default(autoincrement())
+  publicId     String?         @unique @default(cuid())
+  name         String
+  bio          String?
+  organizationType         OrganizationType
+  location               Json?
+  mission                String
+  memberCount            Int
+  profileImage String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  ownerUid     String
+  owner        User            @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
+  events       Event[]
+  members      Json?           @default("[]") // Array of { uid: string, firstname: string, lastname: string }
 }
 
 model Event {
@@ -94,16 +96,18 @@ model PreparationTodoGroup {
 }
 
 model PreparationTodo {
-  id        Int                   @id @default(autoincrement())
-  title     String
-  done      Boolean               @default(false)
-  event     Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  eventId   Int
-  order     Int                   @default(0)
-  group     PreparationTodoGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId   Int?
-  createdAt DateTime              @default(now())
-  updatedAt DateTime              @updatedAt
+  id          Int                   @id @default(autoincrement())
+  title       String
+  description String?
+  done        Boolean               @default(false)
+  event       Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId     Int
+  order       Int                   @default(0)
+  group       PreparationTodoGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId     Int?
+  assignedTo  String?
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
 }
 
 model EventByCode {

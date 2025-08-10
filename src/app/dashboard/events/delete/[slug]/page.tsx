@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, MapPinIcon, BuildingIcon } from "lucide-react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface Event {
   id: number;
@@ -119,57 +120,85 @@ export default function DeleteEventPage() {
   };
 
   return (
-    <div className="min-h-screen grid place-items-center p-6">
-      <Card className="w-full max-w-lg border-destructive/20">
-        <CardHeader className="text-center">
-          <CardTitle className="text-destructive">
-            Supprimer l&apos;événement
-          </CardTitle>
-          <CardDescription>
-            Vous êtes sur le point de supprimer définitivement cet événement.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-lg">{event.title}</h3>
-              <p className="text-muted-foreground text-sm mt-1">
-                {event.description}
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                <span>
-                  Du {formatDate(event.startDate)} au{" "}
-                  {formatDate(event.endDate)}
-                </span>
+    <main>
+      <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+        <SidebarTrigger />
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink href="/dashboard">Tableau de bord</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink href="/dashboard/events">
+                Événements
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={`/dashboard/events/details/${params.slug}`}>
+                Détails de l&apos;événement
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Supprimer l&apos;événement</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </header>
+      <div className="min-h-screen grid place-items-center p-6">
+        <Card className="w-full max-w-lg border-destructive/20">
+          <CardHeader className="text-center">
+            <CardTitle className="text-destructive">
+              Supprimer l&apos;événement
+            </CardTitle>
+            <CardDescription>
+              Vous êtes sur le point de supprimer définitivement cet événement.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold text-lg">{event.title}</h3>
+                <p className="text-muted-foreground text-sm mt-1">
+                  {event.description}
+                </p>
               </div>
 
-              <div className="flex items-center gap-2 text-sm">
-                <MapPinIcon className="h-4 w-4 text-muted-foreground" />
-                <span>{event.location}</span>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    Du {formatDate(event.startDate)} au{" "}
+                    {formatDate(event.endDate)}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPinIcon className="h-4 w-4 text-muted-foreground" />
+                  <span>{event.location}</span>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <BuildingIcon className="h-4 w-4 text-muted-foreground" />
+                  <span>{event.organization.name}</span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2 text-sm">
-                <BuildingIcon className="h-4 w-4 text-muted-foreground" />
-                <span>{event.organization.name}</span>
+              <div className="pt-2">
+                <Badge variant="secondary" className="text-xs">
+                  ID: {event.publicId}
+                </Badge>
               </div>
             </div>
 
-            <div className="pt-2">
-              <Badge variant="secondary" className="text-xs">
-                ID: {event.publicId}
-              </Badge>
+            <div className="pt-4 border-t">
+              <DeleteEventModal eventSlug={params.slug as string} />
             </div>
-          </div>
-
-          <div className="pt-4 border-t">
-            <DeleteEventModal eventSlug={params.slug as string} />
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   );
 }

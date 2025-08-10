@@ -17,6 +17,7 @@ export async function POST(req: Request) {
   const bio = formData.get("bio") as string;
   const organizationType = formData.get("organizationType") as OrganizationType;
   const mission = formData.get("mission") as string;
+  const memberCount = parseInt(formData.get("memberCount") as string) || 1;
   const file = formData.get("file") as File | null;
   const locationRaw = formData.get("location") as string | null;
 
@@ -37,6 +38,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
   }
 
+  // Validation du memberCount
+  if (typeof memberCount !== "number" || memberCount < 1) {
+    return NextResponse.json(
+      { error: "Le nombre de membres doit être au moins 1" },
+      { status: 400 }
+    );
+  }
+
   try {
     let profileImage = null as string | null;
 
@@ -53,7 +62,20 @@ export async function POST(req: Request) {
       profileImage = `/uploads/organizations/${fileName}`;
     }
 
+    /**
+     * @param Création de l'organisation avec le propriétaire dans les membres
+     *
+     * Inclut automatiquement le propriétaire dans la liste des membres avec ses informations complètes
+     */
     const organization = await prisma.$transaction(async (tx) => {
+      // Préparer les données du propriétaire pour la colonne members
+      const ownerMember = {
+        uid: user.uid,
+        firstname: user.firstname || "",
+        lastname: user.lastname || "",
+        email: user.email,
+      };
+
       const createdOrg = await tx.organization.create({
         data: {
           name,
@@ -64,6 +86,7 @@ export async function POST(req: Request) {
           mission,
           owner: { connect: { uid: user.uid } },
           location: location as any,
+          members: [ownerMember], // Inclure le propriétaire dans les membres
         },
       });
 

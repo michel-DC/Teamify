@@ -16,11 +16,13 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { toast, Toaster } from "sonner";
-import { CheckCircle, Circle, Plus } from "lucide-react";
+import { ArrowLeft, TrendingUp } from "lucide-react";
+import KanbanBoard from "@/components/dashboard/events/todo/kanban-board";
 
 interface Event {
   id: number;
   publicId: string;
+  eventCode: string;
   title: string;
   preparationPercentage: number;
   organization: {
@@ -29,32 +31,19 @@ interface Event {
   };
 }
 
-interface Todo {
-  id: number;
-  title: string;
-  description: string;
-  isCompleted: boolean;
-  dueDate: string;
-  priority: string;
-}
-
 export default function EventTodoPage() {
   const params = useParams();
   const router = useRouter();
   const [event, setEvent] = useState<Event | null>(null);
-  const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchEventAndTodos = async () => {
+    const fetchEvent = async () => {
       try {
-        const [eventResponse, todosResponse] = await Promise.all([
-          fetch(`/api/dashboard/events/${params.slug}`),
-          fetch(`/api/dashboard/events/${params.slug}/preparation`),
-        ]);
-
+        const eventResponse = await fetch(
+          `/api/dashboard/events/${params.slug}`
+        );
         const eventData = await eventResponse.json();
-        const todosData = await todosResponse.json();
 
         if (eventResponse.ok) {
           setEvent(eventData.event);
@@ -62,12 +51,6 @@ export default function EventTodoPage() {
           toast.error(eventData.error || "Événement non trouvé");
           router.push("/dashboard/events");
           return;
-        }
-
-        if (todosResponse.ok) {
-          setTodos(todosData.todos || []);
-        } else {
-          setTodos([]);
         }
       } catch {
         toast.error("Erreur lors du chargement des données");
@@ -78,83 +61,29 @@ export default function EventTodoPage() {
     };
 
     if (params.slug) {
-      fetchEventAndTodos();
+      fetchEvent();
     }
   }, [params.slug, router]);
 
-  const toggleTodo = async (todoId: number) => {
-    try {
-      const response = await fetch(
-        `/api/dashboard/events/${params.slug}/preparation/${todoId}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            isCompleted: !todos.find((t) => t.id === todoId)?.isCompleted,
-          }),
-        }
-      );
-
-      if (response.ok) {
-        setTodos((prev) =>
-          prev.map((todo) =>
-            todo.id === todoId
-              ? { ...todo, isCompleted: !todo.isCompleted }
-              : todo
-          )
-        );
-
-        const completedCount = todos.filter((t) =>
-          t.id === todoId ? !t.isCompleted : t.isCompleted
-        ).length;
-        const percentage =
-          todos.length > 0
-            ? Math.round((completedCount / todos.length) * 100)
-            : 0;
-
-        if (event) {
-          setEvent((prev) =>
-            prev ? { ...prev, preparationPercentage: percentage } : null
-          );
-        }
-
-        toast.success("Tâche mise à jour");
-      } else {
-        toast.error("Erreur lors de la mise à jour");
-      }
-    } catch {
-      toast.error("Erreur réseau");
+  const handleKanbanChange = () => {
+    // Rafraîchir les données de l'événement après modification
+    if (params.slug) {
+      fetch(`/api/dashboard/events/${params.slug}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.event) {
+            setEvent(data.event);
+          }
+        })
+        .catch(console.error);
     }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority.toLowerCase()) {
-      case "haute":
-        return "text-red-600 bg-red-50 border-red-200";
-      case "moyenne":
-        return "text-orange-600 bg-orange-50 border-orange-200";
-      case "basse":
-        return "text-green-600 bg-green-50 border-green-200";
-      default:
-        return "text-gray-600 bg-gray-50 border-gray-200";
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
   };
 
   if (loading) {
     return (
       <main>
         <div className="flex items-center justify-center min-h-screen">
-          <div>Chargement...</div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       </main>
     );
@@ -183,11 +112,6 @@ export default function EventTodoPage() {
     );
   }
 
-  const completedTodos = todos.filter((todo) => todo.isCompleted).length;
-  const totalTodos = todos.length;
-  const progressPercentage =
-    totalTodos > 0 ? Math.round((completedTodos / totalTodos) * 100) : 0;
-
   return (
     <main>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -210,147 +134,82 @@ export default function EventTodoPage() {
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink
-                  href={`/dashboard/events/details/${event.publicId}`}
+                  href={`/dashboard/events/details/${event.eventCode}`}
                 >
                   {event.title}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Préparation</BreadcrumbPage>
+                <BreadcrumbPage>Préparation Kanban</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
         </div>
       </header>
 
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+      <div className="flex flex-1 flex-col gap-6 p-6 pt-0">
         <Toaster position="top-center" richColors />
 
+        {/* En-tête de la page */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold">
-              Préparation de l&apos;événement
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <TrendingUp className="h-8 w-8 text-primary" />
+              Préparation Kanban
             </h1>
             <p className="text-muted-foreground mt-2">{event.title}</p>
+            <p className="text-sm text-muted-foreground">
+              Code événement:{" "}
+              <span className="font-mono font-bold">{event.eventCode}</span>
+            </p>
           </div>
           <Button
+            variant="outline"
             onClick={() =>
-              router.push(`/dashboard/events/details/${event.publicId}`)
+              router.push(`/dashboard/events/details/${event.eventCode}`)
             }
           >
+            <ArrowLeft className="h-4 w-4 mr-2" />
             Retour aux détails
           </Button>
         </div>
 
+        {/* Carte de progression globale */}
         <Card>
           <CardHeader>
-            <CardTitle>Progression générale</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Progression globale
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="flex justify-between text-sm">
-                <span>Tâches complétées</span>
-                <span>
-                  {completedTodos} / {totalTodos}
+                <span>Progression actuelle</span>
+                <span className="font-bold">
+                  {event.preparationPercentage}%
                 </span>
               </div>
-              <Progress value={progressPercentage} className="h-2" />
+              <Progress value={event.preparationPercentage} className="h-3" />
               <p className="text-sm text-muted-foreground">
-                {progressPercentage}% de préparation terminée
+                {event.preparationPercentage === 0
+                  ? "Commencez par créer des groupes de tâches"
+                  : event.preparationPercentage < 50
+                  ? "Bonne progression ! Continuez à organiser vos tâches"
+                  : event.preparationPercentage < 100
+                  ? "Excellent travail ! Vous êtes presque prêt"
+                  : "Parfait ! Toutes les tâches sont terminées"}
               </p>
             </div>
           </CardContent>
         </Card>
 
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold">Liste des tâches</h2>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Ajouter une tâche
-          </Button>
-        </div>
-
-        {todos.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground mb-4">
-                Aucune tâche de préparation n&apos;a été créée pour cet
-                événement.
-              </p>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Créer la première tâche
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {todos.map((todo) => (
-              <Card
-                key={todo.id}
-                className={`transition-all ${
-                  todo.isCompleted ? "opacity-70" : ""
-                }`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <button
-                      onClick={() => toggleTodo(todo.id)}
-                      className="mt-1 flex-shrink-0"
-                    >
-                      {todo.isCompleted ? (
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                      ) : (
-                        <Circle className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-                      )}
-                    </button>
-
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <h3
-                          className={`font-medium ${
-                            todo.isCompleted
-                              ? "line-through text-muted-foreground"
-                              : ""
-                          }`}
-                        >
-                          {todo.title}
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`px-2 py-1 text-xs rounded-md border ${getPriorityColor(
-                              todo.priority
-                            )}`}
-                          >
-                            {todo.priority}
-                          </span>
-                          {todo.dueDate && (
-                            <span className="text-xs text-muted-foreground">
-                              Échéance: {formatDate(todo.dueDate)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {todo.description && (
-                        <p
-                          className={`text-sm ${
-                            todo.isCompleted
-                              ? "line-through text-muted-foreground"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {todo.description}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+        {/* Tableau Kanban */}
+        <KanbanBoard
+          eventCode={event.eventCode}
+          onChange={handleKanbanChange}
+        />
       </div>
     </main>
   );

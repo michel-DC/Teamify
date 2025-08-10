@@ -43,6 +43,7 @@ type EventDetails = {
   isCancelled: boolean;
   imageUrl: string | null;
   preparationPercentage?: number;
+  eventCode: string;
   slug?: string;
 };
 
@@ -309,7 +310,7 @@ export default function EventDetailsPage() {
             <div>
               <PreparationBanner
                 percentage={event.preparationPercentage ?? 0}
-                eventId={event.id}
+                eventCode={event.eventCode}
               />
             </div>
             <div>

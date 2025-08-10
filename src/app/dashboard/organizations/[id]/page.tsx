@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/label";
 import {
   Search,
   Edit,
@@ -47,6 +48,13 @@ interface Organization {
   memberCount: number;
   organizationType: string;
   mission: string;
+  location: {
+    city: string;
+    lat: number;
+    lon: number;
+    displayName?: string;
+  } | null;
+  members: any[] | null;
   createdAt: string;
   events: Event[];
 }
@@ -268,48 +276,79 @@ export default function OrganizationDetailsPage() {
         </div>
 
         {/* Informations de l'organisation */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Membres</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {organization.memberCount}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Membres de l'organisation
-              </p>
-            </CardContent>
-          </Card>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">{organization.name}</h1>
+            <p className="text-muted-foreground mt-2">{organization.bio}</p>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Événements</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {organization.events.length}
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Événements organisés
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Informations générales</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label className="text-sm font-medium">
+                    Type d'organisation
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {getTypeLabel(organization.organizationType)}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Mission</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {organization.mission}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">Localisation</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {organization.location?.displayName || "Non spécifiée"}
+                  </p>
+                </div>
+                <div>
+                  <Label className="text-sm font-medium">
+                    Nombre de membres
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {organization.memberCount} membre
+                    {organization.memberCount > 1 ? "s" : ""}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Mission</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {organization.mission}
-              </p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Événements
+                </CardTitle>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {organization.events.length}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Événements organisés
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Mission</CardTitle>
+                <Target className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {organization.mission}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Description */}
