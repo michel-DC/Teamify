@@ -18,6 +18,34 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { toast, Toaster } from "sonner";
+import { EventCategory, EventStatus } from "@prisma/client";
+
+/**
+ * @param Mappage des catégories d'événements vers des labels français
+ */
+const categoryLabels: Record<EventCategory, string> = {
+  REUNION: "Réunion",
+  SEMINAIRE: "Séminaire",
+  CONFERENCE: "Conférence",
+  FORMATION: "Formation",
+  ATELIER: "Atelier",
+  NETWORKING: "Networking",
+  CEREMONIE: "Cérémonie",
+  EXPOSITION: "Exposition",
+  CONCERT: "Concert",
+  SPECTACLE: "Spectacle",
+  AUTRE: "Autre",
+};
+
+/**
+ * @param Mappage des statuts d'événements vers des labels français
+ */
+const statusLabels: Record<EventStatus, string> = {
+  BROUILLON: "Brouillon",
+  PUBLIE: "Publié",
+  TERMINE: "Terminé",
+  ANNULE: "Annulé",
+};
 
 export default function EditEventPage() {
   const params = useParams();
@@ -31,9 +59,9 @@ export default function EditEventPage() {
     endDate: "",
     location: "",
     capacity: "",
-    status: "PUBLIE",
+    status: EventStatus.PUBLIE,
     budget: "",
-    category: "REUNION",
+    category: EventCategory.REUNION,
     isPublic: true,
   });
 
@@ -56,9 +84,9 @@ export default function EditEventPage() {
               : "",
             location: event.location || "",
             capacity: event.capacity?.toString() || "",
-            status: event.status || "PUBLIE",
+            status: event.status || EventStatus.PUBLIE,
             budget: event.budget?.toString() || "",
-            category: event.category || "REUNION",
+            category: event.category || EventCategory.REUNION,
             isPublic: event.isPublic ?? true,
           });
         } else {
@@ -93,10 +121,14 @@ export default function EditEventPage() {
       const updateData = {
         title: formData.title,
         description: formData.description,
-        startDate: new Date(formData.startDate).toISOString(),
-        endDate: new Date(formData.endDate).toISOString(),
+        startDate: formData.startDate
+          ? new Date(formData.startDate).toISOString()
+          : null,
+        endDate: formData.endDate
+          ? new Date(formData.endDate).toISOString()
+          : null,
         location: formData.location,
-        capacity: parseInt(formData.capacity),
+        capacity: formData.capacity ? parseInt(formData.capacity) : null,
         status: formData.status,
         budget: formData.budget ? parseFloat(formData.budget) : null,
         category: formData.category,
@@ -104,7 +136,7 @@ export default function EditEventPage() {
       };
 
       const response = await fetch(`/api/dashboard/events/${params.slug}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
@@ -150,7 +182,7 @@ export default function EditEventPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">Titre de l&apos;événement</Label>
+                <Label htmlFor="title">Titre de l&apos;événement *</Label>
                 <Input
                   id="title"
                   value={formData.title}
@@ -181,7 +213,6 @@ export default function EditEventPage() {
                     onChange={(e) =>
                       handleInputChange("startDate", e.target.value)
                     }
-                    required
                   />
                 </div>
 
@@ -194,7 +225,6 @@ export default function EditEventPage() {
                     onChange={(e) =>
                       handleInputChange("endDate", e.target.value)
                     }
-                    required
                   />
                 </div>
               </div>
@@ -208,7 +238,6 @@ export default function EditEventPage() {
                     onChange={(e) =>
                       handleInputChange("location", e.target.value)
                     }
-                    required
                   />
                 </div>
 
@@ -221,7 +250,7 @@ export default function EditEventPage() {
                     onChange={(e) =>
                       handleInputChange("capacity", e.target.value)
                     }
-                    required
+                    min="1"
                   />
                 </div>
               </div>
@@ -237,44 +266,49 @@ export default function EditEventPage() {
                     onChange={(e) =>
                       handleInputChange("budget", e.target.value)
                     }
+                    min="0"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="category">Catégorie</Label>
+                  <Label htmlFor="category">Catégorie *</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(value) =>
-                      handleInputChange("category", value)
+                      handleInputChange("category", value as EventCategory)
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Sélectionner une catégorie" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="REUNION">Réunion</SelectItem>
-                      <SelectItem value="CONFERENCE">Conférence</SelectItem>
-                      <SelectItem value="FORMATION">Formation</SelectItem>
-                      <SelectItem value="SOCIAL">Social</SelectItem>
-                      <SelectItem value="AUTRE">Autre</SelectItem>
+                      {Object.entries(categoryLabels).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="status">Statut</Label>
+                <Label htmlFor="status">Statut *</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={(value) => handleInputChange("status", value)}
+                  onValueChange={(value) =>
+                    handleInputChange("status", value as EventStatus)
+                  }
                 >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Sélectionner un statut" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="BROUILLON">Brouillon</SelectItem>
-                    <SelectItem value="PUBLIE">Publié</SelectItem>
-                    <SelectItem value="ARCHIVE">Archivé</SelectItem>
+                    {Object.entries(statusLabels).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

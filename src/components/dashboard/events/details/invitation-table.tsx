@@ -9,7 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Mail, UserPlus, Users } from "lucide-react";
@@ -21,6 +27,15 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/Input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 
 interface Invitation {
   id: number;
@@ -38,6 +53,8 @@ interface InvitationTableProps {
 export default function InvitationTable({ eventId }: InvitationTableProps) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Dialog state
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -94,6 +111,52 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
         sentAt: "2024-01-10T15:30:00Z",
         respondedAt: "2024-01-11T09:15:00Z",
       },
+      {
+        id: 7,
+        email: "sophie.lefevre@example.com",
+        name: "Sophie Lefèvre",
+        status: "ACCEPTED",
+        sentAt: "2024-01-09T12:00:00Z",
+        respondedAt: "2024-01-10T10:30:00Z",
+      },
+      {
+        id: 8,
+        email: "thomas.girard@example.com",
+        name: "Thomas Girard",
+        status: "PENDING",
+        sentAt: "2024-01-08T14:20:00Z",
+      },
+      {
+        id: 9,
+        email: "marie.dubois@example.com",
+        name: "Marie Dubois",
+        status: "DECLINED",
+        sentAt: "2024-01-07T16:45:00Z",
+        respondedAt: "2024-01-08T09:15:00Z",
+      },
+      {
+        id: 10,
+        email: "pierre.martin@example.com",
+        name: "Pierre Martin",
+        status: "ACCEPTED",
+        sentAt: "2024-01-06T11:30:00Z",
+        respondedAt: "2024-01-07T08:45:00Z",
+      },
+      {
+        id: 11,
+        email: "julie.roux@example.com",
+        name: "Julie Roux",
+        status: "PENDING",
+        sentAt: "2024-01-05T13:15:00Z",
+      },
+      {
+        id: 12,
+        email: "nicolas.blanc@example.com",
+        name: "Nicolas Blanc",
+        status: "ACCEPTED",
+        sentAt: "2024-01-04T10:00:00Z",
+        respondedAt: "2024-01-05T07:30:00Z",
+      },
     ],
     []
   );
@@ -112,6 +175,56 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
 
     fetchInvitations();
   }, [eventId, fakeInvitations]);
+
+  /**
+   * @param Calcul de la pagination
+   *
+   * Calcule les indices de début et fin pour la page courante
+   */
+  const paginatedInvitations = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return invitations.slice(startIndex, endIndex);
+  }, [invitations, currentPage]);
+
+  const totalPages = Math.ceil(invitations.length / itemsPerPage);
+
+  /**
+   * @param Génération des numéros de page à afficher
+   *
+   * Affiche les pages autour de la page courante avec des ellipsis si nécessaire
+   */
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      // Si moins de 5 pages, afficher toutes
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Sinon, afficher les pages autour de la page courante
+      const start = Math.max(1, currentPage - 2);
+      const end = Math.min(totalPages, currentPage + 2);
+
+      if (start > 1) {
+        pages.push(1);
+        if (start > 2) pages.push("ellipsis-start");
+      }
+
+      for (let i = start; i <= end; i++) {
+        pages.push(i);
+      }
+
+      if (end < totalPages) {
+        if (end < totalPages - 1) pages.push("ellipsis-end");
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
@@ -199,6 +312,8 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
       ]);
       setInviteOpen(false);
       setInviteEmail("");
+      // Retourner à la première page après ajout
+      setCurrentPage(1);
     } catch (err) {
       setInviteError("Une erreur est survenue. Réessayez.");
     } finally {
@@ -215,6 +330,10 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
             Invitations envoyées
           </CardTitle>
         </CardHeader>
+        <CardDescription className="text-sm">
+          Cette table affiche les invitations envoyées par vous pour cet
+          événement.
+        </CardDescription>
         <CardContent>
           <div className="animate-pulse space-y-4">
             <div className="grid grid-cols-4 gap-4">
@@ -250,8 +369,12 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
             Inviter des participants
           </Button>
         </div>
+        <CardDescription className="mt-2">
+          Cette table affiche les invitations envoyées par vous pour cet
+          événement.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-4 bg-muted/30 rounded-lg">
             <div className="text-2xl font-bold text-primary">{stats.total}</div>
@@ -289,40 +412,102 @@ export default function InvitationTable({ eventId }: InvitationTableProps) {
             </Button>
           </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Envoyée le</TableHead>
-                  <TableHead>Réponse</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invitations.map((invitation) => (
-                  <TableRow key={invitation.id}>
-                    <TableCell className="font-medium">
-                      {invitation.name}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {invitation.email}
-                    </TableCell>
-                    <TableCell>{getStatusBadge(invitation.status)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(invitation.sentAt)}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {invitation.respondedAt
-                        ? formatDate(invitation.respondedAt)
-                        : "-"}
-                    </TableCell>
+          <>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Envoyée le</TableHead>
+                    <TableHead>Réponse</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {paginatedInvitations.map((invitation) => (
+                    <TableRow key={invitation.id}>
+                      <TableCell className="font-medium">
+                        {invitation.name}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {invitation.email}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(invitation.status)}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(invitation.sentAt)}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {invitation.respondedAt
+                          ? formatDate(invitation.respondedAt)
+                          : "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-end mt-4">
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (currentPage > 1) setCurrentPage(currentPage - 1);
+                        }}
+                        className={
+                          currentPage === 1
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }
+                      />
+                    </PaginationItem>
+
+                    {getPageNumbers().map((page, index) => (
+                      <PaginationItem key={index}>
+                        {page === "ellipsis-start" ||
+                        page === "ellipsis-end" ? (
+                          <PaginationEllipsis />
+                        ) : (
+                          <PaginationLink
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setCurrentPage(page as number);
+                            }}
+                            isActive={currentPage === page}
+                          >
+                            {page}
+                          </PaginationLink>
+                        )}
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          if (currentPage < totalPages)
+                            setCurrentPage(currentPage + 1);
+                        }}
+                        className={
+                          currentPage === totalPages
+                            ? "pointer-events-none opacity-50"
+                            : ""
+                        }
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
 
