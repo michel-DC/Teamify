@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Card,
@@ -37,7 +37,12 @@ interface InvitationDetails {
   eventCode: string;
 }
 
-export default function JoinEventPage() {
+/**
+ * @param Composant principal de gestion de l'invitation
+ *
+ * Gère l'affichage et la logique de réponse aux invitations d'événements
+ */
+function JoinEventContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [responding, setResponding] = useState(false);
@@ -311,5 +316,34 @@ export default function JoinEventPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * @param Composant de fallback pour Suspense
+ *
+ * Affiche un loader pendant le chargement des paramètres de recherche
+ */
+function JoinEventFallback() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p className="text-muted-foreground">Chargement...</p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * @param Page principale de réponse aux invitations
+ *
+ * Enveloppe le contenu dans Suspense pour gérer useSearchParams
+ */
+export default function JoinEventPage() {
+  return (
+    <Suspense fallback={<JoinEventFallback />}>
+      <JoinEventContent />
+    </Suspense>
   );
 }

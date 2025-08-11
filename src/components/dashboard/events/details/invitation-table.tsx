@@ -316,11 +316,11 @@ export default function InvitationTable({
             <Mail className="h-5 w-5" />
             Invitations envoyées
           </CardTitle>
+          <CardDescription className="mt-2">
+            Cette table affiche les invitations envoyées par vous pour cet
+            événement.
+          </CardDescription>
         </CardHeader>
-        <CardDescription className="text-sm">
-          Cette table affiche les invitations envoyées par vous pour cet
-          événement.
-        </CardDescription>
         <CardContent>
           <div className="animate-pulse space-y-4">
             <div className="grid grid-cols-4 gap-4">

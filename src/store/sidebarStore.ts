@@ -96,7 +96,7 @@ const initialData: SidebarData = {
           url: "/dashboard/events/new",
         },
         {
-          title: "Mes invitations",
+          title: "Gestion des invitations",
           url: "/dashboard/events/invitations",
         },
       ],

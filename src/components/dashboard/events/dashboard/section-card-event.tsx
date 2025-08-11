@@ -113,9 +113,6 @@ export function SectionCards() {
 
   return (
     <div>
-      <div className="flex items-center justify-center text-foreground mb-4">
-        <h1 className="text-3xl font-semibold">Vos statistiques</h1>
-      </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 px-4 lg:px-6 mb-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

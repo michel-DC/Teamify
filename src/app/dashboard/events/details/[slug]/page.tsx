@@ -316,7 +316,7 @@ export default function EventDetailsPage() {
             <div>
               <InvitationTable
                 eventId={event.id}
-                eventSlug={params.slug}
+                eventSlug={params.slug as string}
                 eventName={event.title}
                 eventDate={
                   event.startDate ? formatDate(event.startDate) : undefined
