@@ -70,6 +70,7 @@ model Event {
 
 model Invitation {
   id          Int              @id @default(autoincrement())
+  invitationId String?         @unique @default(cuid())
   eventCode   String
   receiverName String
   receiverEmail String

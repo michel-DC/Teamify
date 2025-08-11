@@ -14,25 +14,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
 import { redirect } from "next/navigation";
+import { useTheme } from "@/components/theme-provider";
 
 export default function StepWizard() {
   const [step, setStep] = useState(1);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme, setTheme } = useTheme();
   const { organizations, loading } = useOrganization();
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else {
-      const isDarkMode = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setTheme(isDarkMode ? "dark" : "light");
-      document.documentElement.classList.toggle("dark", isDarkMode);
-    }
-  }, []);
 
   useEffect(() => {
     if (organizations && organizations.length > 0) {
@@ -51,8 +38,6 @@ export default function StepWizard() {
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
   const [formData, setFormData] = useState({

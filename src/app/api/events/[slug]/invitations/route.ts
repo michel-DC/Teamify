@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { Resend } from "resend";
+import { encodeInvitationCode } from "@/lib/invitation-utils";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -95,6 +96,12 @@ export async function POST(
         sentAt: new Date(),
       },
     });
+
+    // Générer le code d'invitation unique avec l'invitationId généré automatiquement
+    const invitationCode = encodeInvitationCode(
+      invitation.invitationId!,
+      event.eventCode
+    );
 
     console.log("[Invitation] Invitation créée:", invitation);
 
@@ -224,7 +231,7 @@ export async function POST(
             <div style="text-align: center;">
               <a href="${
                 process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-              }/events/${slug}/invitations" class="cta-button">
+              }/join-event?code=${invitationCode}" class="cta-button">
                 Répondre à l'invitation
               </a>
             </div>
@@ -233,7 +240,7 @@ export async function POST(
             <p style="word-break: break-all; color: #2563eb;">
               ${
                 process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-              }/events/${slug}/invitations
+              }/join-event?code=${invitationCode}
             </p>
             
             <div class="footer">

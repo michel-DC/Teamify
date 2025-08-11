@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Mail, UserPlus, Users } from "lucide-react";
+import { Mail, UserPlus, Users, RefreshCw } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -64,6 +64,7 @@ export default function InvitationTable({
 }: InvitationTableProps) {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -78,36 +79,48 @@ export default function InvitationTable({
    *
    * Charge les invitations réelles depuis la base de données
    */
-  useEffect(() => {
-    const fetchInvitations = async () => {
-      if (!eventSlug) {
-        setLoading(false);
-        return;
-      }
+  const fetchInvitations = async () => {
+    if (!eventSlug) {
+      setLoading(false);
+      return;
+    }
 
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `/api/dashboard/events/${eventSlug}/invitations`
-        );
+    try {
+      const response = await fetch(
+        `/api/dashboard/events/${eventSlug}/invitations`
+      );
 
-        if (response.ok) {
-          const data = await response.json();
-          setInvitations(data.invitations || []);
-        } else {
-          console.error("Erreur lors du chargement des invitations");
-          toast.error("Erreur lors du chargement des invitations");
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des invitations:", error);
+      if (response.ok) {
+        const data = await response.json();
+        setInvitations(data.invitations || []);
+      } else {
+        console.error("Erreur lors du chargement des invitations");
         toast.error("Erreur lors du chargement des invitations");
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error("Erreur lors du chargement des invitations:", error);
+      toast.error("Erreur lors du chargement des invitations");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
+    setLoading(true);
     fetchInvitations();
   }, [eventSlug]);
+
+  /**
+   * @param Rafraîchissement de la liste des invitations
+   *
+   * Recharge les données depuis l'API
+   */
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchInvitations();
+    toast.success("Liste des invitations mise à jour");
+  };
 
   /**
    * @param Calcul de la pagination
@@ -334,14 +347,28 @@ export default function InvitationTable({
             <Mail className="h-5 w-5" />
             Invitations envoyées
           </CardTitle>
-          <Button
-            size="sm"
-            className="gap-2"
-            onClick={() => setInviteOpen(true)}
-          >
-            <UserPlus className="h-4 w-4" />
-            Inviter des participants
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <RefreshCw
+                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+              />
+              {refreshing ? "Actualisation..." : "Actualiser"}
+            </Button>
+            <Button
+              size="sm"
+              className="gap-2"
+              onClick={() => setInviteOpen(true)}
+            >
+              <UserPlus className="h-4 w-4" />
+              Inviter des participants
+            </Button>
+          </div>
         </div>
         <CardDescription className="mt-2">
           Cette table affiche les invitations envoyées par vous pour cet
