@@ -14,6 +14,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { ActiveOrganizationIndicator } from "@/components/active-organization-indicator";
 
 export default function EventOverview() {
   return (
@@ -37,6 +38,11 @@ export default function EventOverview() {
           </Breadcrumb>
         </div>
       </header>
+
+      <div className="px-4 py-2">
+        <ActiveOrganizationIndicator />
+      </div>
+
       <SiteHeader />
       <div className="flex flex-1 flex-col">
         <div className="@container/main flex flex-1 flex-col gap-2">

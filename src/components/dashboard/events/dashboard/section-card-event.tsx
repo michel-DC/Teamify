@@ -5,6 +5,7 @@ import { TrendingUp, TrendingDown, Calendar, MapPin } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
 /**
  * Extrait le nom de la ville depuis une adresse complète
@@ -57,11 +58,16 @@ export function SectionCards() {
   const [mostPresentCity, setMostPresentCity] = React.useState<string | null>(
     null
   );
+  const { activeOrganization } = useActiveOrganization();
 
   React.useEffect(() => {
     const fetchEventsData = async () => {
+      if (!activeOrganization) return;
+
       try {
-        const response = await fetch("/api/dashboard/events/data");
+        const response = await fetch(
+          `/api/dashboard/events/data?organizationId=${activeOrganization.publicId}`
+        );
         const data = await response.json();
 
         if (data.events) {
@@ -141,7 +147,7 @@ export function SectionCards() {
     };
 
     fetchEventsData();
-  }, []);
+  }, [activeOrganization]);
 
   return (
     <div>

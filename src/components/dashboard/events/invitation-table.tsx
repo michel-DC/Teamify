@@ -47,6 +47,7 @@ import {
   Users,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
 interface Invitation {
   id: number;
@@ -90,6 +91,7 @@ export default function InvitationTable() {
     eventDate: "",
     eventLocation: "",
   });
+  const { activeOrganization } = useActiveOrganization();
 
   /**
    * @param Récupération des événements et invitations de l'organisation
@@ -97,9 +99,13 @@ export default function InvitationTable() {
    * Charge tous les événements et invitations de l'organisation
    */
   const fetchData = async () => {
+    if (!activeOrganization) return;
+
     try {
       const [eventsResponse, invitationsResponse] = await Promise.all([
-        fetch("/api/dashboard/events/data"),
+        fetch(
+          `/api/dashboard/events/data?organizationId=${activeOrganization.publicId}`
+        ),
         fetch("/api/dashboard/invitations"),
       ]);
 
@@ -123,7 +129,7 @@ export default function InvitationTable() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [activeOrganization]);
 
   /**
    * @param Rafraîchissement de la liste des invitations

@@ -25,11 +25,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
 type Event = {
-  id: number;
-  createdAt: string;
+  id: string;
+  title: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  capacity: number;
   status: string;
+  createdAt: string;
 };
 
 type ChartData = {
@@ -57,11 +64,16 @@ const chartConfig = {
 export function EventEvolutionChart() {
   const [timeRange, setTimeRange] = React.useState("7d");
   const [chartData, setChartData] = React.useState<ChartData[]>([]);
+  const { activeOrganization } = useActiveOrganization();
 
   React.useEffect(() => {
     const fetchData = async () => {
+      if (!activeOrganization) return;
+
       try {
-        const response = await fetch("/api/dashboard/events/data");
+        const response = await fetch(
+          `/api/dashboard/events/data?organizationId=${activeOrganization.publicId}`
+        );
         const data = await response.json();
 
         // Transformer les données pour le graphique
@@ -117,7 +129,7 @@ export function EventEvolutionChart() {
     };
 
     fetchData();
-  }, [timeRange]);
+  }, [activeOrganization, timeRange]);
 
   return (
     <Card className="pt-0">

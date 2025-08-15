@@ -19,6 +19,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
+import { useOrganizationsStore } from "@/store/organizationsStore";
+import { useEventsStore } from "@/store/eventsStore";
+import { GalleryVerticalEnd } from "lucide-react";
 
 export function TeamSwitcher({
   teams,
@@ -28,31 +32,55 @@ export function TeamSwitcher({
     logo: React.ElementType;
   }[];
 }) {
-  const [activeTeam, setActiveTeam] = React.useState(teams[0]);
+  const { activeOrganization, setActiveOrganization } = useActiveOrganization();
+  const { organizations } = useOrganizationsStore();
+  const { fetchEvents } = useEventsStore();
+
   const isMobile = useIsMobile();
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
 
+  /**
+   * Récupère l'image de profil de l'organisation active
+   */
   React.useEffect(() => {
     const fetchProfileImage = async () => {
+      if (!activeOrganization) return;
+
       try {
-        const response = await fetch("/api/organization/profile-image");
+        const response = await fetch(
+          `/api/organization/${activeOrganization.publicId}/profile-image`
+        );
         const data = await response.json();
         setProfileImage(data.profileImage);
       } catch (error) {
         console.error("Error fetching profile image:", error);
+        setProfileImage(null);
       }
     };
 
     fetchProfileImage();
-  }, []);
+  }, [activeOrganization]);
 
-  React.useEffect(() => {
-    if (teams && teams.length > 0) {
-      setActiveTeam(teams[0]);
+  /**
+   * Gère le changement d'organisation
+   */
+  const handleOrganizationChange = async (organization: any) => {
+    setActiveOrganization(organization);
+
+    // Recharger les événements pour la nouvelle organisation
+    try {
+      await fetchEvents();
+    } catch (error) {
+      console.error("Erreur lors du rechargement des événements:", error);
     }
-  }, [teams]);
+  };
 
-  if (!activeTeam) {
+  // Trouver l'organisation active correspondante
+  const currentActiveTeam = activeOrganization
+    ? teams.find((team) => team.name === activeOrganization.name) || teams[0]
+    : teams[0];
+
+  if (!currentActiveTeam) {
     return null;
   }
 
@@ -69,17 +97,19 @@ export function TeamSwitcher({
                 {profileImage ? (
                   <Image
                     src={profileImage}
-                    alt={activeTeam.name}
+                    alt={currentActiveTeam.name}
                     width={16}
                     height={16}
                     className="rounded-full"
                   />
                 ) : (
-                  <activeTeam.logo className="size-4" />
+                  <currentActiveTeam.logo className="size-4" />
                 )}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
+                <span className="truncate font-medium">
+                  {currentActiveTeam.name}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
@@ -93,27 +123,31 @@ export function TeamSwitcher({
             <DropdownMenuLabel className="text-muted-foreground text-xs">
               Vos organisations
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+            {organizations.map((org, index) => (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
-                className="gap-2 p-2"
+                key={org.id}
+                onClick={() => handleOrganizationChange(org)}
+                className={`gap-2 p-2 ${
+                  activeOrganization?.id === org.id ? "bg-accent" : ""
+                }`}
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">
-                  {profileImage ? (
+                  {org.profileImage ? (
                     <Image
-                      src={profileImage}
-                      alt={team.name}
+                      src={org.profileImage}
+                      alt={org.name}
                       width={24}
                       height={24}
                       className="rounded-full"
                     />
                   ) : (
-                    <team.logo className="h-6 w-6" />
+                    <GalleryVerticalEnd className="h-6 w-6" />
                   )}
                 </div>
-                {team.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                {org.name}
+                {activeOrganization?.id === org.id && (
+                  <DropdownMenuShortcut>✓</DropdownMenuShortcut>
+                )}
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />

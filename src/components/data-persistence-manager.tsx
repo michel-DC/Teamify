@@ -12,7 +12,6 @@ import { usePathname } from "next/navigation";
 export function DataPersistenceManager() {
   const pathname = usePathname();
 
-  // TEMPORAIREMENT DÉSACTIVÉ pour diagnostiquer le problème de connexion
   // Ne pas activer sur les pages d'authentification pour éviter les conflits
   const isAuthPage =
     pathname.startsWith("/auth") || pathname.startsWith("/create-organization");
@@ -22,9 +21,8 @@ export function DataPersistenceManager() {
     requiredPathSegment: "dashboard",
     clearAuthCookies: false,
     debug: process.env.NODE_ENV === "development",
-    enabled: false, // TEMPORAIREMENT DÉSACTIVÉ
+    enabled: !isAuthPage,
   });
 
-  // Ce composant ne rend rien visuellement
   return null;
 }

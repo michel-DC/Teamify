@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSidebarStore } from "@/store/sidebarStore";
 import { useOrganizationsStore } from "@/store/organizationsStore";
 import { useEventsStore } from "@/store/eventsStore";
+import { useActiveOrganizationStore } from "@/store/activeOrganizationStore";
 
 interface DataPersistenceOptions {
   /**
@@ -43,6 +44,7 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
   const { resetStore: resetSidebar } = useSidebarStore();
   const { resetStore: resetOrganizations } = useOrganizationsStore();
   const { resetStore: resetEvents } = useEventsStore();
+  const { clearActiveOrganization } = useActiveOrganizationStore();
 
   /**
    * @param Fonction de vidage des données persistées
@@ -58,6 +60,7 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
     resetSidebar();
     resetOrganizations();
     resetEvents();
+    clearActiveOrganization();
 
     // Vidage du localStorage
     try {
@@ -65,6 +68,7 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
         "sidebar-storage",
         "organizations-storage",
         "events-storage",
+        "active-organization-storage",
       ];
 
       // Ajouter les clés d'authentification seulement si demandé
@@ -124,7 +128,14 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
         error
       );
     }
-  }, [resetSidebar, resetOrganizations, resetEvents, clearAuthCookies, debug]);
+  }, [
+    resetSidebar,
+    resetOrganizations,
+    resetEvents,
+    clearActiveOrganization,
+    clearAuthCookies,
+    debug,
+  ]);
 
   useEffect(() => {
     /**

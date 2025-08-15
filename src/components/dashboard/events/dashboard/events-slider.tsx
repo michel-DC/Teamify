@@ -11,6 +11,7 @@ import {
 import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { cn, formatEventStatus, formatDateToFrench } from "@/lib/utils";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
 interface Event {
   id: number;
@@ -42,6 +43,7 @@ interface PlaceholderEvent {
 export default function EventsSlider() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const { activeOrganization } = useActiveOrganization();
 
   const placeholderEvents: PlaceholderEvent[] = [
     {
@@ -78,8 +80,12 @@ export default function EventsSlider() {
 
   useEffect(() => {
     const fetchEvents = async () => {
+      if (!activeOrganization) return;
+
       try {
-        const response = await fetch("/api/dashboard/events/data");
+        const response = await fetch(
+          `/api/dashboard/events/data?organizationId=${activeOrganization.publicId}`
+        );
         const data = await response.json();
         if (data.events) {
           setEvents(data.events.slice(-6));
@@ -92,7 +98,7 @@ export default function EventsSlider() {
     };
 
     fetchEvents();
-  }, []);
+  }, [activeOrganization]);
 
   const formatDate = (dateString?: string) => {
     return formatDateToFrench(dateString);
