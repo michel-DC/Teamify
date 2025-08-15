@@ -4,6 +4,7 @@ import { EventsTableWrapper } from "@/components/dashboard/events/dashboard/even
 import EventsSlider from "@/components/dashboard/events/dashboard/events-slider";
 import { SectionCards } from "@/components/dashboard/events/dashboard/section-card-event";
 import { SiteHeader } from "@/components/dashboard/events/dashboard/site-header";
+import MapsSection from "@/components/dashboard/events/details/maps-section";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
@@ -62,6 +63,9 @@ export default function EventOverview() {
               <EventsTableWrapper />
             </div>
             <Separator className="my-6" />
+            <div className="px-12">
+              <MapsSection />
+            </div>
             {/* <div className="px-12">
               <CalendarOverview />
             </div> */}

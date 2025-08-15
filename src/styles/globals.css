@@ -46,6 +46,27 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
   --radius: 0.625rem;
+
+  /* Styles pour les marqueurs de carte Leaflet */
+  .custom-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .custom-popup .leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .custom-popup .leaflet-popup-content {
+    margin: 0;
+    padding: 0;
+  }
+
+  .custom-popup .leaflet-popup-tip {
+    background: white;
+  }
   --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
@@ -344,4 +365,25 @@
 .react-datepicker__month-option--selected {
   background-color: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
+}
+
+/* Styles pour les marqueurs de carte Leaflet */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+.custom-popup .leaflet-popup-tip {
+  background: white;
 }
