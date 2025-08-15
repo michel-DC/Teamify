@@ -31,13 +31,14 @@ model Organization {
   location               Json?
   mission                String
   memberCount            Int
+  eventCount             Int                    @default(0)
   profileImage String?
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   ownerUid     String
   owner        User            @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
   events       Event[]
-  members      Json?           @default("[]") // Array of { uid: string, firstname: string, lastname: string }
+  members      Json?           @default("[]") 
 }
 
 model Event {
@@ -51,9 +52,10 @@ model Event {
   startDate             DateTime?
   endDate               DateTime?
   location              String
+  locationCoords        Json?
   imageUrl              String?
   capacity              Int
-  status                EventStatus            @default(PUBLIE)
+  status                EventStatus            @default(A_VENIR)
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
   orgId                 Int
@@ -66,6 +68,7 @@ model Event {
   preparationTodos      PreparationTodo[]
   preparationTodoGroups PreparationTodoGroup[]
   invitations           Invitation[]
+  eventByCode           EventByCode?           @relation(fields: [eventCode], references: [eventCode], onDelete: Cascade)
 }
 
 model Invitation {
@@ -119,6 +122,7 @@ model EventByCode {
   title     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  event     Event?
 }
 
 model UserByRole {
@@ -145,8 +149,8 @@ enum OrganizationType {
 }
 
 enum EventStatus {
-  BROUILLON
-  PUBLIE
+  A_VENIR
+  EN_COURS
   TERMINE
   ANNULE
 }

@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
 
 export type Event = {
   id: number;
@@ -39,6 +40,38 @@ export type Event = {
   budget: number | null;
   isCancelled: boolean;
   eventCode: string;
+};
+
+/**
+ * Extrait le nom de la ville depuis une adresse complète
+ */
+const extractCityName = (address: string): string => {
+  if (!address) return "Non défini";
+
+  // Divise l'adresse par les virgules
+  const parts = address.split(",").map((part) => part.trim());
+
+  // Cherche la ville (généralement après le code postal ou dans les premières parties)
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    // Ignore les codes postaux (5 chiffres en France)
+    if (/^\d{5}$/.test(part)) continue;
+    // Ignore les parties qui ressemblent à des codes ou des numéros
+    if (/^\d+$/.test(part)) continue;
+    // Retourne la première partie qui ressemble à une ville
+    if (
+      part.length > 2 &&
+      !part.includes("Rue") &&
+      !part.includes("Avenue") &&
+      !part.includes("Boulevard")
+    ) {
+      return part;
+    }
+  }
+
+  // Si aucune ville n'est trouvée, retourne la première partie non vide
+  const firstValidPart = parts.find((part) => part.length > 2);
+  return firstValidPart || "Ville inconnue";
 };
 
 const columns: ColumnDef<Event>[] = [
@@ -69,13 +102,16 @@ const columns: ColumnDef<Event>[] = [
     header: "Statut",
     cell: ({ row }) => (
       <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {row.original.status}
+        {formatEventStatus(row.original.status)}
       </Badge>
     ),
   },
   {
     accessorKey: "location",
-    header: "Lieu",
+    header: "Ville",
+    cell: ({ row }) => (
+      <span className="text-sm">{extractCityName(row.original.location)}</span>
+    ),
   },
   {
     accessorKey: "capacity",
@@ -85,9 +121,7 @@ const columns: ColumnDef<Event>[] = [
     accessorKey: "startDate",
     header: "Date de début",
     cell: ({ row }) => {
-      return row.original.startDate
-        ? new Date(row.original.startDate).toLocaleDateString()
-        : "Non définie";
+      return formatDateToFrench(row.original.startDate);
     },
   },
   {
@@ -153,8 +187,8 @@ const exportToCSV = (data: Event[]) => {
         event.status,
         `"${event.location}"`,
         event.capacity,
-        event.startDate ? new Date(event.startDate).toLocaleDateString() : "",
-        event.endDate ? new Date(event.endDate).toLocaleDateString() : "",
+        formatDateToFrench(event.startDate),
+        formatDateToFrench(event.endDate),
         event.budget || "",
         event.isCancelled ? "Inactif" : "Actif",
       ].join(",")

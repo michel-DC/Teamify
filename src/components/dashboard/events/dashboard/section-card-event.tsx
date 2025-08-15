@@ -4,6 +4,39 @@ import * as React from "react";
 import { TrendingUp, TrendingDown, Calendar, MapPin } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
+
+/**
+ * Extrait le nom de la ville depuis une adresse complète
+ */
+const extractCityName = (address: string): string => {
+  if (!address) return "Non défini";
+
+  // Divise l'adresse par les virgules
+  const parts = address.split(",").map((part) => part.trim());
+
+  // Cherche la ville (généralement après le code postal ou dans les premières parties)
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    // Ignore les codes postaux (5 chiffres en France)
+    if (/^\d{5}$/.test(part)) continue;
+    // Ignore les parties qui ressemblent à des codes ou des numéros
+    if (/^\d+$/.test(part)) continue;
+    // Retourne la première partie qui ressemble à une ville
+    if (
+      part.length > 2 &&
+      !part.includes("Rue") &&
+      !part.includes("Avenue") &&
+      !part.includes("Boulevard")
+    ) {
+      return part;
+    }
+  }
+
+  // Si aucune ville n'est trouvée, retourne la première partie non vide
+  const firstValidPart = parts.find((part) => part.length > 2);
+  return firstValidPart || "Ville inconnue";
+};
 
 export function SectionCards() {
   const [totalBudget, setTotalBudget] = React.useState<number | null>(null);
@@ -60,7 +93,8 @@ export function SectionCards() {
 
           const cityCounts: { [key: string]: number } = {};
           data.events.forEach((event: { location: string }) => {
-            cityCounts[event.location] = (cityCounts[event.location] || 0) + 1;
+            const cityName = extractCityName(event.location);
+            cityCounts[cityName] = (cityCounts[cityName] || 0) + 1;
           });
 
           let maxCityCount = 0;
@@ -83,9 +117,7 @@ export function SectionCards() {
               }
             );
             const lastEvent = sortedEvents[0];
-            setLastEventDate(
-              new Date(lastEvent.createdAt).toLocaleDateString()
-            );
+            setLastEventDate(formatDateToFrench(lastEvent.createdAt));
           }
 
           const publicEventCount = data.events.filter(

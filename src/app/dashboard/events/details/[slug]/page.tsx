@@ -28,6 +28,7 @@ import {
   Eye,
   Slash,
 } from "lucide-react";
+import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
 
 type EventDetails = {
   id: number;
@@ -78,9 +79,7 @@ export default function EventDetailsPage() {
   }, [params.slug]);
 
   const formatDate = (d?: Date | string | null) => {
-    if (!d) return "—";
-    const date = typeof d === "string" ? new Date(d) : (d as Date);
-    return new Date(date).toLocaleDateString();
+    return formatDateToFrench(d);
   };
 
   if (loading) {
@@ -221,7 +220,7 @@ export default function EventDetailsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {event.status || "—"}
+                    {formatEventStatus(event.status) || "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">État actuel</p>
                 </CardContent>

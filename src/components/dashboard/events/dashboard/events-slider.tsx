@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { cn, formatEventStatus, formatDateToFrench } from "@/lib/utils";
 
 interface Event {
   id: number;
@@ -95,11 +95,7 @@ export default function EventsSlider() {
   }, []);
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "Date non définie";
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "short",
-    });
+    return formatDateToFrench(dateString);
   };
 
   const getStatusColor = (status: string) => {
@@ -217,7 +213,7 @@ export default function EventsSlider() {
                               isPlaceholder && "opacity-70"
                             )}
                           >
-                            {event.status}
+                            {formatEventStatus(event.status)}
                           </span>
                         </div>
                       </div>

@@ -62,8 +62,8 @@ const categoryLabels: Record<EventCategory, string> = {
  * @param Mappage des statuts d'événements vers des labels français
  */
 const statusLabels: Record<EventStatus, string> = {
-  BROUILLON: "Brouillon",
-  PUBLIE: "Publié",
+  A_VENIR: "À venir",
+  EN_COURS: "En cours",
   TERMINE: "Terminé",
   ANNULE: "Annulé",
 };
@@ -80,7 +80,7 @@ export default function EditEventForm({ eventId }: EditEventFormProps) {
   } = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      status: EventStatus.BROUILLON,
+      status: EventStatus.A_VENIR,
       category: EventCategory.REUNION,
       isPublic: true,
     },
@@ -109,7 +109,7 @@ export default function EditEventForm({ eventId }: EditEventFormProps) {
             capacity: event.capacity || undefined,
             budget: event.budget || undefined,
             isPublic: event.isPublic ?? true,
-            status: event.status || EventStatus.BROUILLON,
+            status: event.status || EventStatus.A_VENIR,
             category: event.category || EventCategory.REUNION,
           });
         } else {

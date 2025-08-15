@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { EventCategory, EventStatus } from "@prisma/client";
+import { join } from "path";
+import { writeFile } from "fs/promises";
 
 export async function GET(
   request: Request,
@@ -71,12 +73,10 @@ export async function PATCH(
       );
     }
 
-    const body = await request.json();
     const { slug } = await params;
 
     console.log("[PATCH] Données reçues:", {
       slug,
-      body,
       userUid: user.uid,
     });
 
@@ -102,6 +102,24 @@ export async function PATCH(
       );
     }
 
+    // Traitement des FormData
+    const formData = await request.formData();
+
+    console.log("[PATCH] FormData reçues:", {
+      title: formData.get("title"),
+      description: formData.get("description"),
+      startDate: formData.get("startDate"),
+      endDate: formData.get("endDate"),
+      location: formData.get("location"),
+      locationCoords: formData.get("locationCoords"),
+      capacity: formData.get("capacity"),
+      status: formData.get("status"),
+      budget: formData.get("budget"),
+      category: formData.get("category"),
+      isPublic: formData.get("isPublic"),
+      hasFile: !!formData.get("file"),
+    });
+
     /**
      * @param Préparation des données pour la mise à jour
      *
@@ -110,34 +128,82 @@ export async function PATCH(
     const updateData: any = {};
 
     // Traitement des champs de base
-    if (body.title !== undefined) updateData.title = body.title;
-    if (body.description !== undefined)
-      updateData.description = body.description;
-    if (body.location !== undefined) updateData.location = body.location || ""; // Utiliser une chaîne vide si null/undefined
-    if (body.isPublic !== undefined) updateData.isPublic = body.isPublic;
+    if (formData.get("title"))
+      updateData.title = formData.get("title") as string;
+    if (formData.get("description") !== null)
+      updateData.description = formData.get("description") as string;
+    if (formData.get("location") !== null)
+      updateData.location = formData.get("location") as string;
+    if (formData.get("isPublic") !== null)
+      updateData.isPublic = formData.get("isPublic") === "true";
+
+    // Traitement des coordonnées de localisation
+    const locationCoordsRaw = formData.get("locationCoords") as string | null;
+    if (locationCoordsRaw) {
+      try {
+        const locationCoords = JSON.parse(locationCoordsRaw);
+        updateData.locationCoords = locationCoords;
+      } catch (error) {
+        console.warn("Format de coordonnées invalide:", error);
+      }
+    }
 
     // Traitement des dates
-    if (body.startDate) {
-      updateData.startDate = new Date(body.startDate);
+    if (formData.get("startDate")) {
+      updateData.startDate = new Date(formData.get("startDate") as string);
     }
-    if (body.endDate) {
-      updateData.endDate = new Date(body.endDate);
+    if (formData.get("endDate")) {
+      updateData.endDate = new Date(formData.get("endDate") as string);
     }
 
     // Traitement des nombres
-    if (body.capacity !== undefined) {
-      updateData.capacity = body.capacity ? parseInt(body.capacity) : 0; // Utiliser 0 au lieu de null
+    if (formData.get("capacity") !== null) {
+      updateData.capacity = parseInt(formData.get("capacity") as string) || 0;
     }
-    if (body.budget !== undefined) {
-      updateData.budget = body.budget ? parseFloat(body.budget) : null;
+    if (formData.get("budget") !== null) {
+      const budgetValue = formData.get("budget") as string;
+      updateData.budget = budgetValue ? parseFloat(budgetValue) : null;
     }
 
     // Traitement des enums
-    if (body.status && Object.values(EventStatus).includes(body.status)) {
-      updateData.status = body.status;
+    if (
+      formData.get("status") &&
+      Object.values(EventStatus).includes(formData.get("status") as EventStatus)
+    ) {
+      updateData.status = formData.get("status") as EventStatus;
     }
-    if (body.category && Object.values(EventCategory).includes(body.category)) {
-      updateData.category = body.category;
+    if (
+      formData.get("category") &&
+      Object.values(EventCategory).includes(
+        formData.get("category") as EventCategory
+      )
+    ) {
+      updateData.category = formData.get("category") as EventCategory;
+    }
+
+    // Traitement de l'image
+    const file = formData.get("file") as File;
+    if (file) {
+      try {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        const fileName = `${Date.now()}-${file.name}`;
+        const path = join(
+          process.cwd(),
+          "public/uploads/organizations/events",
+          fileName
+        );
+
+        await writeFile(path, buffer);
+        updateData.imageUrl = `/uploads/organizations/events/${fileName}`;
+      } catch (error) {
+        console.error("Erreur lors du traitement de l'image:", error);
+        return NextResponse.json(
+          { error: "Erreur lors du traitement de l'image" },
+          { status: 500 }
+        );
+      }
     }
 
     console.log("[PATCH] Données de mise à jour:", updateData);
@@ -281,10 +347,23 @@ export async function DELETE(
      * Suppression de l'événement avec suppression en cascade
      * automatique des todos et invitations
      */
-    await prisma.event.delete({
-      where: {
-        id: event.id,
-      },
+    await prisma.$transaction(async (tx) => {
+      // Supprime l'événement (cascade automatique pour EventByCode, todos, invitations)
+      await tx.event.delete({
+        where: {
+          id: event.id,
+        },
+      });
+
+      // Décrémente le compteur d'événements de l'organisation
+      await tx.organization.update({
+        where: { id: event.orgId },
+        data: {
+          eventCount: {
+            decrement: 1,
+          },
+        },
+      });
     });
 
     return NextResponse.json(

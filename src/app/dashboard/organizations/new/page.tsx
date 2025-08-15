@@ -25,6 +25,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { toast, Toaster } from "sonner";
+import { ImageUploadZone } from "@/components/ui/image-upload-zone";
 
 export default function NewOrganizationPage() {
   const router = useRouter();
@@ -113,10 +114,8 @@ export default function NewOrganizationPage() {
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
+  const handleFileChange = (file: File | null) => {
+    setFile(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -289,12 +288,10 @@ export default function NewOrganizationPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="file">Logo de l&apos;organisation</Label>
-                <Input
-                  id="file"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
+                <Label>Logo de l&apos;organisation</Label>
+                <ImageUploadZone
+                  onImageChange={handleFileChange}
+                  maxFileSize={5}
                 />
               </div>
 
