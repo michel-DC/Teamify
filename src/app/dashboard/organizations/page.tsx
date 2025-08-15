@@ -29,7 +29,7 @@ interface OrganizationStats {
 
 export default function OrganizationsDashboardPage() {
   const router = useRouter();
-  const { organizations, events, loading } = useOrganization();
+  const { organizations, loading } = useOrganization();
   const [searchTerm, setSearchTerm] = useState("");
   const [stats, setStats] = useState<OrganizationStats>({
     totalOrganizations: 0,
@@ -44,7 +44,11 @@ export default function OrganizationsDashboardPage() {
         (sum, org) => sum + org.memberCount,
         0
       );
-      const totalEvents = events.length || 0;
+      // Utiliser le champ eventCount au lieu de compter les événements manuellement
+      const totalEvents = organizations.reduce(
+        (sum, org) => sum + (org.eventCount || 0),
+        0
+      );
 
       setStats({
         totalOrganizations: organizations.length,
@@ -85,17 +89,17 @@ export default function OrganizationsDashboardPage() {
   const getTypeColor = (type: string) => {
     switch (type) {
       case "ASSOCIATION":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300";
       case "PME":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300";
       case "ENTREPRISE":
-        return "bg-green-100 text-green-800";
+        return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300";
       case "STARTUP":
-        return "bg-purple-100 text-purple-800";
+        return "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300";
       case "AUTO_ENTREPRENEUR":
-        return "bg-orange-100 text-orange-800";
+        return "bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
     }
   };
 
@@ -103,43 +107,35 @@ export default function OrganizationsDashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-2 text-muted-foreground">
-            Chargement des organisations...
-          </p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Chargement des organisations...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <header className="flex h-16 shrink-0 items-center gap-2">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard">
-                  Tableau de bord
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Organisations</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
+    <div className="flex flex-col h-full">
+      <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+        <SidebarTrigger className="-ml-1" />
+        <Separator orientation="vertical" className="mr-2" />
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink href="/dashboard">Tableau de bord</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Organisations</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </header>
 
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <Toaster position="top-center" richColors />
-
+      <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Organisations</h1>
+            <h2 className="text-3xl font-bold tracking-tight">Organisations</h2>
             <p className="text-muted-foreground">
               Gérez vos organisations et leurs événements
             </p>
@@ -202,27 +198,27 @@ export default function OrganizationsDashboardPage() {
                 {stats.averageEventsPerOrg}
               </div>
               <p className="text-xs text-muted-foreground">
-                Événements par org.
+                Événements par organisation
               </p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher une organisation..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8"
-            />
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Rechercher une organisation..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8"
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredOrganizations.length > 0 ? (
-            filteredOrganizations.map((org) => (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredOrganizations.map((org) => (
               <Card
                 key={org.id}
                 className="hover:shadow-md transition-shadow cursor-pointer"
@@ -250,10 +246,10 @@ export default function OrganizationsDashboardPage() {
                       <Badge
                         variant="outline"
                         className={`${getTypeColor(
-                          (org as any).organizationType
+                          org.organizationType
                         )} border-0`}
                       >
-                        {getTypeLabel((org as any).organizationType)}
+                        {getTypeLabel(org.organizationType)}
                       </Badge>
                     </div>
                   </div>
@@ -267,15 +263,17 @@ export default function OrganizationsDashboardPage() {
                       {org.memberCount} membre{org.memberCount > 1 ? "s" : ""}
                     </span>
                     <span className="text-muted-foreground">
-                      {events.length || 0} événement
-                      {(events.length || 0) > 1 ? "s" : ""}
+                      {org.eventCount || 0} événement
+                      {(org.eventCount || 0) > 1 ? "s" : ""}
                     </span>
                   </div>
                 </CardContent>
               </Card>
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
+            ))}
+          </div>
+
+          {filteredOrganizations.length === 0 && (
+            <div className="text-center py-12">
               <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">
                 {searchTerm
@@ -299,6 +297,7 @@ export default function OrganizationsDashboardPage() {
           )}
         </div>
       </div>
+      <Toaster />
     </div>
   );
 }

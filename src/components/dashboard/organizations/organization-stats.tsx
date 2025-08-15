@@ -57,7 +57,9 @@ export function OrganizationStats({ stats }: OrganizationStatsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.averageEventsPerOrg}</div>
-          <p className="text-xs text-muted-foreground">Événements par org.</p>
+          <p className="text-xs text-muted-foreground">
+            Événements par organisation
+          </p>
         </CardContent>
       </Card>
     </div>

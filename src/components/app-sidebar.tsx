@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavEvents } from "@/components/nav-events";
+// import { NavEvents } from "@/components/nav-events";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
 import {
@@ -62,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMainWithIcons} />
-        <NavEvents events={eventsWithIcons} />
+        {/* <NavEvents events={eventsWithIcons} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

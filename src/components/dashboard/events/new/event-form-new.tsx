@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { EventFormData } from "../../../../../types/steps-event-creation";
 import { StepWizard } from "./components/StepWizard";
+import { useOrganization } from "@/hooks/useOrganization";
+import { Badge } from "@/components/ui/badge";
+import { Building2 } from "lucide-react";
 
 interface EventFormProps {
   orgId: string;
@@ -12,9 +15,15 @@ interface EventFormProps {
 
 export function EventForm({ orgId }: EventFormProps) {
   const router = useRouter();
+  const { organizations } = useOrganization();
   const [isLoading, setIsLoading] = useState(false);
   const [eventCode, setEventCode] = useState<string>("");
   const [isGeneratingCode, setIsGeneratingCode] = useState(true);
+
+  // Trouver l'organisation correspondante à l'orgId
+  const selectedOrganization = organizations.find(
+    (org) => org.id.toString() === orgId
+  );
 
   /**
    * Génère un code d'événement unique au chargement de la page
@@ -104,6 +113,19 @@ export function EventForm({ orgId }: EventFormProps) {
         <p className="text-muted-foreground mt-2">
           Suivez les étapes pour créer votre événement
         </p>
+
+        {/* Indicateur de l'organisation sélectionnée */}
+        {selectedOrganization && (
+          <div className="mt-4 flex items-center justify-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+              Organisation :
+            </span>
+            <Badge variant="secondary" className="font-medium">
+              {selectedOrganization.name}
+            </Badge>
+          </div>
+        )}
       </div>
 
       <StepWizard

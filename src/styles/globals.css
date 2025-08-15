@@ -387,3 +387,39 @@
 .custom-popup .leaflet-popup-tip {
   background: white;
 }
+
+/* Animations pour le slider d'événements */
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-slide {
+  animation: slide 30s linear infinite;
+}
+
+/* .animate-slide:hover {
+  animation-play-state: paused;
+} */
+
+/* Animation plus rapide pour moins d'événements */
+.animate-slide-fast {
+  animation: slide 20s linear infinite;
+}
+
+/* .animate-slide-fast:hover {
+  animation-play-state: paused;
+} */
+
+/* Animation plus lente pour plus d'événements */
+.animate-slide-slow {
+  animation: slide 40s linear infinite;
+}
+
+/*  .animate-slide-slow:hover {
+  animation-play-state: paused;
+} */

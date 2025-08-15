@@ -132,6 +132,16 @@ export default function EventsSlider() {
 
   const displayEvents = getDisplayEvents();
 
+  // Déterminer la classe d'animation en fonction du nombre d'événements
+  const getAnimationClass = () => {
+    if (displayEvents.length <= 6) {
+      return "animate-slide-fast";
+    } else if (displayEvents.length >= 12) {
+      return "animate-slide-slow";
+    }
+    return "animate-slide";
+  };
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -169,7 +179,7 @@ export default function EventsSlider() {
         <div className="space-y-3">
           <div className="overflow-hidden relative">
             <div
-              className="flex gap-3 animate-slide"
+              className={cn("flex gap-3", getAnimationClass())}
               style={{
                 width: `${displayEvents.length * 300}px`,
               }}
@@ -278,25 +288,6 @@ export default function EventsSlider() {
               })}
             </div>
           </div>
-
-          <style jsx>{`
-            @keyframes slide {
-              0% {
-                transform: translateX(0);
-              }
-              100% {
-                transform: translateX(-${(displayEvents.length / 3) * 300}px);
-              }
-            }
-
-            .animate-slide {
-              animation: slide ${displayEvents.length * 2}s linear infinite;
-            }
-
-            .animate-slide:hover {
-              animation-play-state: paused;
-            }
-          `}</style>
         </div>
       </CardContent>
     </Card>
