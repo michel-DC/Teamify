@@ -32,6 +32,7 @@ import {
   ChevronRightIcon,
 } from "lucide-react";
 import clsx from "clsx";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
 interface Event {
   id: number;
@@ -67,11 +68,16 @@ export default function CalendarOverview() {
     null
   );
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
+  const { activeOrganization } = useActiveOrganization();
 
   React.useEffect(() => {
     const fetchEvents = async () => {
+      if (!activeOrganization) return;
+
       try {
-        const response = await fetch("/api/dashboard/events/data");
+        const response = await fetch(
+          `/api/dashboard/events/data?organizationId=${activeOrganization.publicId}`
+        );
         const data = await response.json();
         setEvents(data.events || []);
       } catch (error) {
@@ -82,7 +88,7 @@ export default function CalendarOverview() {
     };
 
     fetchEvents();
-  }, []);
+  }, [activeOrganization]);
 
   // Créer une map des événements par date
   const eventsByDate = React.useMemo(() => {

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 // Types pour les événements
-export interface Event {
+interface Event {
   id: string;
   title: string;
   description?: string;
@@ -15,7 +15,9 @@ export interface Event {
   category: string;
   isPublic: boolean;
   isCancelled: boolean;
+  eventCode: string;
   createdAt: string;
+  updatedAt: string;
   organization?: {
     id: number;
     name: string;
@@ -31,7 +33,7 @@ interface EventsStore {
   error: string | null;
 
   // Actions
-  fetchEvents: () => Promise<void>;
+  fetchEvents: (organizationId?: string) => Promise<void>;
   addEvent: (event: Event) => void;
   updateEvent: (eventId: string, updates: Partial<Event>) => void;
   deleteEvent: (eventId: string) => void;
@@ -53,14 +55,15 @@ export const useEventsStore = create<EventsStore>()(
       error: null,
 
       // Action pour récupérer les événements
-      fetchEvents: async () => {
+      fetchEvents: async (organizationId?: string) => {
         const { initialized, lastFetch } = get();
 
         // Vérifier si les données sont déjà initialisées et récentes
         if (
           initialized &&
           lastFetch &&
-          Date.now() - lastFetch < CACHE_DURATION
+          Date.now() - lastFetch < CACHE_DURATION &&
+          !organizationId // Ne pas utiliser le cache si on change d'organisation
         ) {
           return;
         }
@@ -68,7 +71,34 @@ export const useEventsStore = create<EventsStore>()(
         set({ loading: true, error: null });
 
         try {
-          const response = await fetch("/api/dashboard/events/data");
+          // Si pas d'organisation spécifiée, essayer de récupérer depuis le store actif
+          let targetOrgPublicId = organizationId;
+
+          if (!targetOrgPublicId) {
+            // Récupérer l'organisation active depuis le localStorage
+            try {
+              const activeOrgStorage = localStorage.getItem(
+                "active-organization-storage"
+              );
+              if (activeOrgStorage) {
+                const parsed = JSON.parse(activeOrgStorage);
+                targetOrgPublicId = parsed.state?.activeOrganization?.publicId;
+              }
+            } catch (error) {
+              console.error(
+                "Erreur lors de la récupération de l'organisation active:",
+                error
+              );
+            }
+          }
+
+          if (!targetOrgPublicId) {
+            throw new Error("Aucune organisation active sélectionnée");
+          }
+
+          const response = await fetch(
+            `/api/dashboard/events/data?organizationId=${targetOrgPublicId}`
+          );
 
           if (!response.ok) {
             throw new Error("Erreur lors de la récupération des événements");
@@ -135,7 +165,7 @@ export const useEventsStore = create<EventsStore>()(
       },
     }),
     {
-      name: "events-storage", // Nom de la clé dans localStorage
+      name: "events-storage",
       partialize: (state) => ({
         events: state.events,
         initialized: state.initialized,

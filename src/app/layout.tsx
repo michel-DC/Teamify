@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "../styles/globals.css";
+import { DataPersistenceManager } from "@/components/data-persistence-manager";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -26,7 +28,12 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/images/logo/favicon.png" type="image/x-icon" />
       </head>
-      <body className={poppins.className}>{children}</body>
+      <body className={poppins.className}>
+        <ThemeProvider defaultTheme="light" storageKey="theme">
+          <DataPersistenceManager />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

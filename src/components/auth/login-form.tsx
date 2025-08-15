@@ -2,246 +2,277 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
-import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Sun, Moon } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import {
   IconBrandGoogle,
   IconBrandApple,
   IconBrandFacebook,
 } from "@tabler/icons-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { LoadingScreen } from "@/components/ui/Loader";
+import { useTheme } from "@/components/theme-provider";
 
-export const LoginForm = () => {
+export const LoginForm = ({
+  className,
+  ...props
+}: React.ComponentProps<"div">) => {
   const router = useRouter();
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme, setTheme } = useTheme();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else {
-      const isDarkMode = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setTheme(isDarkMode ? "dark" : "light");
-      document.documentElement.classList.toggle("dark", isDarkMode);
-    }
-  }, []);
+  const [checkingOrganization, setCheckingOrganization] = useState(false);
+  const [blocking, setBlocking] = useState(false);
+  const [navigating, setNavigating] = useState(false);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    setBlocking(true); // Active un overlay pleine page pour couvrir tout le process
 
     try {
-      const res = await fetch("../api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        console.log("Login success:", data);
-
         localStorage.setItem("isLoggedIn", "true");
 
+        /**
+         * Affichage de l'écran de chargement pour la vérification de l'organisation
+         */
+        setCheckingOrganization(true);
+        setLoading(false); // On arrête le loading du bouton pour montrer l'écran de chargement
+
+        // Détermine si l'utilisateur a une organisation
+        let hasOrganization = !!data?.hasOrganization;
+
+        if (typeof hasOrganization !== "boolean") {
+          // fallback si l'API ne renvoie pas hasOrganization
+          try {
+            const userResponse = await fetch("/api/user/has-organization", {
+              method: "GET",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+            });
+            const userData = await userResponse.json();
+            hasOrganization = !!userData?.hasOrganization;
+          } catch {
+            hasOrganization = false; // En cas d'erreur, redirige vers création d'organisation
+          }
+        }
+
+        // Stockage des cookies
+        document.cookie = "isLoggedIn=true; path=/";
+        document.cookie = `hasOrganization=${hasOrganization}; path=/`;
+
+        /**
+         * Petite pause pour que l'utilisateur voie l'écran de chargement
+         */
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        // Toast de succès (sans redirection dans onAutoClose)
         toast.success(
           `Vous êtes maintenant connecté en tant que ${data.user.firstname}!`,
           {
-            duration: 2500,
-            onAutoClose: async () => {
-              const userResponse = await fetch("/api/user/has-organization", {
-                method: "GET",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-              });
-
-              const userData = await userResponse.json();
-
-              document.cookie = "isLoggedIn=true; path=/";
-              document.cookie = `hasOrganization=${userData.hasOrganization}; path=/`;
-
-              if (userData.hasOrganization) {
-                router.push("/dashboard");
-              } else {
-                router.push("/create-organization");
-              }
-            },
+            duration: 2000,
           }
         );
 
-        console.log("Redirection en cours...");
+        // Redirection immédiate
+        const redirectPath = hasOrganization
+          ? "/dashboard"
+          : "/create-organization";
+
+        setCheckingOrganization(false);
+        setNavigating(true);
+        router.replace(redirectPath);
+        return; // Ne pas exécuter le finally tout de suite pour garder l'overlay jusqu'à la nav
       } else {
         if (res.status === 500) {
-          console.log("Erreur 500 détails:", data);
           setError("Erreur serveur (500). Veuillez contacter le support.");
         } else {
           setError(data.error || "Erreur lors de la connexion");
-          console.error("Login error:", data);
         }
       }
     } catch (err) {
       setError("Erreur réseau");
-      console.error("Network error:", err);
+      console.error("Erreur de connexion:", err);
     } finally {
       setLoading(false);
+      setCheckingOrganization(false);
+      // Ne pas retirer l'overlay si une navigation est en cours
+      if (!navigating) {
+        setBlocking(false);
+      }
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Button
-        onClick={toggleTheme}
-        className="fixed top-4 right-4 p-2 rounded-full bg-card hover:bg-accent transition-colors duration-200 shadow-lg"
-        aria-label="Toggle theme"
-      >
-        {theme === "light" ? (
-          <Moon className="w-5 h-5 text-foreground" />
-        ) : (
-          <Sun className="w-5 h-5 text-foreground" />
-        )}
-      </Button>
+    <>
+      {(checkingOrganization || blocking) && (
+        <LoadingScreen
+          text={
+            checkingOrganization
+              ? "Vérification de votre organisation..."
+              : "Connexion en cours..."
+          }
+        />
+      )}
+      <div className="min-h-screen flex items-center justify-center px-1 xs:px-2 sm:px-3 md:px-4 lg:px-6 bg-background">
+        <div
+          className={cn(
+            "flex flex-col gap-1 xs:gap-2 sm:gap-3 md:gap-4 lg:gap-6 w-full max-w-[280px] xs:max-w-[320px] sm:max-w-sm md:max-w-md lg:max-w-lg",
+            className
+          )}
+          {...props}
+        >
+          <ThemeToggle />
 
-      <Toaster position="top-center" richColors />
-      <Card className="w-full max-w-4xl shadow-xl">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-8" onSubmit={handleSubmit}>
-            <div className="space-y-6">
-              <Link
-                href="/"
-                className="flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4 sm:space-y-6 max-w-sm sm:max-w-md mx-auto w-full border border-border rounded-lg p-4 sm:p-6 bg-card"
+          >
+            <div className="space-y-3 sm:space-y-4">
+              {/* Bouton de retour */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/")}
+                className="p-2 h-auto w-auto text-muted-foreground hover:text-foreground transition-colors"
               >
-                <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4 mr-2" />
-                Retour à l&apos;accueil
-              </Link>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold text-center">Vous revoilà</h1>
-                <p className="text-muted-foreground text-center">
-                  Connectez-vous pour accéder à votre espace et créer votre
-                  évènement
-                </p>
-              </div>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Adresse mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@gmail.com"
-                    required
-                    className="w-full"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center">
-                    <Label htmlFor="password">Mot de passe</Label>
-                    <Link
-                      href="/auth/forgot"
-                      className="ml-auto text-sm underline-offset-2 hover:underline"
-                      prefetch={false}
-                    >
-                      Mot de passe oublié ?
-                    </Link>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    placeholder="••••••••"
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full"
-                  />
-                </div>
-              </div>
-              {error && (
-                <p className="text-sm text-center text-destructive">{error}</p>
-              )}
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Connexion en cours..." : "Se connecter"}
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                <span className="text-sm">Retour</span>
               </Button>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Ou continuez avec
-                  </span>
-                </div>
+
+              <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">
+                Connexion
+              </h2>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm sm:text-base">
+                  Adresse mail
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="email@gmail.com"
+                  required
+                  className="h-9 sm:h-10"
+                />
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <Button variant="outline" type="button" className="w-full">
-                  <IconBrandGoogle className="w-4 h-4 mr-2" />
-                  <span>Google</span>
-                </Button>
-                <Button variant="outline" type="button" className="w-full">
-                  <IconBrandApple className="w-4 h-4 mr-2" />
-                  <span>Apple</span>
-                </Button>
-                <Button variant="outline" type="button" className="w-full">
-                  <IconBrandFacebook className="w-4 h-4 mr-2" />
-                  <span>Facebook</span>
-                </Button>
-              </div>
-              <div className="text-center text-sm">
-                Pas encore de compte&nbsp;?{" "}
-                <Link
-                  href="/auth/register"
-                  className="font-medium underline underline-offset-4 hover:text-primary"
-                  prefetch={false}
-                >
-                  Créer un compte
-                </Link>
+
+              {/* Mot de passe */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-sm sm:text-base">
+                    Mot de passe
+                  </Label>
+                  <Link
+                    href="/auth/forgot"
+                    className="text-xs sm:text-sm underline-offset-4 hover:underline text-muted-foreground hover:text-primary transition-colors"
+                    prefetch={false}
+                  >
+                    Mot de passe oublié ?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  placeholder="••••••••"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="h-9 sm:h-10"
+                />
               </div>
             </div>
+
+            {error && (
+              <p className="text-sm text-center text-destructive">{error}</p>
+            )}
+
+            {/* Bouton de soumission */}
+            <div className="flex justify-end pt-3 sm:pt-4">
+              <Button
+                type="submit"
+                className="w-full h-9 sm:h-10 text-sm sm:text-base"
+                disabled={loading || blocking}
+              >
+                {loading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    <span>Connexion en cours...</span>
+                  </div>
+                ) : (
+                  "Se connecter"
+                )}
+              </Button>
+            </div>
+
+            {/* Séparateur et boutons sociaux */}
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Ou continuez avec
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <Button variant="outline" type="button" className="w-full">
+                <IconBrandGoogle className="w-4 h-4 mr-2" />
+                <span>Google</span>
+              </Button>
+              <Button variant="outline" type="button" className="w-full">
+                <IconBrandApple className="w-4 h-4 mr-2" />
+                <span>Apple</span>
+              </Button>
+              <Button variant="outline" type="button" className="w-full">
+                <IconBrandFacebook className="w-4 h-4 mr-2" />
+                <span>Facebook</span>
+              </Button>
+            </div>
+
+            {/* Lien d'inscription */}
+            <div className="text-center text-xs sm:text-sm text-muted-foreground mt-4">
+              Pas encore de compte ?{" "}
+              <Link
+                href="/auth/register"
+                className="underline underline-offset-4 hover:text-primary transition-colors font-medium"
+                prefetch={false}
+              >
+                Créer un compte
+              </Link>
+            </div>
           </form>
-          <div className="hidden md:block relative bg-gradient-to-br from-primary/10 to-secondary/10">
-            <div className="absolute inset-0 bg-background/50" />
-            <Image
-              alt="login-page-image-illus"
-              src="/images/svg/auth.svg"
-              width={600}
-              height={600}
-              className="absolute inset-0 h-full w-full object-contain"
-              priority
-            />
-          </div>
-        </CardContent>
-      </Card>
-      <div className="fixed bottom-4 text-muted-foreground text-center text-xs">
-        En cliquant sur continuer, vous acceptez nos{" "}
-        <a href="#" className="underline hover:text-primary">
-          Conditions d&apos;utilisation
-        </a>{" "}
-        et <a href="#">Politique de confidentialité</a>.
+        </div>
       </div>
-    </div>
+    </>
   );
 };

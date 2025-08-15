@@ -4,8 +4,14 @@ import { useEffect } from "react";
 import { useOrganizationsStore } from "@/store/organizationsStore";
 
 export function useOrganization() {
-  const { organizations, loading, error, initialized, fetchOrganizations } =
-    useOrganizationsStore();
+  const {
+    organizations,
+    events,
+    loading,
+    error,
+    initialized,
+    fetchOrganizations,
+  } = useOrganizationsStore();
 
   // Chargement automatique des organisations au montage
   useEffect(() => {
@@ -16,7 +22,9 @@ export function useOrganization() {
 
   return {
     organizations,
+    events,
     loading,
     error,
+    initialized,
   };
 }

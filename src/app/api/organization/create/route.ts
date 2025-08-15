@@ -3,10 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { writeFile } from "fs/promises";
 import { join } from "path";
-import { OrgSize } from "@prisma/client";
+import { OrganizationType } from "@prisma/client";
 
 export async function POST(req: Request) {
-  // 🔒 Récupère l'utilisateur authentifié depuis le cookie
   const user = await getCurrentUser();
 
   if (!user) {
@@ -16,50 +15,91 @@ export async function POST(req: Request) {
   const formData = await req.formData();
   const name = formData.get("name") as string;
   const bio = formData.get("bio") as string;
-  const memberCount = formData.get("memberCount") as string;
-  const size = formData.get("size") as OrgSize;
+  const organizationType = formData.get("organizationType") as OrganizationType;
   const mission = formData.get("mission") as string;
-  const file = formData.get("file") as File;
+  const memberCount = parseInt(formData.get("memberCount") as string) || 1;
+  const file = formData.get("file") as File | null;
+  const locationRaw = formData.get("location") as string | null;
 
-  if (!name || !bio || !memberCount || !size || !mission) {
+  // Parse location JSON si fourni
+  let location: unknown = null;
+  if (locationRaw) {
+    try {
+      location = JSON.parse(locationRaw);
+    } catch {
+      return NextResponse.json(
+        { error: "Format de localisation invalide" },
+        { status: 400 }
+      );
+    }
+  }
+
+  if (!name || !organizationType || !mission) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
   }
 
+  // Validation du memberCount
+  if (typeof memberCount !== "number" || memberCount < 1) {
+    return NextResponse.json(
+      { error: "Le nombre de membres doit être au moins 1" },
+      { status: 400 }
+    );
+  }
+
   try {
-    let profileImage = null;
+    let profileImage = null as string | null;
 
     if (file) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-
       const fileName = `${Date.now()}-${file.name}`;
       const path = join(
         process.cwd(),
         "public/uploads/organizations",
         fileName
       );
-
       await writeFile(path, buffer);
       profileImage = `/uploads/organizations/${fileName}`;
     }
 
-    const organization = await prisma.organization.create({
-      data: {
-        name,
-        bio,
-        profileImage,
-        memberCount: Number(memberCount),
-        size,
-        mission,
-        owner: { connect: { id: user.id } },
-      },
+    /**
+     * @param Création de l'organisation avec le propriétaire dans les membres
+     *
+     * Inclut automatiquement le propriétaire dans la liste des membres avec ses informations complètes
+     */
+    const organization = await prisma.$transaction(async (tx) => {
+      // Préparer les données du propriétaire pour la colonne members
+      const ownerMember = {
+        uid: user.uid,
+        firstname: user.firstname || "",
+        lastname: user.lastname || "",
+        email: user.email,
+      };
+
+      const createdOrg = await tx.organization.create({
+        data: {
+          name,
+          bio,
+          profileImage,
+          memberCount: 1,
+          organizationType,
+          mission,
+          owner: { connect: { uid: user.uid } },
+          location: location as any,
+          members: [ownerMember], // Inclure le propriétaire dans les membres
+        },
+      });
+
+      await tx.user.update({
+        where: { uid: user.uid },
+        data: { organizationCount: { increment: 1 } },
+      });
+
+      return createdOrg;
     });
 
     return NextResponse.json(
-      {
-        message: "Organisation créée",
-        organization,
-      },
+      { message: "Organisation créée", organization },
       { status: 201 }
     );
   } catch (error) {
