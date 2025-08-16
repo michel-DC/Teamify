@@ -231,3 +231,44 @@ export async function getUserOrganizationRole(
     return null;
   }
 }
+
+/**
+ * @param Récupère le rôle d'un utilisateur dans une organisation par publicId
+ *
+ * Retourne le rôle de l'utilisateur ou null s'il n'est pas membre
+ */
+export async function getUserOrganizationRoleByPublicId(
+  userUid: string,
+  organizationPublicId: string
+): Promise<"OWNER" | "ADMIN" | "MEMBER" | null> {
+  try {
+    // D'abord, récupérer l'organisation par son publicId
+    const organization = await prisma.organization.findUnique({
+      where: { publicId: organizationPublicId },
+      select: { id: true },
+    });
+
+    if (!organization) {
+      return null;
+    }
+
+    // Ensuite, récupérer le rôle de l'utilisateur
+    const member = await prisma.organizationMember.findUnique({
+      where: {
+        organizationId_userUid: {
+          organizationId: organization.id,
+          userUid,
+        },
+      },
+      select: { role: true },
+    });
+
+    return member?.role || null;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération du rôle par publicId:",
+      error
+    );
+    return null;
+  }
+}

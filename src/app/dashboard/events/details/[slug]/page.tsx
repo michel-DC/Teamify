@@ -70,8 +70,8 @@ export default function EventDetailsPage() {
         setEvent(data.event);
 
         // Récupérer le rôle de l'utilisateur dans l'organisation
-        if (data.event?.orgId) {
-          await fetchUserRole(data.event.orgId);
+        if (data.event?.organization?.publicId) {
+          await fetchUserRole(data.event.organization.publicId);
         }
       } catch (err) {
         setError(
@@ -251,7 +251,7 @@ export default function EventDetailsPage() {
                     {event.capacity ?? "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Nombre maximum de participants
+                    Nombre prévisionnel de participants
                   </p>
                 </CardContent>
               </Card>

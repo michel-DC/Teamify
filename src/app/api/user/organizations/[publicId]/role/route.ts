@@ -1,23 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { getUserOrganizationRole } from "@/lib/auth";
+import { getUserOrganizationRoleByPublicId } from "@/lib/auth";
 
 /**
  * @param Route pour récupérer le rôle d'un utilisateur dans une organisation
  *
- * Retourne le rôle de l'utilisateur connecté dans l'organisation spécifiée
+ * Retourne le rôle de l'utilisateur connecté dans l'organisation spécifiée par publicId
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ publicId: string }> }
 ) {
   try {
-    const { id } = await params;
-    const organizationId = parseInt(id);
+    const { publicId } = await params;
+    const organizationPublicId = publicId;
 
-    if (isNaN(organizationId)) {
+    if (!organizationPublicId) {
       return NextResponse.json(
-        { error: "ID d'organisation invalide" },
+        { error: "Public ID d'organisation requis" },
         { status: 400 }
       );
     }
@@ -28,8 +28,11 @@ export async function GET(
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // Récupération du rôle de l'utilisateur dans l'organisation
-    const role = await getUserOrganizationRole(user.uid, organizationId);
+    // Récupération du rôle de l'utilisateur dans l'organisation par publicId
+    const role = await getUserOrganizationRoleByPublicId(
+      user.uid,
+      organizationPublicId
+    );
 
     if (!role) {
       return NextResponse.json(

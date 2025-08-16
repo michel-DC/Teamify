@@ -23,7 +23,15 @@ function CreateEventPageContent() {
   const { activeOrganization } = useActiveOrganization();
 
   if (loading) {
-    return <div>Chargement...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <span
+          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
+          aria-label="Chargement"
+          role="status"
+        />
+      </div>
+    );
   }
 
   if (organizations.length === 0) {
@@ -96,7 +104,17 @@ function CreateEventPageContent() {
 
 export default function CreateEventPage() {
   return (
-    <Suspense fallback={<div>Chargement...</div>}>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <span
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
+            aria-label="Chargement"
+            role="status"
+          />
+        </div>
+      }
+    >
       <CreateEventPageContent />
     </Suspense>
   );

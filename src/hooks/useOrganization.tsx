@@ -36,11 +36,11 @@ export const useOrganizationPermissions = () => {
   /**
    * @param Récupère le rôle de l'utilisateur dans une organisation
    */
-  const fetchUserRole = useCallback(async (organizationId: number) => {
+  const fetchUserRole = useCallback(async (organizationPublicId: string) => {
     setLoading(true);
     try {
       const response = await fetch(
-        `/api/user/organizations/${organizationId}/role`
+        `/api/user/organizations/${organizationPublicId}/role`
       );
       if (response.ok) {
         const data = await response.json();

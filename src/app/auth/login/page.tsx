@@ -9,7 +9,17 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <div>
-      <Suspense fallback={<div>Chargement...</div>}>
+      <Suspense
+        fallback={
+          <div className="flex min-h-screen items-center justify-center">
+            <span
+              className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
+              aria-label="Chargement"
+              role="status"
+            />
+          </div>
+        }
+      >
         <LoginForm />
       </Suspense>
     </div>
