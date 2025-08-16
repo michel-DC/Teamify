@@ -23,7 +23,7 @@ export default function Welcome({ next }: Pick<StepProps, "next">) {
     <div className="space-y-6">
       <div className="flex justify-center">
         <Image
-          src="/images/logo/team-welcome-page.png"
+          src="/images/illustration/team-welcome-page.png"
           alt="illustration welcome page"
           width={128}
           height={96}
