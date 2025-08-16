@@ -175,7 +175,9 @@ export async function POST(
                               <td style="padding:20px;">
                                  <h2 style="font-size:20px; font-weight:600; margin:0 0 15px;">Détails de l'événement</h2>
                                  <p style="margin:0; font-size:15px;"><strong>Événement :</strong> ${eventName}</p>
+                                 <br/>
                                  <p style="margin:0; font-size:15px;"><strong>Catégorie :</strong> ${eventCategory}</p>
+                                 <br/>
                                  ${
                                    eventDate
                                      ? `
@@ -183,6 +185,7 @@ export async function POST(
                                  `
                                      : ""
                                  }
+                                     <br/>
                                  ${
                                    eventLocation
                                      ? `
@@ -190,17 +193,19 @@ export async function POST(
                                  `
                                      : ""
                                  }
+                                 <br/>
                                  <p style="margin:0; font-size:15px;"><strong>Participants :</strong> ${participantsCount} personne${
         participantsCount > 1 ? "s" : ""
       }
                                  </p>
-                                 ${
-                                   truncatedDescription
-                                     ? `
+                                 <br/>
+                                  ${
+                                    truncatedDescription
+                                      ? `
                                  <p style="margin:0; font-size:15px;"><strong>Description :</strong> ${truncatedDescription}</p>
                                  `
-                                     : ""
-                                 }
+                                      : ""
+                                  }
                               </td>
                            </tr>
                         </table>
