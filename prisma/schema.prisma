@@ -159,7 +159,7 @@ model OrganizationMember {
   id             Int      @id @default(autoincrement())
   userUid        String
   organizationId Int
-  role           String   @default("member")
+  role           OrganizationRole @default(MEMBER)
   createdAt      DateTime @default(now())
 
   user          User          @relation(fields: [userUid], references: [uid], onDelete: Cascade)
@@ -178,6 +178,12 @@ enum OrgInviteStatus {
   PENDING
   ACCEPTED
   DECLINED
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  MEMBER
 }
 
 enum OrganizationType {

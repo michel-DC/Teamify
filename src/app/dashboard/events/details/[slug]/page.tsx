@@ -29,6 +29,7 @@ import {
   Slash,
 } from "lucide-react";
 import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
+import { useOrganizationPermissions } from "@/hooks/useOrganization";
 
 type EventDetails = {
   id: number;
@@ -46,6 +47,7 @@ type EventDetails = {
   preparationPercentage?: number;
   eventCode: string;
   slug?: string;
+  orgId: number;
 };
 
 export default function EventDetailsPage() {
@@ -54,6 +56,8 @@ export default function EventDetailsPage() {
   const [event, setEvent] = useState<EventDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { canModifyEvent, canDeleteEvent, fetchUserRole } =
+    useOrganizationPermissions();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -64,6 +68,11 @@ export default function EventDetailsPage() {
         }
         const data = await response.json();
         setEvent(data.event);
+
+        // Récupérer le rôle de l'utilisateur dans l'organisation
+        if (data.event?.orgId) {
+          await fetchUserRole(data.event.orgId);
+        }
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Une erreur est survenue"
@@ -76,7 +85,7 @@ export default function EventDetailsPage() {
     if (params.slug) {
       fetchEventDetails();
     }
-  }, [params.slug]);
+  }, [params.slug, fetchUserRole]);
 
   const formatDate = (d?: Date | string | null) => {
     return formatDateToFrench(d);
@@ -157,22 +166,26 @@ export default function EventDetailsPage() {
                   {event.title}
                 </h1>
                 <div className="flex gap-4">
-                  <Button
-                    className="bg-green-700 hover:bg-green-800 text-white"
-                    onClick={() =>
-                      router.push(`/dashboard/events/edit/${params.slug}`)
-                    }
-                  >
-                    Modifier l&apos;évènement
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() =>
-                      router.push(`/dashboard/events/delete/${params.slug}`)
-                    }
-                  >
-                    Supprimer l&apos;évènement
-                  </Button>
+                  {canModifyEvent && (
+                    <Button
+                      className="bg-green-700 hover:bg-green-800 text-white"
+                      onClick={() =>
+                        router.push(`/dashboard/events/edit/${params.slug}`)
+                      }
+                    >
+                      Modifier l&apos;évènement
+                    </Button>
+                  )}
+                  {canDeleteEvent && (
+                    <Button
+                      variant="destructive"
+                      onClick={() =>
+                        router.push(`/dashboard/events/delete/${params.slug}`)
+                      }
+                    >
+                      Supprimer l&apos;évènement
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

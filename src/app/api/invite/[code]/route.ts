@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { redirect } from "next/navigation";
 
 /**
  * Route pour traiter une invitation d'organisation via le code d'invitation
@@ -85,7 +86,7 @@ export async function GET(
         data: {
           userUid,
           organizationId: invitation.organizationId,
-          role: "member",
+          role: "MEMBER",
         },
       }),
       // Mise à jour du statut de l'invitation

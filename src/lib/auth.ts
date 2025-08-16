@@ -116,3 +116,118 @@ export async function isOrganizationOwner(
     return false;
   }
 }
+
+/**
+ * @param Vérifie si un utilisateur a un rôle spécifique dans une organisation
+ *
+ * Récupère le rôle de l'utilisateur dans l'organisation et le compare au rôle demandé
+ */
+export async function hasOrganizationRole(
+  userUid: string,
+  organizationId: number,
+  requiredRole: "OWNER" | "ADMIN" | "MEMBER"
+): Promise<boolean> {
+  try {
+    const member = await prisma.organizationMember.findUnique({
+      where: {
+        organizationId_userUid: {
+          organizationId,
+          userUid,
+        },
+      },
+      select: { role: true },
+    });
+
+    if (!member) return false;
+
+    // Hiérarchie des rôles : OWNER > ADMIN > MEMBER
+    const roleHierarchy = {
+      OWNER: 3,
+      ADMIN: 2,
+      MEMBER: 1,
+    };
+
+    const userRoleLevel = roleHierarchy[member.role];
+    const requiredRoleLevel = roleHierarchy[requiredRole];
+
+    return userRoleLevel >= requiredRoleLevel;
+  } catch (error) {
+    console.error("Erreur lors de la vérification du rôle:", error);
+    return false;
+  }
+}
+
+/**
+ * @param Vérifie si un utilisateur peut modifier une organisation
+ *
+ * Seuls les OWNER et ADMIN peuvent modifier une organisation
+ */
+export async function canModifyOrganization(
+  userUid: string,
+  organizationId: number
+): Promise<boolean> {
+  return hasOrganizationRole(userUid, organizationId, "ADMIN");
+}
+
+/**
+ * @param Vérifie si un utilisateur peut supprimer une organisation
+ *
+ * Seuls les OWNER peuvent supprimer une organisation
+ */
+export async function canDeleteOrganization(
+  userUid: string,
+  organizationId: number
+): Promise<boolean> {
+  return hasOrganizationRole(userUid, organizationId, "OWNER");
+}
+
+/**
+ * @param Vérifie si un utilisateur peut modifier un événement
+ *
+ * Seuls les OWNER et ADMIN peuvent modifier un événement
+ */
+export async function canModifyEvent(
+  userUid: string,
+  organizationId: number
+): Promise<boolean> {
+  return hasOrganizationRole(userUid, organizationId, "ADMIN");
+}
+
+/**
+ * @param Vérifie si un utilisateur peut supprimer un événement
+ *
+ * Seuls les OWNER peuvent supprimer un événement
+ */
+export async function canDeleteEvent(
+  userUid: string,
+  organizationId: number
+): Promise<boolean> {
+  return hasOrganizationRole(userUid, organizationId, "OWNER");
+}
+
+/**
+ * @param Récupère le rôle d'un utilisateur dans une organisation
+ *
+ * Retourne le rôle de l'utilisateur ou null s'il n'est pas membre
+ */
+export async function getUserOrganizationRole(
+  userUid: string,
+  organizationId: number
+): Promise<"OWNER" | "ADMIN" | "MEMBER" | null> {
+  try {
+    const member = await prisma.organizationMember.findUnique({
+      where: {
+        organizationId_userUid: {
+          organizationId,
+          userUid,
+        },
+      },
+      select: { role: true },
+    });
+
+    return member?.role || null;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du rôle:", error);
+    return null;
+  }
+}

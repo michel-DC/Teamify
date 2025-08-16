@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata = {
@@ -9,7 +9,9 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <div>
-      <LoginForm />
+      <Suspense fallback={<div>Chargement...</div>}>
+        <LoginForm />
+      </Suspense>
     </div>
   );
 }

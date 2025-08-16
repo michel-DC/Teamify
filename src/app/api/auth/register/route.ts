@@ -75,7 +75,7 @@ export async function POST(req: Request) {
                 data: {
                   userUid: newUser.uid,
                   organizationId: invitation.organizationId,
-                  role: "member",
+                  role: "MEMBER",
                 },
               }),
               // Mise à jour du statut de l'invitation

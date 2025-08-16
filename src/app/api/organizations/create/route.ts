@@ -66,6 +66,7 @@ export async function POST(req: Request) {
      * @param Création de l'organisation avec le propriétaire dans les membres
      *
      * Inclut automatiquement le propriétaire dans la liste des membres avec ses informations complètes
+     * et crée une entrée dans OrganizationMember avec le rôle OWNER
      */
     const organization = await prisma.$transaction(async (tx) => {
       // Préparer les données du propriétaire pour la colonne members
@@ -87,6 +88,15 @@ export async function POST(req: Request) {
           owner: { connect: { uid: user.uid } },
           location: location as any,
           members: [ownerMember], // Inclure le propriétaire dans les membres
+        },
+      });
+
+      // Créer l'entrée dans OrganizationMember avec le rôle OWNER
+      await tx.organizationMember.create({
+        data: {
+          userUid: user.uid,
+          organizationId: createdOrg.id,
+          role: "OWNER",
         },
       });
 

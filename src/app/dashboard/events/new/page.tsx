@@ -14,8 +14,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Suspense } from "react";
 
-export default function CreateEventPage() {
+function CreateEventPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { organizations, loading } = useOrganization();
@@ -90,5 +91,13 @@ export default function CreateEventPage() {
         <EventForm orgId={targetOrganization.id.toString()} />
       </div>
     </div>
+  );
+}
+
+export default function CreateEventPage() {
+  return (
+    <Suspense fallback={<div>Chargement...</div>}>
+      <CreateEventPageContent />
+    </Suspense>
   );
 }
