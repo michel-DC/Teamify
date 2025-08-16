@@ -155,7 +155,7 @@ export async function POST(
                         <img src="${
                           process.env.NEXT_PUBLIC_APP_URL ||
                           "https://teamify.onlinemichel.dev"
-                        }/images/logo/teamify-logo.svg" 
+                        }/images/logo/teamify-logo.png" 
                         alt="Logo Teamify" 
                         width="200" 
                         style="display:block; width:200px; max-width:80%; height:auto;">
