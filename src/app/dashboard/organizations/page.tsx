@@ -6,7 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/Input";
-import { Search, Plus, Users, Calendar, TrendingUp } from "lucide-react";
+import {
+  Search,
+  Plus,
+  Users,
+  Calendar,
+  MoreHorizontal,
+  Settings,
+  MapPin,
+  Euro,
+  Target,
+  Building2,
+  Mail,
+  BarChart3,
+  Activity,
+} from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,14 +31,55 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { toast, Toaster } from "sonner";
+import { Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface OrganizationStats {
   totalOrganizations: number;
   totalMembers: number;
   totalEvents: number;
   averageEventsPerOrg: number;
+  organizationTypes: {
+    ASSOCIATION: number;
+    PME: number;
+    ENTREPRISE: number;
+    STARTUP: number;
+    AUTO_ENTREPRENEUR: number;
+  };
+  eventsStats: {
+    totalEvents: number;
+    upcomingEvents: number;
+    completedEvents: number;
+    cancelledEvents: number;
+    averageCapacity: number;
+    totalInvitations: number;
+    averageInvitationsPerEvent: number;
+    eventsWithLocation: number;
+    eventsWithBudget: number;
+    totalBudget: number;
+  };
+  todosStats: {
+    totalTodos: number;
+    completedTodos: number;
+    pendingTodos: number;
+    completionRate: number;
+    totalTodoGroups: number;
+    averageTodosPerEvent: number;
+  };
+  temporalStats: {
+    organizationsCreatedThisMonth: number;
+    organizationsCreatedThisYear: number;
+    eventsCreatedThisMonth: number;
+    eventsCreatedThisYear: number;
+    averageEventsPerOrg: number;
+    averageMembersPerOrg: number;
+  };
 }
 
 export default function OrganizationsDashboardPage() {
@@ -36,31 +91,64 @@ export default function OrganizationsDashboardPage() {
     totalMembers: 0,
     totalEvents: 0,
     averageEventsPerOrg: 0,
+    organizationTypes: {
+      ASSOCIATION: 0,
+      PME: 0,
+      ENTREPRISE: 0,
+      STARTUP: 0,
+      AUTO_ENTREPRENEUR: 0,
+    },
+    eventsStats: {
+      totalEvents: 0,
+      upcomingEvents: 0,
+      completedEvents: 0,
+      cancelledEvents: 0,
+      averageCapacity: 0,
+      totalInvitations: 0,
+      averageInvitationsPerEvent: 0,
+      eventsWithLocation: 0,
+      eventsWithBudget: 0,
+      totalBudget: 0,
+    },
+    todosStats: {
+      totalTodos: 0,
+      completedTodos: 0,
+      pendingTodos: 0,
+      completionRate: 0,
+      totalTodoGroups: 0,
+      averageTodosPerEvent: 0,
+    },
+    temporalStats: {
+      organizationsCreatedThisMonth: 0,
+      organizationsCreatedThisYear: 0,
+      eventsCreatedThisMonth: 0,
+      eventsCreatedThisYear: 0,
+      averageEventsPerOrg: 0,
+      averageMembersPerOrg: 0,
+    },
   });
 
+  /**
+   * Récupération des statistiques détaillées depuis l'API
+   */
   useEffect(() => {
-    if (organizations.length > 0) {
-      const totalMembers = organizations.reduce(
-        (sum, org) => sum + org.memberCount,
-        0
-      );
-      // Utiliser le champ eventCount au lieu de compter les événements manuellement
-      const totalEvents = organizations.reduce(
-        (sum, org) => sum + (org.eventCount || 0),
-        0
-      );
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/dashboard/organizations/stats");
+        if (response.ok) {
+          const data = await response.json();
+          setStats(data.stats);
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des statistiques:",
+          error
+        );
+      }
+    };
 
-      setStats({
-        totalOrganizations: organizations.length,
-        totalMembers,
-        totalEvents,
-        averageEventsPerOrg:
-          organizations.length > 0
-            ? Math.round((totalEvents / organizations.length) * 10) / 10
-            : 0,
-      });
-    }
-  }, [organizations]);
+    fetchStats();
+  }, []);
 
   const filteredOrganizations = organizations.filter(
     (org) =>
@@ -101,6 +189,10 @@ export default function OrganizationsDashboardPage() {
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
     }
+  };
+
+  const handleSettingsClick = (orgPublicId: string) => {
+    router.push(`/dashboard/organizations/settings/${orgPublicId}`);
   };
 
   if (loading) {
@@ -146,20 +238,21 @@ export default function OrganizationsDashboardPage() {
           </Button>
         </div>
 
+        {/* Statistiques principales */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Organisations
               </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Building2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {stats.totalOrganizations}
               </div>
               <p className="text-xs text-muted-foreground">
-                Organisations créées
+                {stats.temporalStats.organizationsCreatedThisMonth} ce mois
               </p>
             </CardContent>
           </Card>
@@ -171,7 +264,9 @@ export default function OrganizationsDashboardPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalMembers}</div>
-              <p className="text-xs text-muted-foreground">Total des membres</p>
+              <p className="text-xs text-muted-foreground">
+                {stats.temporalStats.averageMembersPerOrg} en moyenne
+              </p>
             </CardContent>
           </Card>
 
@@ -181,28 +276,192 @@ export default function OrganizationsDashboardPage() {
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalEvents}</div>
+              <div className="text-2xl font-bold">
+                {stats.eventsStats.totalEvents}
+              </div>
               <p className="text-xs text-muted-foreground">
-                Événements organisés
+                {stats.temporalStats.averageEventsPerOrg} par organisation
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Moyenne</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Invitations</CardTitle>
+              <Mail className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {stats.averageEventsPerOrg}
+                {stats.eventsStats.totalInvitations}
               </div>
               <p className="text-xs text-muted-foreground">
-                Événements par organisation
+                {stats.eventsStats.averageInvitationsPerEvent} par événement
               </p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Statistiques détaillées */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {/* Statistiques des événements */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Statut des événements
+              </CardTitle>
+              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm">À venir</span>
+                <span className="text-sm font-medium text-blue-600">
+                  {stats.eventsStats.upcomingEvents}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Terminés</span>
+                <span className="text-sm font-medium text-green-600">
+                  {stats.eventsStats.completedEvents}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Annulés</span>
+                <span className="text-sm font-medium text-red-600">
+                  {stats.eventsStats.cancelledEvents}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Statistiques des tâches */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Tâches de préparation
+              </CardTitle>
+              <Target className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm">Total</span>
+                <span className="text-sm font-medium">
+                  {stats.todosStats.totalTodos}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Terminées</span>
+                <span className="text-sm font-medium text-green-600">
+                  {stats.todosStats.completedTodos}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Taux de complétion</span>
+                <span className="text-sm font-medium text-blue-600">
+                  {stats.todosStats.completionRate}%
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Statistiques financières */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Budget total
+              </CardTitle>
+              <Euro className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stats.eventsStats.totalBudget.toLocaleString("fr-FR")} €
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {stats.eventsStats.eventsWithBudget} événements avec budget
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Statistiques géographiques */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Événements localisés
+              </CardTitle>
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stats.eventsStats.eventsWithLocation}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                sur {stats.eventsStats.totalEvents} événements
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Capacité moyenne */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Capacité moyenne
+              </CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {stats.eventsStats.averageCapacity}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                personnes par événement
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Activité récente */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Activité ce mois
+              </CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm">Nouvelles org.</span>
+                <span className="text-sm font-medium text-green-600">
+                  {stats.temporalStats.organizationsCreatedThisMonth}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Nouveaux événements</span>
+                <span className="text-sm font-medium text-blue-600">
+                  {stats.temporalStats.eventsCreatedThisMonth}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Répartition par type d'organisation */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">
+              Répartition par type d'organisation
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-5">
+              {Object.entries(stats.organizationTypes).map(([type, count]) => (
+                <div key={type} className="text-center">
+                  <div className="text-2xl font-bold">{count}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {getTypeLabel(type)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
@@ -221,10 +480,7 @@ export default function OrganizationsDashboardPage() {
             {filteredOrganizations.map((org) => (
               <Card
                 key={org.id}
-                className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() =>
-                  router.push(`/dashboard/organizations/${org.id}`)
-                }
+                className="hover:shadow-md transition-shadow relative"
               >
                 <CardHeader>
                   <div className="flex items-center space-x-4">
@@ -252,11 +508,33 @@ export default function OrganizationsDashboardPage() {
                         {getTypeLabel(org.organizationType)}
                       </Badge>
                     </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0 hover:bg-muted"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Ouvrir le menu</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleSettingsClick(org.publicId)}
+                          className="cursor-pointer"
+                        >
+                          <Settings className="mr-2 h-4 w-4" />
+                          Paramètres
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                    {org.bio || "Aucune description"}
+                    {(org.bio && org.bio.length > 160
+                      ? org.bio.slice(0, 157) + "…"
+                      : org.bio) || "Aucune description"}
                   </p>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">

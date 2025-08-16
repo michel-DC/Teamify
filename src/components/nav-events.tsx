@@ -38,7 +38,7 @@ export function NavEvents({
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
               <a href={item.url}>
-                {/* <item.icon /> */}
+                <item.icon />
                 <span>{item.name}</span>
               </a>
             </SidebarMenuButton>
@@ -54,14 +54,11 @@ export function NavEvents({
                 side={isMobile ? "bottom" : "right"}
                 align={isMobile ? "end" : "start"}
               >
-                <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>Voir cet évènement</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Forward className="text-muted-foreground" />
-                  <span>Partager cet évènement</span>
+                <DropdownMenuItem asChild>
+                  <a href={item.url}>
+                    <Folder className="text-muted-foreground" />
+                    <span>Voir les détails</span>
+                  </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

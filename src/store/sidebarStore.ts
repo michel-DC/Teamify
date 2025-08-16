@@ -74,11 +74,7 @@ const initialData: SidebarData = {
       items: [
         {
           title: "Vue d'ensemble",
-          url: "#",
-        },
-        {
-          title: "Statistiques",
-          url: "/dashboard/stats",
+          url: "/dashboard",
         },
       ],
     },
@@ -123,27 +119,7 @@ const initialData: SidebarData = {
       ],
     },
     {
-      title: "Équipes",
-      url: "/teams",
-      icon: "Users",
-      isActive: true,
-      items: [
-        {
-          title: "Toutes les équipes",
-          url: "/dashboard/teams",
-        },
-        {
-          title: "Créer une équipe",
-          url: "/dashboard/teams/new",
-        },
-        {
-          title: "Gérer les membres",
-          url: "/dashboard/teams/members",
-        },
-      ],
-    },
-    {
-      title: "Messages",
+      title: "Messagerie",
       url: "/messages",
       icon: "Command",
       isActive: true,
@@ -153,28 +129,8 @@ const initialData: SidebarData = {
           url: "/dashboard/messages",
         },
         {
-          title: "Nouveau message",
-          url: "/dashboard/messages/new",
-        },
-      ],
-    },
-    {
-      title: "Paramètres",
-      url: "/settings",
-      icon: "Settings2",
-      isActive: true,
-      items: [
-        {
-          title: "Profil",
-          url: "/dashboard/settings/profile",
-        },
-        {
-          title: "Sécurité",
-          url: "/dashboard/settings/security",
-        },
-        {
-          title: "Notifications",
-          url: "/dashboard/settings/notifications",
+          title: "Groupes d'organisations",
+          url: "/dashboard/messages/groups",
         },
       ],
     },

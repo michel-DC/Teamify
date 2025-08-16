@@ -23,6 +23,7 @@ import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 import { useOrganizationsStore } from "@/store/organizationsStore";
 import { useEventsStore } from "@/store/eventsStore";
 import { GalleryVerticalEnd } from "lucide-react";
+import { forceRefreshAllStores } from "@/store/activeOrganizationStore";
 
 export function TeamSwitcher({
   teams,
@@ -65,14 +66,14 @@ export function TeamSwitcher({
    * Gère le changement d'organisation
    */
   const handleOrganizationChange = async (organization: any) => {
+    // Mettre à jour l'organisation active
     setActiveOrganization(organization);
 
-    // Recharger les événements pour la nouvelle organisation
-    try {
-      await fetchEvents();
-    } catch (error) {
-      console.error("Erreur lors du rechargement des événements:", error);
-    }
+    // Forcer un refresh complet de tous les stores et de la page
+    // Cela garantit que toutes les données sont rechargées pour la nouvelle organisation
+    setTimeout(() => {
+      forceRefreshAllStores();
+    }, 100); // Petit délai pour s'assurer que l'organisation active est bien mise à jour
   };
 
   // Trouver l'organisation active correspondante
@@ -157,7 +158,7 @@ export function TeamSwitcher({
               </div>
               <div className="text-muted-foreground font-medium">
                 <a href="/dashboard/organizations/new">
-                  Ajouter une organisation
+                  Créer une organisation
                 </a>
               </div>
             </DropdownMenuItem>

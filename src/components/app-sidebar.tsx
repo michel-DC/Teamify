@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-// import { NavEvents } from "@/components/nav-events";
+import { NavEvents } from "@/components/nav-events";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
 import {
@@ -51,7 +51,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Transformation des données pour les événements avec icônes
   const eventsWithIcons = data.events.map((event) => ({
-    ...event,
+    name: event.title,
+    url: event.url,
     icon: iconMap[event.icon as keyof typeof iconMap] || Calendar,
   }));
 
@@ -62,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={navMainWithIcons} />
-        {/* <NavEvents events={eventsWithIcons} /> */}
+        <NavEvents events={eventsWithIcons} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
