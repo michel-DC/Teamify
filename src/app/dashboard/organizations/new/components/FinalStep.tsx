@@ -32,7 +32,7 @@ export default function FinalStep({ formData }: StepProps) {
         formDataToSend.append("file", formData.file);
       }
 
-      const res = await fetch("/api/organization/create", {
+      const res = await fetch("/api/organizations/create", {
         method: "POST",
         credentials: "include",
         body: formDataToSend,

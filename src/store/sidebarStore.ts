@@ -114,7 +114,7 @@ const initialData: SidebarData = {
         },
         {
           title: "Inviter un membre",
-          url: "/dashboard/organizations/invite",
+          url: "/dashboard/organizations/invitations",
         },
       ],
     },

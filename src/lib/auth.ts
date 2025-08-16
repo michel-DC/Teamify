@@ -48,3 +48,71 @@ export async function getCurrentUser() {
 
   return user;
 }
+
+/**
+ * Vérifie si un utilisateur a accès à une organisation (propriétaire OU membre)
+ * @param userUid - L'UID de l'utilisateur
+ * @param organizationId - L'ID de l'organisation
+ * @returns true si l'utilisateur a accès, false sinon
+ */
+export async function hasOrganizationAccess(
+  userUid: string,
+  organizationId: number
+): Promise<boolean> {
+  try {
+    // Vérifier si l'utilisateur est propriétaire
+    const isOwner = await prisma.organization.findFirst({
+      where: {
+        id: organizationId,
+        ownerUid: userUid,
+      },
+    });
+
+    if (isOwner) {
+      return true;
+    }
+
+    // Vérifier si l'utilisateur est membre
+    const isMember = await prisma.organizationMember.findUnique({
+      where: {
+        organizationId_userUid: {
+          organizationId,
+          userUid,
+        },
+      },
+    });
+
+    return !!isMember;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la vérification d'accès à l'organisation:",
+      error
+    );
+    return false;
+  }
+}
+
+/**
+ * Vérifie si un utilisateur est propriétaire d'une organisation
+ * @param userUid - L'UID de l'utilisateur
+ * @param organizationId - L'ID de l'organisation
+ * @returns true si l'utilisateur est propriétaire, false sinon
+ */
+export async function isOrganizationOwner(
+  userUid: string,
+  organizationId: number
+): Promise<boolean> {
+  try {
+    const organization = await prisma.organization.findFirst({
+      where: {
+        id: organizationId,
+        ownerUid: userUid,
+      },
+    });
+
+    return !!organization;
+  } catch (error) {
+    console.error("Erreur lors de la vérification de propriété:", error);
+    return false;
+  }
+}

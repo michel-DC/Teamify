@@ -16,8 +16,8 @@ export async function GET(request: NextRequest) {
 
     console.log("API Stats: Utilisateur authentifié:", user.uid);
 
-    // Récupérer toutes les organisations de l'utilisateur
-    const organizations = await prisma.organization.findMany({
+    // Récupérer toutes les organisations dont l'utilisateur est propriétaire
+    const ownedOrganizations = await prisma.organization.findMany({
       where: { ownerUid: user.uid },
       include: {
         events: {
@@ -30,36 +30,70 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    console.log("API Stats: Organisations trouvées:", organizations.length);
+    // Récupérer toutes les organisations dont l'utilisateur est membre
+    const memberOrganizations = await prisma.organization.findMany({
+      where: {
+        organizationMembers: {
+          some: {
+            userUid: user.uid,
+          },
+        },
+      },
+      include: {
+        events: {
+          include: {
+            invitations: true,
+            preparationTodos: true,
+            preparationTodoGroups: true,
+          },
+        },
+      },
+    });
+
+    // Combiner les deux listes en évitant les doublons
+    const allOrganizations = [...ownedOrganizations];
+    memberOrganizations.forEach((memberOrg) => {
+      const isAlreadyIncluded = allOrganizations.some(
+        (org) => org.id === memberOrg.id
+      );
+      if (!isAlreadyIncluded) {
+        allOrganizations.push(memberOrg);
+      }
+    });
+
+    console.log("API Stats: Organisations trouvées:", allOrganizations.length);
     console.log(
       "API Stats: Événements trouvés:",
-      organizations.reduce((sum, org) => sum + org.events.length, 0)
+      allOrganizations.reduce((sum, org) => sum + org.events.length, 0)
     );
 
     // Calculer les statistiques détaillées
     const stats = {
       // Statistiques de base
-      totalOrganizations: organizations.length,
-      totalMembers: organizations.reduce(
+      totalOrganizations: allOrganizations.length,
+      totalMembers: allOrganizations.reduce(
         (sum, org) => sum + org.memberCount,
         0
       ),
-      totalEvents: organizations.reduce((sum, org) => sum + org.eventCount, 0),
+      totalEvents: allOrganizations.reduce(
+        (sum, org) => sum + org.eventCount,
+        0
+      ),
 
       // Statistiques par type d'organisation
       organizationTypes: {
-        ASSOCIATION: organizations.filter(
+        ASSOCIATION: allOrganizations.filter(
           (org) => org.organizationType === "ASSOCIATION"
         ).length,
-        PME: organizations.filter((org) => org.organizationType === "PME")
+        PME: allOrganizations.filter((org) => org.organizationType === "PME")
           .length,
-        ENTREPRISE: organizations.filter(
+        ENTREPRISE: allOrganizations.filter(
           (org) => org.organizationType === "ENTREPRISE"
         ).length,
-        STARTUP: organizations.filter(
+        STARTUP: allOrganizations.filter(
           (org) => org.organizationType === "STARTUP"
         ).length,
-        AUTO_ENTREPRENEUR: organizations.filter(
+        AUTO_ENTREPRENEUR: allOrganizations.filter(
           (org) => org.organizationType === "AUTO_ENTREPRENEUR"
         ).length,
       },
@@ -100,7 +134,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Calculer les statistiques des événements
-    const allEvents = organizations.flatMap((org) => org.events);
+    const allEvents = allOrganizations.flatMap((org) => org.events);
     stats.eventsStats.totalEvents = allEvents.length;
     stats.eventsStats.upcomingEvents = allEvents.filter(
       (event) => event.status === "A_VENIR"
@@ -171,11 +205,11 @@ export async function GET(request: NextRequest) {
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const thisYear = new Date(now.getFullYear(), 0, 1);
 
-    stats.temporalStats.organizationsCreatedThisMonth = organizations.filter(
+    stats.temporalStats.organizationsCreatedThisMonth = allOrganizations.filter(
       (org) => new Date(org.createdAt) >= thisMonth
     ).length;
 
-    stats.temporalStats.organizationsCreatedThisYear = organizations.filter(
+    stats.temporalStats.organizationsCreatedThisYear = allOrganizations.filter(
       (org) => new Date(org.createdAt) >= thisYear
     ).length;
 
@@ -188,13 +222,13 @@ export async function GET(request: NextRequest) {
     ).length;
 
     stats.temporalStats.averageEventsPerOrg =
-      organizations.length > 0
-        ? Math.round((allEvents.length / organizations.length) * 10) / 10
+      allOrganizations.length > 0
+        ? Math.round((allEvents.length / allOrganizations.length) * 10) / 10
         : 0;
 
     stats.temporalStats.averageMembersPerOrg =
-      organizations.length > 0
-        ? Math.round((stats.totalMembers / organizations.length) * 10) / 10
+      allOrganizations.length > 0
+        ? Math.round((stats.totalMembers / allOrganizations.length) * 10) / 10
         : 0;
 
     return NextResponse.json({ stats });

@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 /**
  * @param Récupération de toutes les invitations de l'organisation
  *
- * Retourne toutes les invitations pour tous les événements de l'utilisateur
+ * Retourne toutes les invitations pour tous les événements des organisations de l'utilisateur
  */
 export async function GET(request: Request) {
   try {
@@ -18,10 +18,40 @@ export async function GET(request: Request) {
       );
     }
 
-    // Récupérer tous les événements de l'utilisateur
+    // Récupérer toutes les organisations dont l'utilisateur est propriétaire
+    const ownedOrganizations = await prisma.organization.findMany({
+      where: { ownerUid: user.uid },
+      select: { id: true },
+    });
+
+    // Récupérer toutes les organisations dont l'utilisateur est membre
+    const memberOrganizations = await prisma.organization.findMany({
+      where: {
+        organizationMembers: {
+          some: {
+            userUid: user.uid,
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    // Combiner les IDs d'organisations
+    const allOrganizationIds = [
+      ...ownedOrganizations.map((org) => org.id),
+      ...memberOrganizations.map((org) => org.id),
+    ];
+
+    if (allOrganizationIds.length === 0) {
+      return NextResponse.json({ invitations: [] }, { status: 200 });
+    }
+
+    // Récupérer tous les événements de ces organisations
     const userEvents = await prisma.event.findMany({
       where: {
-        ownerUid: user.uid,
+        orgId: {
+          in: allOrganizationIds,
+        },
       },
       select: {
         eventCode: true,

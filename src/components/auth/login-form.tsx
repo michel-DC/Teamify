@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import {
   IconBrandGoogle,
@@ -23,6 +23,7 @@ export const LoginForm = ({
   ...props
 }: React.ComponentProps<"div">) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { theme, setTheme } = useTheme();
 
   const [email, setEmail] = useState("");
@@ -32,11 +33,35 @@ export const LoginForm = ({
   const [checkingOrganization, setCheckingOrganization] = useState(false);
   const [blocking, setBlocking] = useState(false);
   const [navigating, setNavigating] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
   };
+
+  /**
+   * Récupération du code d'invitation depuis l'URL au chargement
+   */
+  useEffect(() => {
+    const invite = searchParams.get("invite");
+    if (invite) {
+      setInviteCode(invite);
+    }
+  }, [searchParams]);
+
+  /**
+   * Vérification du message de déconnexion au chargement
+   */
+  useEffect(() => {
+    const showLogoutMessage = sessionStorage.getItem("showLogoutMessage");
+    if (showLogoutMessage === "true") {
+      sessionStorage.removeItem("showLogoutMessage");
+      toast.success("Vous avez été déconnecté avec succès", {
+        duration: 3000,
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -62,6 +87,32 @@ export const LoginForm = ({
          */
         setCheckingOrganization(true);
         setLoading(false); // On arrête le loading du bouton pour montrer l'écran de chargement
+
+        // Si il y a un code d'invitation, traiter directement l'invitation
+        if (inviteCode) {
+          // Stockage des cookies
+          document.cookie = "isLoggedIn=true; path=/";
+          document.cookie = "hasOrganization=true; path=/"; // Force à true pour éviter la redirection
+
+          /**
+           * Petite pause pour que l'utilisateur voie l'écran de chargement
+           */
+          await new Promise((resolve) => setTimeout(resolve, 800));
+
+          // Toast de succès
+          toast.success(
+            `Vous êtes maintenant connecté en tant que ${data.user.firstname}!`,
+            {
+              duration: 2000,
+            }
+          );
+
+          // Redirection vers la page d'invitation
+          setCheckingOrganization(false);
+          setNavigating(true);
+          router.replace(`/invite/${inviteCode}`);
+          return;
+        }
 
         // Détermine si l'utilisateur a une organisation
         let hasOrganization = !!data?.hasOrganization;

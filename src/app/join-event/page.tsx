@@ -279,7 +279,7 @@ function JoinEventContent() {
                 <Button
                   onClick={() => handleResponse("ACCEPTED")}
                   disabled={responding}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  className="flex-1"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   J'accepte l'invitation

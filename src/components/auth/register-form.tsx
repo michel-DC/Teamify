@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "../ui/label";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,6 +15,7 @@ import { useTheme } from "@/components/theme-provider";
 
 export const RegisterForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { theme, setTheme } = useTheme();
 
   const [firstname, setFirstname] = useState("");
@@ -24,11 +25,22 @@ export const RegisterForm = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
   };
+
+  /**
+   * Récupération du code d'invitation depuis l'URL au chargement
+   */
+  useEffect(() => {
+    const invite = searchParams.get("invite");
+    if (invite) {
+      setInviteCode(invite);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -50,16 +62,26 @@ export const RegisterForm = () => {
           lastname,
           email,
           passwordHash: password,
+          inviteCode, // Ajout du code d'invitation si présent
         }),
       });
 
       const text = await res.text();
 
       if (res.ok) {
+        const responseData = JSON.parse(text);
         toast.success(`Bienvenue sur teamify ${lastname} !`, {
           duration: 4000,
           onAutoClose: () => {
-            router.push("/auth/login");
+            // Si il y a un code d'invitation et que l'utilisateur a une organisation, aller au dashboard
+            if (inviteCode && responseData.hasOrganization) {
+              router.push("/dashboard");
+            } else if (inviteCode) {
+              // Si il y a un code d'invitation mais pas d'organisation, traiter l'invitation
+              router.push(`/invite/${inviteCode}`);
+            } else {
+              router.push("/auth/login");
+            }
           },
         });
       } else {
@@ -104,8 +126,9 @@ export const RegisterForm = () => {
             <div className="text-center space-y-2">
               <h1 className="text-xl sm:text-2xl font-bold">Bienvenue</h1>
               <p className="text-sm text-muted-foreground">
-                Inscrivez-vous pour accéder à votre espace et créer votre
-                évènement
+                {inviteCode
+                  ? "Inscrivez-vous pour rejoindre l'organisation"
+                  : "Inscrivez-vous pour accéder à votre espace et créer votre évènement"}
               </p>
             </div>
 

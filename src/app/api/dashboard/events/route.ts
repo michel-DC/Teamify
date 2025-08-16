@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 import { writeFile } from "fs/promises";
 import { join } from "path";
 import { EventCategory, EventStatus } from "@prisma/client";
@@ -78,6 +78,15 @@ export async function POST(req: Request) {
   });
 
   try {
+    // Vérifier que l'utilisateur a accès à l'organisation
+    const hasAccess = await hasOrganizationAccess(user.uid, orgId);
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: "Organisation non trouvée ou non autorisée" },
+        { status: 403 }
+      );
+    }
+
     let imageUrl: string | null = null;
 
     const file = formData.get("file") as File;

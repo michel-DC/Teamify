@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
-export async function GET(request: Request) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    /**
-     * Récupération de l'utilisateur connecté
-     */
     const user = await getCurrentUser();
 
     if (!user) {
@@ -16,15 +16,12 @@ export async function GET(request: Request) {
       );
     }
 
-    /**
-     * Récupération du paramètre d'organisation depuis l'URL
-     */
-    const { searchParams } = new URL(request.url);
-    const organizationPublicId = searchParams.get("organizationId");
+    const { id } = await params;
+    const organizationPublicId = id;
 
     if (!organizationPublicId) {
       return NextResponse.json(
-        { error: "ID d'organisation requis" },
+        { error: "ID d'organisation invalide" },
         { status: 400 }
       );
     }
@@ -35,6 +32,11 @@ export async function GET(request: Request) {
     const organization = await prisma.organization.findFirst({
       where: {
         publicId: organizationPublicId,
+      },
+      select: {
+        id: true,
+        name: true,
+        profileImage: true,
       },
     });
 
@@ -57,40 +59,20 @@ export async function GET(request: Request) {
       );
     }
 
-    /**
-     * Récupération des événements de l'organisation spécifiée
-     * (tous les événements de l'organisation, pas seulement ceux créés par l'utilisateur)
-     */
-    const events = await prisma.event.findMany({
-      where: {
-        orgId: organization.id,
+    return NextResponse.json(
+      {
+        profileImage: organization.profileImage || null,
+        name: organization.name || null,
       },
-      include: {
-        organization: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
-
-    const eventsWithPublicId = events.map((event) => ({
-      ...event,
-      id: event.publicId,
-    }));
-
-    return NextResponse.json({ events: eventsWithPublicId }, { status: 200 });
+      { status: 200 }
+    );
   } catch (error) {
     console.error(
-      "Une erreur est survenue lors de la récupération des événements",
+      "Une erreur est survenue lors de la récupération de l'image de profil",
       error
     );
     return NextResponse.json(
-      { error: "Erreur serveur lors de la récupération des événements" },
+      { error: "Erreur serveur lors de la récupération de l'image" },
       { status: 500 }
     );
   }

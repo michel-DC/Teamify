@@ -152,10 +152,7 @@ export async function POST(
                   <!-- Logo -->
                   <tr>
                      <td align="center" style="padding:20px 0; background-color:#ffffff;">
-                        <img src="${
-                          process.env.NEXT_PUBLIC_APP_URL ||
-                          "https://teamify.onlinemichel.dev"
-                        }/images/logo/teamify-logo.svg" 
+                        <img src="https://teamify.onlinemichel.dev/images/logo/teamify-logo.png" 
                         alt="Logo Teamify" 
                         width="200" 
                         style="display:block; width:200px; max-width:80%; height:auto;">
@@ -219,10 +216,7 @@ export async function POST(
                   <!-- Footer -->
                   <tr>
                      <td align="center" style="padding:20px; background-color:#f9fafb; font-size:12px; color:#9ca3af;">
-                        <img src="${
-                          process.env.NEXT_PUBLIC_APP_URL ||
-                          "https://teamify.onlinemichel.dev"
-                        }/images/logo/teamify-favicon.png" alt="Favicon" width="24" style="margin-bottom:10px;">
+                        <img src="https://teamify.onlinemichel.dev/images/logo/teamify-favicon.png" alt="Favicon" width="24" style="margin-bottom:10px;">
                         <p style="margin:0;">Vous recevez cet email car vous êtes invité sur Teamify. 
                            Consultez nos <a href="${
                              process.env.NEXT_PUBLIC_APP_URL ||

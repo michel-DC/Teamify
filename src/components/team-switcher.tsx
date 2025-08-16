@@ -39,27 +39,30 @@ export function TeamSwitcher({
 
   const isMobile = useIsMobile();
   const [profileImage, setProfileImage] = React.useState<string | null>(null);
+  const [organizationName, setOrganizationName] = React.useState<string>("");
 
   /**
-   * Récupère l'image de profil de l'organisation active
+   * Récupère l'image de profil et le nom de l'organisation active
    */
   React.useEffect(() => {
-    const fetchProfileImage = async () => {
+    const fetchOrganizationData = async () => {
       if (!activeOrganization) return;
 
       try {
         const response = await fetch(
-          `/api/organization/${activeOrganization.publicId}/profile-image`
+          `/api/organizations/by-public-id/${activeOrganization.publicId}/profile-image`
         );
         const data = await response.json();
         setProfileImage(data.profileImage);
+        setOrganizationName(data.name || activeOrganization.name);
       } catch (error) {
-        console.error("Error fetching profile image:", error);
+        console.error("Error fetching organization data:", error);
         setProfileImage(null);
+        setOrganizationName(activeOrganization.name);
       }
     };
 
-    fetchProfileImage();
+    fetchOrganizationData();
   }, [activeOrganization]);
 
   /**
@@ -67,21 +70,21 @@ export function TeamSwitcher({
    */
   const handleOrganizationChange = async (organization: any) => {
     // Mettre à jour l'organisation active
+    // La suppression du localStorage sidebar-storage est gérée automatiquement dans setActiveOrganization
     setActiveOrganization(organization);
 
-    // Forcer un refresh complet de tous les stores et de la page
+    // Forcer un refresh complet de tous les stores
     // Cela garantit que toutes les données sont rechargées pour la nouvelle organisation
     setTimeout(() => {
       forceRefreshAllStores();
     }, 100); // Petit délai pour s'assurer que l'organisation active est bien mise à jour
   };
 
-  // Trouver l'organisation active correspondante
-  const currentActiveTeam = activeOrganization
-    ? teams.find((team) => team.name === activeOrganization.name) || teams[0]
-    : teams[0];
+  // Utiliser le nom de l'organisation récupéré via l'API ou le nom par défaut
+  const displayName =
+    organizationName || activeOrganization?.name || "Mon Organisation";
 
-  if (!currentActiveTeam) {
+  if (!activeOrganization) {
     return null;
   }
 
@@ -98,19 +101,17 @@ export function TeamSwitcher({
                 {profileImage ? (
                   <Image
                     src={profileImage}
-                    alt={currentActiveTeam.name}
+                    alt={displayName}
                     width={16}
                     height={16}
                     className="rounded-full"
                   />
                 ) : (
-                  <currentActiveTeam.logo className="size-4" />
+                  <GalleryVerticalEnd className="size-4" />
                 )}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {currentActiveTeam.name}
-                </span>
+                <span className="truncate font-medium">{displayName}</span>
               </div>
               <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>

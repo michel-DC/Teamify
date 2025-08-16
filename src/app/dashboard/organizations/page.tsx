@@ -232,10 +232,21 @@ export default function OrganizationsDashboardPage() {
               Gérez vos organisations et leurs événements
             </p>
           </div>
-          <Button onClick={() => router.push("/dashboard/organizations/new")}>
-            <Plus className="mr-2 h-4 w-4" />
-            Nouvelle organisation
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={() =>
+                router.push("/dashboard/organizations/invitations")
+              }
+            >
+              <Mail className="mr-2 h-4 w-4" />
+              Invitations
+            </Button>
+            <Button onClick={() => router.push("/dashboard/organizations/new")}>
+              <Plus className="mr-2 h-4 w-4" />
+              Nouvelle organisation
+            </Button>
+          </div>
         </div>
 
         {/* Statistiques principales */}

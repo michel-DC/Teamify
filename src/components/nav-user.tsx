@@ -47,30 +47,21 @@ export function NavUser({
   };
 
   const handleLogOut = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" });
-    } catch {}
-
-    // Clear authentication cookies and local storage
     document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     document.cookie =
       "isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     document.cookie =
       "hasOrganization=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
 
-    // Purge localStorage persisted stores
     try {
       localStorage.removeItem("isLoggedIn");
       localStorage.removeItem("organizations-storage");
       localStorage.removeItem("sidebar-storage");
     } catch {}
 
-    toast.success(`Vous êtes bien déconnecté ${user.name}`, {
-      duration: 1500,
-      onAutoClose: () => {
-        redirect("/auth/login");
-      },
-    });
+    sessionStorage.setItem("showLogoutMessage", "true");
+
+    window.location.href = "/auth/login";
   };
 
   return (

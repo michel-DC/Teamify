@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
 export async function GET(
   request: Request,
@@ -26,10 +26,19 @@ export async function GET(
     }
 
     // Vérifier que l'utilisateur a accès à cette organisation
+    const hasAccess = await hasOrganizationAccess(user.uid, organizationId);
+
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: "Organisation non trouvée ou non autorisée" },
+        { status: 404 }
+      );
+    }
+
+    // Récupérer l'organisation
     const organization = await prisma.organization.findFirst({
       where: {
         id: organizationId,
-        ownerUid: user.uid,
       },
     });
 
