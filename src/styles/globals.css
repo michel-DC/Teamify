@@ -46,6 +46,27 @@
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     "Liberation Mono", "Courier New", monospace;
   --radius: 0.625rem;
+
+  /* Styles pour les marqueurs de carte Leaflet */
+  .custom-marker {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .custom-popup .leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+
+  .custom-popup .leaflet-popup-content {
+    margin: 0;
+    padding: 0;
+  }
+
+  .custom-popup .leaflet-popup-tip {
+    background: white;
+  }
   --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
   --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1),
@@ -209,3 +230,196 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-muted-foreground);
 }
+
+/* Styles personnalisés pour react-datepicker */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container {
+  width: 100%;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.react-datepicker__input-container input:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: hsl(var(--ring));
+  ring-offset: 2px;
+}
+
+.react-datepicker-popper {
+  z-index: 50;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.react-datepicker__header {
+  background-color: hsl(var(--muted));
+  border-bottom: 1px solid hsl(var(--border));
+  border-top-left-radius: var(--radius);
+  border-top-right-radius: var(--radius);
+}
+
+.react-datepicker__current-month {
+  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.react-datepicker__day-name {
+  color: hsl(var(--muted-foreground));
+}
+
+.react-datepicker__day {
+  color: hsl(var(--foreground));
+  border-radius: var(--radius);
+}
+
+.react-datepicker__day:hover {
+  background-color: hsl(var(--accent));
+}
+
+.react-datepicker__day--selected {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.react-datepicker__day--disabled {
+  color: hsl(var(--muted-foreground));
+  opacity: 0.5;
+}
+
+.react-datepicker__time-container {
+  border-left: 1px solid hsl(var(--border));
+}
+
+.react-datepicker__time-list-item {
+  color: hsl(var(--foreground));
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: hsl(var(--accent));
+}
+
+.react-datepicker__time-list-item--selected {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.react-datepicker__navigation {
+  border: none;
+  background: none;
+  color: hsl(var(--foreground));
+}
+
+.react-datepicker__navigation:hover {
+  background-color: hsl(var(--accent));
+  border-radius: var(--radius);
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: hsl(var(--foreground));
+}
+
+.react-datepicker__year-dropdown,
+.react-datepicker__month-dropdown {
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+}
+
+.react-datepicker__year-option,
+.react-datepicker__month-option {
+  color: hsl(var(--foreground));
+}
+
+.react-datepicker__year-option:hover,
+.react-datepicker__month-option:hover {
+  background-color: hsl(var(--accent));
+}
+
+.react-datepicker__year-option--selected,
+.react-datepicker__month-option--selected {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+/* Styles pour les marqueurs de carte Leaflet */
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.custom-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+.custom-popup .leaflet-popup-tip {
+  background: white;
+}
+
+/* Animations pour le slider d'événements */
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-slide {
+  animation: slide 30s linear infinite;
+}
+
+/* .animate-slide:hover {
+  animation-play-state: paused;
+} */
+
+/* Animation plus rapide pour moins d'événements */
+.animate-slide-fast {
+  animation: slide 20s linear infinite;
+}
+
+/* .animate-slide-fast:hover {
+  animation-play-state: paused;
+} */
+
+/* Animation plus lente pour plus d'événements */
+.animate-slide-slow {
+  animation: slide 40s linear infinite;
+}
+
+/*  .animate-slide-slow:hover {
+  animation-play-state: paused;
+} */

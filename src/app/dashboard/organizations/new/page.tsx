@@ -1,214 +1,128 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { toast, Toaster } from "sonner";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Building2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+import { StepWizard } from "./components/StepWizard";
+
+interface UserData {
+  organizationCount: number;
+}
 
 export default function NewOrganizationPage() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    bio: "",
-    memberCount: "",
-    size: "PETITE",
-    mission: "",
-  });
-  const [file, setFile] = useState<File | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  /**
+   * Vérifie le nombre d'organisations de l'utilisateur
+   */
+  useEffect(() => {
+    const checkOrganizationLimit = async () => {
+      try {
+        const response = await fetch("/api/dashboard");
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data[0]) {
+            setUserData(data[0]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    const submitFormData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      submitFormData.append(key, value);
-    });
-
-    if (file) {
-      submitFormData.append("file", file);
-    }
-
-    try {
-      const response = await fetch("/api/organization", {
-        method: "POST",
-        body: submitFormData,
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        toast.success("Organisation créée avec succès !");
-        router.push("/dashboard");
-      } else {
-        toast.error(result.error || "Erreur lors de la création");
+            // Vérifier si l'utilisateur a atteint la limite
+            if (data[0].organizationCount >= 3) {
+              setShowForm(false);
+            } else {
+              setShowForm(true);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la vérification:", error);
+        toast.error("Erreur lors de la vérification de vos organisations");
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      toast.error("Erreur réseau");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    };
+
+    checkOrganizationLimit();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Building2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Vérification de vos organisations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!showForm) {
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="w-full max-w-2xl">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-6 w-6 text-orange-500" />
+                Limite d'organisations atteinte
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Alert>
+                <AlertDescription>
+                  Vous avez atteint la limite de 3 organisations par compte
+                  utilisateur. Pour créer une nouvelle organisation, vous devrez
+                  supprimer une organisation existante.
+                </AlertDescription>
+              </Alert>
+
+              <div className="text-sm text-muted-foreground">
+                <p>
+                  Organisations actuelles : {userData?.organizationCount || 0}/3
+                </p>
+              </div>
+
+              <div className="flex gap-4">
+                <Button
+                  onClick={() => router.push("/dashboard/organizations")}
+                  variant="outline"
+                >
+                  Retour aux organisations
+                </Button>
+                <Button onClick={() => router.push("/dashboard")}>
+                  Retour au dashboard
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <main>
-      <header className="flex h-16 shrink-0 items-center gap-2">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard">
-                  Tableau de bord
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/dashboard/organizations">
-                  Organisations
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Créer une organisation</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <Toaster position="top-center" richColors />
-        <Card className="max-w-2xl mx-auto">
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-2xl">
+        <Card>
           <CardHeader>
-            <CardTitle>Créer une nouvelle organisation</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-6 w-6" />
+              Créer une nouvelle organisation
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nom de l&apos;organisation</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bio">Description</Label>
-                <Textarea
-                  id="bio"
-                  value={formData.bio}
-                  onChange={(e) => handleInputChange("bio", e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="memberCount">Nombre de membres</Label>
-                  <Input
-                    id="memberCount"
-                    type="number"
-                    value={formData.memberCount}
-                    onChange={(e) =>
-                      handleInputChange("memberCount", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="size">Taille de l&apos;organisation</Label>
-                  <Select
-                    value={formData.size}
-                    onValueChange={(value) => handleInputChange("size", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="PETITE">
-                        Petite (1-10 membres)
-                      </SelectItem>
-                      <SelectItem value="MOYENNE">
-                        Moyenne (11-50 membres)
-                      </SelectItem>
-                      <SelectItem value="GRANDE">
-                        Grande (50+ membres)
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="mission">Mission de l&apos;organisation</Label>
-                <Textarea
-                  id="mission"
-                  value={formData.mission}
-                  onChange={(e) => handleInputChange("mission", e.target.value)}
-                  rows={3}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="file">Logo de l&apos;organisation</Label>
-                <Input
-                  id="file"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </div>
-
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting
-                  ? "Création en cours..."
-                  : "Créer l&apos;organisation"}
-              </Button>
-            </form>
+            <div className="text-sm text-muted-foreground mb-6">
+              Organisations actuelles : {userData?.organizationCount || 0}/3
+            </div>
+            <StepWizard />
           </CardContent>
         </Card>
       </div>
-    </main>
+    </div>
   );
 }

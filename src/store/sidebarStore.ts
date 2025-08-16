@@ -10,20 +10,20 @@ interface User {
 
 interface Team {
   name: string;
-  logo: string; // Nom de l'icône comme chaîne
+  logo: string;
 }
 
 interface Event {
-  name: string;
+  title: string;
   url: string;
-  icon: string; // Nom de l'icône comme chaîne
+  icon: string;
 }
 
 interface NavItem {
   title: string;
   url: string;
-  icon?: string; // Nom de l'icône comme chaîne
-  isActive?: boolean;
+  icon: string;
+  isActive: boolean;
   items?: {
     title: string;
     url: string;
@@ -43,6 +43,7 @@ interface SidebarStore {
   loading: boolean;
   initialized: boolean;
   lastFetch: number | null;
+  error: string | null;
 
   // Actions
   fetchSidebarData: () => Promise<void>;
@@ -73,11 +74,7 @@ const initialData: SidebarData = {
       items: [
         {
           title: "Vue d'ensemble",
-          url: "#",
-        },
-        {
-          title: "Statistiques",
-          url: "/dashboard/stats",
+          url: "/dashboard",
         },
       ],
     },
@@ -96,7 +93,7 @@ const initialData: SidebarData = {
           url: "/dashboard/events/new",
         },
         {
-          title: "Mes invitations",
+          title: "Gestion des invitations",
           url: "/dashboard/events/invitations",
         },
       ],
@@ -122,62 +119,18 @@ const initialData: SidebarData = {
       ],
     },
     {
-      title: "Équipes",
-      url: "/teams",
-      icon: "Users",
+      title: "Messagerie",
+      url: "/messages",
+      icon: "Command",
       isActive: true,
       items: [
         {
-          title: "Toutes les équipes",
-          url: "/dashboard/teams",
-        },
-        {
-          title: "Créer une équipe",
-          url: "/dashboard/teams/new",
-        },
-        {
-          title: "Gérer les membres",
-          url: "/dashboard/teams/members",
-        },
-      ],
-    },
-    {
-      title: "Messages",
-      url: "/messages",
-      icon: "Command",
-      isActive: false,
-      items: [
-        {
-          title: "Discussions",
+          title: "Tous les messages",
           url: "/dashboard/messages",
         },
         {
-          title: "Nouveau message",
-          url: "/dashboard/messages/new",
-        },
-      ],
-    },
-    {
-      title: "Paramètres",
-      url: "/settings",
-      icon: "Settings2",
-      isActive: false,
-      items: [
-        {
-          title: "Profil",
-          url: "/dashboard/settings/profile",
-        },
-        {
-          title: "Notifications",
-          url: "/dashboard/settings/notifications",
-        },
-        {
-          title: "Sécurité",
-          url: "/dashboard/settings/security",
-        },
-        {
-          title: "Facturation",
-          url: "/dashboard/settings/billing",
+          title: "Groupes d'organisations",
+          url: "/dashboard/messages/groups",
         },
       ],
     },
@@ -195,6 +148,7 @@ export const useSidebarStore = create<SidebarStore>()(
       loading: false,
       initialized: false,
       lastFetch: null,
+      error: null,
 
       // Action pour récupérer les données de la sidebar
       fetchSidebarData: async () => {
@@ -212,10 +166,34 @@ export const useSidebarStore = create<SidebarStore>()(
         set({ loading: true });
 
         try {
+          // Récupérer l'organisation active
+          let activeOrgPublicId: string | null = null;
+          try {
+            const activeOrgStorage = localStorage.getItem(
+              "active-organization-storage"
+            );
+            if (activeOrgStorage) {
+              const parsed = JSON.parse(activeOrgStorage);
+              activeOrgPublicId = parsed.state?.activeOrganization?.publicId;
+            }
+          } catch (error) {
+            console.error(
+              "Erreur lors de la récupération de l'organisation active:",
+              error
+            );
+          }
+
           // Récupérer les données utilisateur et événements en parallèle
           const [userResponse, eventsResponse] = await Promise.all([
             fetch("/api/dashboard"),
-            fetch("/api/dashboard/events/data"),
+            activeOrgPublicId
+              ? fetch(
+                  `/api/dashboard/events/data?organizationId=${activeOrgPublicId}`
+                )
+              : Promise.resolve({
+                  ok: false,
+                  json: () => Promise.resolve({ events: [] }),
+                }),
           ]);
 
           if (!userResponse.ok) {
@@ -251,15 +229,14 @@ export const useSidebarStore = create<SidebarStore>()(
           let processedEvents: Event[] = [];
           if (eventsData && eventsData.events) {
             processedEvents = eventsData.events
-              .slice(-3)
-              .map((event: Record<string, unknown>) => ({
-                name: typeof event.title === "string" ? event.title : "",
-                url: "#",
+              .slice(0, 5)
+              .map((event: any) => ({
+                title: event.title,
+                url: `/dashboard/events/details/${event.eventCode}`,
                 icon: "Calendar",
               }));
           }
 
-          // Mettre à jour le store
           set({
             data: {
               ...processedUserData,
@@ -274,7 +251,10 @@ export const useSidebarStore = create<SidebarStore>()(
             "Erreur lors de la récupération des données de la sidebar:",
             error
           );
-          set({ loading: false });
+          set({
+            loading: false,
+            error: error instanceof Error ? error.message : "Erreur inconnue",
+          });
         }
       },
 
@@ -290,11 +270,12 @@ export const useSidebarStore = create<SidebarStore>()(
           loading: false,
           initialized: false,
           lastFetch: null,
+          error: null,
         });
       },
     }),
     {
-      name: "sidebar-storage", // Nom de la clé dans localStorage
+      name: "sidebar-storage",
       partialize: (state) => ({
         data: state.data,
         initialized: state.initialized,

@@ -5,34 +5,21 @@ import Welcome from "./welcome";
 import Step1 from "./Step1";
 import Step2 from "./Step2";
 import Step3 from "./Step3";
-import Step4 from "./Step4";
-import Step5 from "./Step5";
-import Step6 from "./Step6";
+import Step4 from "./Step4"; // localisation
+import Step5 from "./Step5"; // type d'organisation
+import Step6 from "./Step6"; // mission
 import FinalStep from "./FinalStep";
 import { Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
 import { redirect } from "next/navigation";
+import { useTheme } from "@/components/theme-provider";
 
 export default function StepWizard() {
   const [step, setStep] = useState(1);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme, setTheme } = useTheme();
   const { organizations, loading } = useOrganization();
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else {
-      const isDarkMode = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setTheme(isDarkMode ? "dark" : "light");
-      document.documentElement.classList.toggle("dark", isDarkMode);
-    }
-  }, []);
 
   useEffect(() => {
     if (organizations && organizations.length > 0) {
@@ -51,30 +38,26 @@ export default function StepWizard() {
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
     profileImage: "",
-    memberCount: 0,
-    size: "",
+    organizationType: "",
     mission: "",
+    location: null as {
+      city: string;
+      lat: number;
+      lon: number;
+      displayName?: string;
+    } | null,
     file: undefined as File | undefined,
-  } as {
-    name: string;
-    bio: string;
-    profileImage: string;
-    memberCount: number;
-    size: string;
-    mission: string;
-    file?: File;
   });
 
   const next = () => setStep((s) => s + 1);
   const prev = () => setStep((s) => s - 1);
+  const exit = () => setStep((s) => s - 1);
 
   const renderStep = () => {
     switch (step) {
@@ -89,7 +72,7 @@ export default function StepWizard() {
         return (
           <Step1
             next={next}
-            prev={prev}
+            exit={exit}
             formData={formData}
             setFormData={setFormData}
           />
@@ -120,7 +103,7 @@ export default function StepWizard() {
             formData={formData}
             setFormData={setFormData}
           />
-        );
+        ); // localisation
       case 6:
         return (
           <Step5
@@ -129,7 +112,7 @@ export default function StepWizard() {
             formData={formData}
             setFormData={setFormData}
           />
-        );
+        ); // type
       case 7:
         return (
           <Step6
@@ -138,7 +121,7 @@ export default function StepWizard() {
             formData={formData}
             setFormData={setFormData}
           />
-        );
+        ); // mission
       case 8:
         return <FinalStep formData={formData} setFormData={setFormData} />;
       default:

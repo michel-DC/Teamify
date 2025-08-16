@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
@@ -16,8 +16,60 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { toast, Toaster } from "sonner";
+import { EventCategory, EventStatus } from "@prisma/client";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+  BreadcrumbPage,
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@radix-ui/react-separator";
+import { Calendar, MapPin } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { fr } from "date-fns/locale";
+import { ImageUploadZone } from "@/components/ui/image-upload-zone";
+
+/**
+ * @param Mappage des catégories d'événements vers des labels français
+ */
+const categoryLabels: Record<EventCategory, string> = {
+  REUNION: "Réunion",
+  SEMINAIRE: "Séminaire",
+  CONFERENCE: "Conférence",
+  FORMATION: "Formation",
+  ATELIER: "Atelier",
+  NETWORKING: "Networking",
+  CEREMONIE: "Cérémonie",
+  EXPOSITION: "Exposition",
+  CONCERT: "Concert",
+  SPECTACLE: "Spectacle",
+  AUTRE: "Autre",
+};
+
+/**
+ * @param Mappage des statuts d'événements vers des labels français
+ */
+const statusLabels: Record<EventStatus, string> = {
+  A_VENIR: "À venir",
+  EN_COURS: "En cours",
+  TERMINE: "Terminé",
+  ANNULE: "Annulé",
+};
+
+interface LocationResult {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
 
 export default function EditEventPage() {
   const params = useParams();
@@ -30,12 +82,191 @@ export default function EditEventPage() {
     startDate: "",
     endDate: "",
     location: "",
+    locationCoords: null as {
+      lat: number;
+      lon: number;
+      displayName: string;
+    } | null,
     capacity: "",
-    status: "PUBLIE",
+    status: EventStatus.A_VENIR,
     budget: "",
-    category: "REUNION",
+    category: EventCategory.REUNION,
     isPublic: true,
+    imageUrl: "",
   });
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // États pour les dates avec DatePicker
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+
+  // États pour la recherche d'adresse
+  const [locationQuery, setLocationQuery] = useState("");
+  const [locationResults, setLocationResults] = useState<LocationResult[]>([]);
+  const [locationLoading, setLocationLoading] = useState(false);
+
+  // États pour les erreurs de validation
+  const [errors, setErrors] = useState<{
+    startDate?: string;
+    endDate?: string;
+  }>({});
+
+  /**
+   * Calcule la date minimum pour la date de début (15 minutes après maintenant)
+   */
+  const getMinStartDate = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 15);
+    return now;
+  };
+
+  /**
+   * Calcule la date minimum pour la date de fin (15 minutes après la date de début)
+   */
+  const getMinEndDate = () => {
+    if (!startDate) return getMinStartDate();
+    const minEndDate = new Date(startDate);
+    minEndDate.setMinutes(minEndDate.getMinutes() + 15);
+    return minEndDate;
+  };
+
+  /**
+   * Gère le changement de la date de début
+   */
+  const handleStartDateChange = (date: Date | null) => {
+    setStartDate(date);
+    setErrors((prev) => ({ ...prev, startDate: undefined }));
+
+    if (date) {
+      const dateString = date.toISOString().slice(0, 16);
+      setFormData((prev) => ({ ...prev, startDate: dateString }));
+
+      // Si la date de fin est antérieure à la nouvelle date de début + 15 min, on la réinitialise
+      if (endDate && endDate <= getMinEndDate()) {
+        setEndDate(null);
+        setFormData((prev) => ({ ...prev, endDate: "" }));
+        setErrors((prev) => ({
+          ...prev,
+          endDate:
+            "La date de fin doit être au moins 15 minutes après la date de début",
+        }));
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, startDate: "" }));
+    }
+  };
+
+  /**
+   * Gère le changement de la date de fin
+   */
+  const handleEndDateChange = (date: Date | null) => {
+    setEndDate(date);
+    setErrors((prev) => ({ ...prev, endDate: undefined }));
+
+    if (date) {
+      const dateString = date.toISOString().slice(0, 16);
+      setFormData((prev) => ({ ...prev, endDate: dateString }));
+
+      if (startDate) {
+        const minEndDate = new Date(startDate);
+        minEndDate.setMinutes(minEndDate.getMinutes() + 15);
+
+        if (date <= minEndDate) {
+          setErrors((prev) => ({
+            ...prev,
+            endDate:
+              "La date de fin doit être au moins 15 minutes après la date de début",
+          }));
+        }
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, endDate: "" }));
+    }
+  };
+
+  /**
+   * Recherche d'adresses avec l'API Nominatim
+   */
+  const debouncedLocationQuery = useMemo(() => locationQuery, [locationQuery]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchLocations() {
+      if (!debouncedLocationQuery || debouncedLocationQuery.length < 3) {
+        setLocationResults([]);
+        return;
+      }
+
+      setLocationLoading(true);
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(
+          debouncedLocationQuery
+        )}&accept-language=fr`;
+
+        const res = await fetch(url, {
+          signal: controller.signal,
+          headers: {
+            Accept: "application/json",
+            "User-Agent": "teamify.com/1.0 (+https://teamify.com)",
+            Referer: "https://teamify.com",
+          },
+        });
+
+        if (res.ok) {
+          const data = (await res.json()) as LocationResult[];
+          setLocationResults(data);
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name !== "AbortError") {
+          console.error("Erreur lors de la recherche d'adresse:", error);
+        }
+      } finally {
+        setLocationLoading(false);
+      }
+    }
+
+    const timeoutId = setTimeout(fetchLocations, 350);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
+  }, [debouncedLocationQuery]);
+
+  /**
+   * Gère la sélection d'une adresse
+   */
+  const handleLocationSelect = (location: LocationResult) => {
+    setFormData((prev) => ({
+      ...prev,
+      location: location.display_name,
+      locationCoords: {
+        lat: parseFloat(location.lat),
+        lon: parseFloat(location.lon),
+        displayName: location.display_name,
+      },
+    }));
+    setLocationQuery(location.display_name);
+    setLocationResults([]);
+  };
+
+  /**
+   * Gère le changement d'image
+   */
+  const handleImageChange = (file: File | null) => {
+    setNewImage(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -45,6 +276,16 @@ export default function EditEventPage() {
 
         if (response.ok) {
           const event = data.event;
+
+          // Initialisation des dates pour DatePicker
+          const startDateObj = event.startDate
+            ? new Date(event.startDate)
+            : null;
+          const endDateObj = event.endDate ? new Date(event.endDate) : null;
+
+          setStartDate(startDateObj);
+          setEndDate(endDateObj);
+
           setFormData({
             title: event.title || "",
             description: event.description || "",
@@ -55,12 +296,15 @@ export default function EditEventPage() {
               ? new Date(event.endDate).toISOString().slice(0, 16)
               : "",
             location: event.location || "",
+            locationCoords: event.locationCoords,
             capacity: event.capacity?.toString() || "",
-            status: event.status || "PUBLIE",
+            status: event.status || EventStatus.A_VENIR,
             budget: event.budget?.toString() || "",
-            category: event.category || "REUNION",
+            category: event.category || EventCategory.REUNION,
             isPublic: event.isPublic ?? true,
+            imageUrl: event.imageUrl || "",
           });
+          setLocationQuery(event.location || "");
         } else {
           toast.error(data.error || "Événement non trouvé");
           router.push("/dashboard/events");
@@ -90,25 +334,36 @@ export default function EditEventPage() {
     setIsSubmitting(true);
 
     try {
-      const updateData = {
-        title: formData.title,
-        description: formData.description,
-        startDate: new Date(formData.startDate).toISOString(),
-        endDate: new Date(formData.endDate).toISOString(),
-        location: formData.location,
-        capacity: parseInt(formData.capacity),
-        status: formData.status,
-        budget: formData.budget ? parseFloat(formData.budget) : null,
-        category: formData.category,
-        isPublic: formData.isPublic,
-      };
+      const submitData = new FormData();
+
+      // Ajout des données du formulaire
+      submitData.append("title", formData.title);
+      submitData.append("description", formData.description);
+      submitData.append("startDate", formData.startDate);
+      submitData.append("endDate", formData.endDate);
+      submitData.append("location", formData.location);
+      submitData.append("capacity", formData.capacity);
+      submitData.append("status", formData.status);
+      submitData.append("budget", formData.budget);
+      submitData.append("category", formData.category);
+      submitData.append("isPublic", formData.isPublic.toString());
+
+      // Ajout des coordonnées de localisation si disponibles
+      if (formData.locationCoords) {
+        submitData.append(
+          "locationCoords",
+          JSON.stringify(formData.locationCoords)
+        );
+      }
+
+      // Ajout de la nouvelle image si sélectionnée
+      if (newImage) {
+        submitData.append("file", newImage);
+      }
 
       const response = await fetch(`/api/dashboard/events/${params.slug}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updateData),
+        method: "PATCH",
+        body: submitData,
       });
 
       const result = await response.json();
@@ -119,7 +374,8 @@ export default function EditEventPage() {
       } else {
         toast.error(result.error || "Erreur lors de la modification");
       }
-    } catch {
+    } catch (error) {
+      console.error("[EditEvent] Erreur:", error);
       toast.error("Erreur réseau");
     } finally {
       setIsSubmitting(false);
@@ -128,193 +384,329 @@ export default function EditEventPage() {
 
   if (loading) {
     return (
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <div className="flex items-center justify-center min-h-screen">
-            <div>Chargement...</div>
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
+      <div className="flex h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
-    <main className="min-h-screen grid place-items-center p-6">
-      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <Toaster position="top-center" richColors />
-        <Card className="max-w-2xl mx-auto">
-          <CardHeader>
-            <CardTitle>Modifier l&apos;événement</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="title">Titre de l&apos;événement</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                  required
-                />
-              </div>
+    <div className="flex flex-col h-full">
+      <header className="flex h-16 shrink-0 items-center gap-2">
+        <div className="flex items-center gap-2 px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/dashboard">
+                  Tableau de bord
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbLink href="/dashboard/events">
+                  Évènements
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem>Modifier l&apos;évènement</BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem>
+                <BreadcrumbPage>
+                  {formData.title || "Sans titre"}
+                </BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </header>
 
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    handleInputChange("description", e.target.value)
-                  }
-                  rows={3}
-                />
-              </div>
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="w-full max-w-4xl">
+          <Toaster position="top-center" richColors />
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle className="text-2xl">
+                Modifier l&apos;événement
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Image de l'événement */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">
+                    Image de l&apos;événement
+                  </Label>
+                  <ImageUploadZone
+                    onImageChange={handleImageChange}
+                    imagePreviewUrl={formData.imageUrl}
+                    maxFileSize={5}
+                  />
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Date de début</Label>
+                {/* Informations de base */}
+                <div className="space-y-4">
+                  <Label htmlFor="title" className="text-base font-medium">
+                    Titre de l&apos;événement *
+                  </Label>
                   <Input
-                    id="startDate"
-                    type="datetime-local"
-                    value={formData.startDate}
-                    onChange={(e) =>
-                      handleInputChange("startDate", e.target.value)
-                    }
+                    id="title"
+                    value={formData.title}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
                     required
+                    className="h-12 text-base"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="endDate">Date de fin</Label>
-                  <Input
-                    id="endDate"
-                    type="datetime-local"
-                    value={formData.endDate}
+                <div className="space-y-4">
+                  <Label
+                    htmlFor="description"
+                    className="text-base font-medium"
+                  >
+                    Description
+                  </Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
                     onChange={(e) =>
-                      handleInputChange("endDate", e.target.value)
+                      handleInputChange("description", e.target.value)
                     }
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="location">Lieu</Label>
-                  <Input
-                    id="location"
-                    value={formData.location}
-                    onChange={(e) =>
-                      handleInputChange("location", e.target.value)
-                    }
-                    required
+                    rows={4}
+                    className="text-base"
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="capacity">Capacité</Label>
-                  <Input
-                    id="capacity"
-                    type="number"
-                    value={formData.capacity}
-                    onChange={(e) =>
-                      handleInputChange("capacity", e.target.value)
-                    }
-                    required
-                  />
-                </div>
-              </div>
+                {/* Dates avec React DatePicker */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <Label
+                      htmlFor="startDate"
+                      className="text-base font-medium flex items-center gap-2"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Date de début *
+                    </Label>
+                    <DatePicker
+                      selected={startDate}
+                      onChange={handleStartDateChange}
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={15}
+                      dateFormat="dd/MM/yyyy HH:mm"
+                      locale={fr}
+                      minDate={getMinStartDate()}
+                      placeholderText="Sélectionner une date et heure"
+                      className="w-full h-12 px-3 py-2 border border-input rounded-md bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      required
+                    />
+                    {errors.startDate && (
+                      <p className="text-sm text-red-500">{errors.startDate}</p>
+                    )}
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="budget">Budget (€)</Label>
-                  <Input
-                    id="budget"
-                    type="number"
-                    step="0.01"
-                    value={formData.budget}
-                    onChange={(e) =>
-                      handleInputChange("budget", e.target.value)
-                    }
-                  />
+                  <div className="space-y-4">
+                    <Label
+                      htmlFor="endDate"
+                      className="text-base font-medium flex items-center gap-2"
+                    >
+                      <Calendar className="h-4 w-4" />
+                      Date de fin *
+                    </Label>
+                    <DatePicker
+                      selected={endDate}
+                      onChange={handleEndDateChange}
+                      showTimeSelect
+                      timeFormat="HH:mm"
+                      timeIntervals={15}
+                      dateFormat="dd/MM/yyyy HH:mm"
+                      locale={fr}
+                      minDate={getMinEndDate()}
+                      placeholderText="Sélectionner une date et heure"
+                      className="w-full h-12 px-3 py-2 border border-input rounded-md bg-background text-foreground text-base focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      required
+                    />
+                    {errors.endDate && (
+                      <p className="text-sm text-red-500">{errors.endDate}</p>
+                    )}
+                  </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="category">Catégorie</Label>
+                {/* Lieu avec API Nominatim */}
+                <div className="space-y-4">
+                  <Label
+                    htmlFor="location"
+                    className="text-base font-medium flex items-center gap-2"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    Lieu *
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="location"
+                      value={locationQuery}
+                      onChange={(e) => setLocationQuery(e.target.value)}
+                      placeholder="Rechercher une adresse..."
+                      required
+                      className="h-12 text-base"
+                    />
+                    {locationLoading && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        Recherche...
+                      </p>
+                    )}
+                    {locationResults.length > 0 && (
+                      <ul className="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-48 overflow-auto">
+                        {locationResults.map((result, index) => (
+                          <li
+                            key={`${result.lat}-${result.lon}-${index}`}
+                            className="p-3 hover:bg-accent cursor-pointer border-b border-border last:border-b-0"
+                            onClick={() => handleLocationSelect(result)}
+                          >
+                            {result.display_name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+
+                {/* Capacité et budget */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <Label htmlFor="capacity" className="text-base font-medium">
+                      Capacité *
+                    </Label>
+                    <Input
+                      id="capacity"
+                      type="number"
+                      value={formData.capacity}
+                      onChange={(e) =>
+                        handleInputChange("capacity", e.target.value)
+                      }
+                      min="1"
+                      required
+                      className="h-12 text-base"
+                    />
+                  </div>
+
+                  <div className="space-y-4">
+                    <Label htmlFor="budget" className="text-base font-medium">
+                      Budget (€)
+                    </Label>
+                    <Input
+                      id="budget"
+                      type="number"
+                      step="0.01"
+                      value={formData.budget}
+                      onChange={(e) =>
+                        handleInputChange("budget", e.target.value)
+                      }
+                      min="0"
+                      className="h-12 text-base"
+                    />
+                  </div>
+                </div>
+
+                {/* Catégorie et statut */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <Label htmlFor="category" className="text-base font-medium">
+                      Catégorie *
+                    </Label>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) =>
+                        handleInputChange("category", value as EventCategory)
+                      }
+                    >
+                      <SelectTrigger className="h-12 text-base">
+                        <SelectValue placeholder="Sélectionner une catégorie" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(categoryLabels).map(
+                          ([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Label htmlFor="status" className="text-base font-medium">
+                      Statut *
+                    </Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(value) =>
+                        handleInputChange("status", value as EventStatus)
+                      }
+                    >
+                      <SelectTrigger className="h-12 text-base">
+                        <SelectValue placeholder="Sélectionner un statut" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(statusLabels).map(([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Visibilité */}
+                <div className="space-y-4">
+                  <Label htmlFor="isPublic" className="text-base font-medium">
+                    Visibilité
+                  </Label>
                   <Select
-                    value={formData.category}
+                    value={formData.isPublic ? "public" : "private"}
                     onValueChange={(value) =>
-                      handleInputChange("category", value)
+                      handleInputChange("isPublic", value === "public")
                     }
                   >
-                    <SelectTrigger>
-                      <SelectValue />
+                    <SelectTrigger className="h-12 text-base">
+                      <SelectValue placeholder="Sélectionner la visibilité" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="REUNION">Réunion</SelectItem>
-                      <SelectItem value="CONFERENCE">Conférence</SelectItem>
-                      <SelectItem value="FORMATION">Formation</SelectItem>
-                      <SelectItem value="SOCIAL">Social</SelectItem>
-                      <SelectItem value="AUTRE">Autre</SelectItem>
+                      <SelectItem value="public">Événement public</SelectItem>
+                      <SelectItem value="private">Événement privé</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="status">Statut</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) => handleInputChange("status", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BROUILLON">Brouillon</SelectItem>
-                    <SelectItem value="PUBLIE">Publié</SelectItem>
-                    <SelectItem value="ARCHIVE">Archivé</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isPublic"
-                  checked={formData.isPublic}
-                  onCheckedChange={(checked) =>
-                    handleInputChange("isPublic", checked as boolean)
-                  }
-                />
-                <Label htmlFor="isPublic">Événement public</Label>
-              </div>
-
-              <div className="flex gap-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() =>
-                    router.push(`/dashboard/events/details/${params.slug}`)
-                  }
-                >
-                  Annuler
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting
-                    ? "Modification en cours..."
-                    : "Modifier l'événement"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+                {/* Boutons d'action */}
+                <div className="flex gap-4 pt-6">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 h-12 text-base"
+                    onClick={() =>
+                      router.push(`/dashboard/events/details/${params.slug}`)
+                    }
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1 h-12 text-base"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting
+                      ? "Modification en cours..."
+                      : "Modifier l'événement"}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

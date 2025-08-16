@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/card";
 import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { cn, formatEventStatus, formatDateToFrench } from "@/lib/utils";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
 interface Event {
   id: number;
@@ -42,6 +43,7 @@ interface PlaceholderEvent {
 export default function EventsSlider() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const { activeOrganization } = useActiveOrganization();
 
   const placeholderEvents: PlaceholderEvent[] = [
     {
@@ -78,8 +80,12 @@ export default function EventsSlider() {
 
   useEffect(() => {
     const fetchEvents = async () => {
+      if (!activeOrganization) return;
+
       try {
-        const response = await fetch("/api/dashboard/events/data");
+        const response = await fetch(
+          `/api/dashboard/events/data?organizationId=${activeOrganization.publicId}`
+        );
         const data = await response.json();
         if (data.events) {
           setEvents(data.events.slice(-6));
@@ -92,14 +98,10 @@ export default function EventsSlider() {
     };
 
     fetchEvents();
-  }, []);
+  }, [activeOrganization]);
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return "Date non définie";
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "short",
-    });
+    return formatDateToFrench(dateString);
   };
 
   const getStatusColor = (status: string) => {
@@ -129,6 +131,16 @@ export default function EventsSlider() {
   };
 
   const displayEvents = getDisplayEvents();
+
+  // Déterminer la classe d'animation en fonction du nombre d'événements
+  const getAnimationClass = () => {
+    if (displayEvents.length <= 6) {
+      return "animate-slide-fast";
+    } else if (displayEvents.length >= 12) {
+      return "animate-slide-slow";
+    }
+    return "animate-slide";
+  };
 
   if (loading) {
     return (
@@ -167,7 +179,7 @@ export default function EventsSlider() {
         <div className="space-y-3">
           <div className="overflow-hidden relative">
             <div
-              className="flex gap-3 animate-slide"
+              className={cn("flex gap-3", getAnimationClass())}
               style={{
                 width: `${displayEvents.length * 300}px`,
               }}
@@ -217,7 +229,7 @@ export default function EventsSlider() {
                               isPlaceholder && "opacity-70"
                             )}
                           >
-                            {event.status}
+                            {formatEventStatus(event.status)}
                           </span>
                         </div>
                       </div>
@@ -276,25 +288,6 @@ export default function EventsSlider() {
               })}
             </div>
           </div>
-
-          <style jsx>{`
-            @keyframes slide {
-              0% {
-                transform: translateX(0);
-              }
-              100% {
-                transform: translateX(-${(displayEvents.length / 3) * 300}px);
-              }
-            }
-
-            .animate-slide {
-              animation: slide ${displayEvents.length * 2}s linear infinite;
-            }
-
-            .animate-slide:hover {
-              animation-play-state: paused;
-            }
-          `}</style>
         </div>
       </CardContent>
     </Card>

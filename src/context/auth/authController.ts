@@ -5,7 +5,6 @@ export const useAuth = () => {
     const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
     if (!isLoggedIn) {
-      console.log("Bahahahaha tu n'as pas de compte");
       return false;
     }
 

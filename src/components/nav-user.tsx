@@ -9,8 +9,6 @@ import {
   Settings,
 } from "lucide-react";
 
-import { useState, useEffect } from "react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -29,6 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
+import { useTheme } from "@/components/theme-provider";
 
 export function NavUser({
   user,
@@ -40,40 +39,34 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-
-  // theme
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else {
-      const isDarkMode = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setTheme(isDarkMode ? "dark" : "light");
-      document.documentElement.classList.toggle("dark", isDarkMode);
-    }
-  }, []);
+  const { theme, setTheme } = useTheme();
 
   const handleThemeChange = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
-  const handleLogOut = () => {
+  const handleLogOut = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+
     // Clear authentication cookies and local storage
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     document.cookie =
       "isLoggedIn=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     document.cookie =
       "hasOrganization=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    localStorage.removeItem("isLoggedIn");
-    console.log("yes ça work");
+
+    // Purge localStorage persisted stores
+    try {
+      localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("organizations-storage");
+      localStorage.removeItem("sidebar-storage");
+    } catch {}
+
     toast.success(`Vous êtes bien déconnecté ${user.name}`, {
-      duration: 2000,
+      duration: 1500,
       onAutoClose: () => {
         redirect("/auth/login");
       },

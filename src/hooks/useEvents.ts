@@ -1,20 +1,22 @@
+"use client";
+
 import { useEffect } from "react";
 import { useEventsStore } from "@/store/eventsStore";
-import type { Event } from "@/store/eventsStore";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
 /**
- * Hook personnalisé pour gérer les événements
- * Gère automatiquement le chargement des données et évite les refetch inutiles
+ * Hook principal pour gérer les événements
  */
 export function useEvents() {
   const { events, loading, error, initialized, fetchEvents } = useEventsStore();
+  const { activeOrganization } = useActiveOrganization();
 
-  // Chargement automatique des événements au montage
+  // Chargement automatique des événements au montage et lors du changement d'organisation
   useEffect(() => {
-    if (!initialized) {
-      fetchEvents();
+    if (activeOrganization && (!initialized || activeOrganization.publicId)) {
+      fetchEvents(activeOrganization.publicId);
     }
-  }, [initialized, fetchEvents]);
+  }, [activeOrganization, initialized, fetchEvents]);
 
   return {
     events,
@@ -26,15 +28,16 @@ export function useEvents() {
 }
 
 /**
- * Hook pour forcer le rafraîchissement des événements
- * Utile après des actions qui modifient les événements
+ * Hook pour forcer le rechargement des événements
  */
 export function useRefreshEvents() {
-  const { fetchEvents, resetStore } = useEventsStore();
+  const { fetchEvents } = useEventsStore();
+  const { activeOrganization } = useActiveOrganization();
 
   const refreshEvents = () => {
-    resetStore();
-    fetchEvents();
+    if (activeOrganization) {
+      fetchEvents(activeOrganization.publicId);
+    }
   };
 
   return { refreshEvents };
@@ -43,15 +46,16 @@ export function useRefreshEvents() {
 /**
  * Hook pour obtenir des événements filtrés ou transformés
  */
-export function useFilteredEvents(filterFn?: (event: Event) => boolean) {
+export function useFilteredEvents(filterFn?: (event: any) => boolean) {
   const { events, loading, error, initialized, fetchEvents } = useEventsStore();
+  const { activeOrganization } = useActiveOrganization();
 
   // Chargement automatique des événements au montage
   useEffect(() => {
-    if (!initialized) {
-      fetchEvents();
+    if (activeOrganization && !initialized) {
+      fetchEvents(activeOrganization.publicId);
     }
-  }, [initialized, fetchEvents]);
+  }, [activeOrganization, initialized, fetchEvents]);
 
   // Appliquer le filtre si fourni
   const filteredEvents = filterFn ? events.filter(filterFn) : events;

@@ -18,5 +18,6 @@ export function useOrganization() {
     organizations,
     loading,
     error,
+    initialized,
   };
 }

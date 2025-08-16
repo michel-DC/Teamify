@@ -2,21 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "../ui/label";
 import { useRouter } from "next/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
-import { Sun, Moon } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { ThemeToggle } from "../ui/theme-toggle";
+import { useTheme } from "@/components/theme-provider";
 
 export const RegisterForm = () => {
   const router = useRouter();
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme, setTheme } = useTheme();
 
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
@@ -26,25 +25,9 @@ export const RegisterForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    } else {
-      const isDarkMode = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setTheme(isDarkMode ? "dark" : "light");
-      document.documentElement.classList.toggle("dark", isDarkMode);
-    }
-  }, []);
-
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -62,11 +45,15 @@ export const RegisterForm = () => {
       const res = await fetch("../api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstname, lastname, email, password }),
+        body: JSON.stringify({
+          firstname,
+          lastname,
+          email,
+          passwordHash: password,
+        }),
       });
 
       const text = await res.text();
-      console.log("Raw response:", text);
 
       if (res.ok) {
         toast.success(`Bienvenue sur teamify ${lastname} !`, {
@@ -93,135 +80,153 @@ export const RegisterForm = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <button
-        onClick={toggleTheme}
-        className="fixed top-4 right-4 p-2 rounded-full bg-card hover:bg-accent transition-colors duration-200 shadow-lg"
-        aria-label="Toggle theme"
-      >
-        {theme === "light" ? (
-          <Moon className="w-5 h-5 text-foreground" />
-        ) : (
-          <Sun className="w-5 h-5 text-foreground" />
-        )}
-      </button>
+    <div className="min-h-screen flex items-center justify-center px-1 xs:px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 bg-background">
+      <div className="flex flex-col gap-1 xs:gap-2 sm:gap-3 md:gap-4 lg:gap-6 w-full max-w-[320px] xs:max-w-[480px] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-4xl 2xl:max-w-5xl">
+        <ThemeToggle />
 
-      <Toaster position="top-center" richColors />
-      <Card className="w-full max-w-4xl shadow-xl">
-        <CardContent className="grid p-0 md:grid-cols-2">
-          <div className="hidden md:block relative bg-gradient-to-br from-primary/10 to-secondary/10">
-            <div className="absolute inset-0 bg-background/50" />
-            <Image
-              alt="register-page-image-illus"
-              src="/images/svg/auth.svg"
-              width={400}
-              height={400}
-              className="absolute inset-0 h-full w-full object-contain"
-              priority
-            />
-          </div>
-          <form className="p-8" onSubmit={handleSubmit}>
-            <div className="space-y-6">
-              <Link
-                href="/"
-                className="flex items-center text-muted-foreground hover:text-foreground transition-colors duration-200"
-              >
-                <FontAwesomeIcon icon={faArrowLeft} className="w-4 h-4 mr-2" />
-                Retour à l&apos;accueil
-              </Link>
+        <Toaster position="top-center" richColors />
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 sm:space-y-6 max-w-lg sm:max-w-xl mx-auto w-full border border-border rounded-lg p-4 sm:p-6 bg-card"
+        >
+          <div className="space-y-3 sm:space-y-4">
+            {/* Bouton de retour */}
+            <Link
+              href="/"
+              className="flex items-center text-muted-foreground hover:text-foreground transition-colors p-2 h-auto w-auto"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="h-4 w-4 mr-2" />
+              <span className="text-sm">Retour à l&apos;accueil</span>
+            </Link>
+
+            {/* Titre avec sous-titre */}
+            <div className="text-center space-y-2">
+              <h1 className="text-xl sm:text-2xl font-bold">Bienvenue</h1>
+              <p className="text-sm text-muted-foreground">
+                Inscrivez-vous pour accéder à votre espace et créer votre
+                évènement
+              </p>
+            </div>
+
+            {/* Champs Prénom et Nom côte à côte */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-2">
-                <h1 className="text-3xl font-bold text-center">Bienvenue</h1>
-                <p className="text-muted-foreground text-center">
-                  Inscrivez-vous pour accéder à votre espace et créer votre
-                  évènement
-                </p>
+                <Label htmlFor="firstname" className="text-sm sm:text-base">
+                  Prénom
+                </Label>
+                <Input
+                  id="firstname"
+                  value={firstname}
+                  onChange={(e) => setFirstname(e.target.value)}
+                  placeholder="Tyler"
+                  type="text"
+                  required
+                  autoComplete="given-name"
+                  className="h-9 sm:h-10"
+                />
               </div>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstname">Prénom</Label>
-                    <Input
-                      id="firstname"
-                      value={firstname}
-                      onChange={(e) => setFirstname(e.target.value)}
-                      placeholder="Tyler"
-                      type="text"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastname">Nom</Label>
-                    <Input
-                      id="lastname"
-                      value={lastname}
-                      onChange={(e) => setLastname(e.target.value)}
-                      placeholder="Durden"
-                      type="text"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Adresse mail</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@gmail.com"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Mot de passe</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="confirmpassword">
-                    Confirmez votre mot de passe
-                  </Label>
-                  <Input
-                    id="confirmpassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-              </div>
-              {error && (
-                <p className="text-sm text-center text-destructive">{error}</p>
-              )}
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Création en cours..." : "S&apos;inscrire"}
-              </Button>
-              <div className="text-center text-sm">
-                Déjà un compte ?{" "}
-                <Link
-                  href="/auth/login"
-                  className="font-medium underline underline-offset-4 hover:text-primary"
-                  prefetch={false}
-                >
-                  Connectez-vous
-                </Link>
+              <div className="space-y-2">
+                <Label htmlFor="lastname" className="text-sm sm:text-base">
+                  Nom
+                </Label>
+                <Input
+                  id="lastname"
+                  value={lastname}
+                  onChange={(e) => setLastname(e.target.value)}
+                  placeholder="Durden"
+                  type="text"
+                  autoComplete="family-name"
+                  className="h-9 sm:h-10"
+                />
               </div>
             </div>
-          </form>
-        </CardContent>
-      </Card>
-      <div className="fixed bottom-4 text-muted-foreground text-center text-xs">
-        En cliquant sur continuer, vous acceptez nos{" "}
-        <a href="#" className="underline hover:text-primary">
-          Conditions d&apos;utilisation
-        </a>{" "}
-        et <a href="#">Politique de confidentialité</a>.
+
+            {/* Champ Email */}
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm sm:text-base">
+                Adresse mail
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@gmail.com"
+                required
+                autoComplete="email"
+                className="h-9 sm:h-10"
+              />
+            </div>
+
+            {/* Champs Mot de passe et Confirmation côte à côte sur md+ */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm sm:text-base">
+                  Mot de passe
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  autoComplete="new-password"
+                  className="h-9 sm:h-10"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label
+                  htmlFor="confirmpassword"
+                  className="text-sm sm:text-base"
+                >
+                  Confirmez votre mot de passe
+                </Label>
+                <Input
+                  id="confirmpassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  autoComplete="new-password"
+                  className="h-9 sm:h-10"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Affichage des erreurs */}
+          {error && (
+            <p className="text-xs sm:text-sm text-center text-destructive">
+              {error}
+            </p>
+          )}
+
+          {/* Bouton de soumission */}
+          <div className="flex justify-end pt-3 sm:pt-4">
+            <Button
+              type="submit"
+              className="w-full h-9 sm:h-10 text-sm sm:text-base"
+              disabled={loading}
+            >
+              {loading ? "Création en cours..." : "S'inscrire"}
+            </Button>
+          </div>
+
+          {/* Lien de connexion */}
+          <div className="text-center text-xs sm:text-sm text-muted-foreground">
+            Déjà un compte ?{" "}
+            <Link
+              href="/auth/login"
+              className="underline underline-offset-4 hover:text-primary transition-colors font-medium"
+              prefetch={false}
+            >
+              Connectez-vous
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );

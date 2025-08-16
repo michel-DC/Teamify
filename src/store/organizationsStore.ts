@@ -4,12 +4,27 @@ import { persist } from "zustand/middleware";
 // Types pour les organisations
 interface Organization {
   id: number;
+  publicId: string;
   name: string;
   bio?: string;
-  profileImage: string;
+  profileImage: string | null;
   memberCount: number;
-  size: "PETITE" | "MOYENNE" | "GRANDE";
+  organizationType:
+    | "ASSOCIATION"
+    | "PME"
+    | "ENTREPRISE"
+    | "STARTUP"
+    | "AUTO_ENTREPRENEUR"
+    | string;
   mission: string;
+  eventCount: number;
+  location?: {
+    city: string;
+    lat: number;
+    lon: number;
+    displayName?: string;
+  } | null;
+  members?: any[] | null;
   createdAt: string;
 }
 
@@ -135,10 +150,9 @@ export const useOrganizationsStore = create<OrganizationsStore>()(
       },
     }),
     {
-      name: "organizations-storage", // Nom de la clé dans localStorage
+      name: "organizations-storage",
       partialize: (state) => ({
         organizations: state.organizations,
-        initialized: state.initialized,
         lastFetch: state.lastFetch,
       }),
     }
