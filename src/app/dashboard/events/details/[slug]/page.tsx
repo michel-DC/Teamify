@@ -31,6 +31,38 @@ import {
 import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
 import { useOrganizationPermissions } from "@/hooks/useOrganization";
 
+/**
+ * Extrait le nom de la ville depuis une adresse complète
+ */
+const extractCityName = (address: string): string => {
+  if (!address) return "Non défini";
+
+  // Divise l'adresse par les virgules
+  const parts = address.split(",").map((part) => part.trim());
+
+  // Cherche la ville (généralement après le code postal ou dans les premières parties)
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    // Ignore les codes postaux (5 chiffres en France)
+    if (/^\d{5}$/.test(part)) continue;
+    // Ignore les parties qui ressemblent à des codes ou des numéros
+    if (/^\d+$/.test(part)) continue;
+    // Retourne la première partie qui ressemble à une ville
+    if (
+      part.length > 2 &&
+      !part.includes("Rue") &&
+      !part.includes("Avenue") &&
+      !part.includes("Boulevard")
+    ) {
+      return part;
+    }
+  }
+
+  // Si aucune ville n'est trouvée, retourne la première partie non vide
+  const firstValidPart = parts.find((part) => part.length > 2);
+  return firstValidPart || "Ville inconnue";
+};
+
 type EventDetails = {
   id: number;
   title: string;
@@ -263,7 +295,7 @@ export default function EventDetailsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {event.location || "—"}
+                    {extractCityName(event.location)}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Ville / adresse

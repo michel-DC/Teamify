@@ -67,7 +67,9 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
   const [groups, setGroups] = useState<PreparationTodoGroup[]>([]);
   const [loading, setLoading] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
-  const [newTodoTitle, setNewTodoTitle] = useState("");
+  const [newTodoTitles, setNewTodoTitles] = useState<{
+    [groupId: number]: string;
+  }>({});
   const [editingGroup, setEditingGroup] = useState<number | null>(null);
   const [editingTodo, setEditingTodo] = useState<number | null>(null);
 
@@ -194,17 +196,19 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
   };
 
   const addTodo = async (groupId: number) => {
-    if (!newTodoTitle.trim()) return;
+    const todoTitle = newTodoTitles[groupId] || "";
+    if (!todoTitle.trim()) return;
     try {
       await fetch(`/api/dashboard/events/${eventCode}/preparation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: "todo",
-          data: { title: newTodoTitle, groupId },
+          data: { title: todoTitle, groupId },
         }),
       });
-      setNewTodoTitle("");
+      // Vider l'input pour ce groupe spécifique
+      setNewTodoTitles((prev) => ({ ...prev, [groupId]: "" }));
       fetchGroups();
       onChange?.();
     } catch (error) {
@@ -345,7 +349,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
       </div>
 
       {/* Grille Kanban */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {groups.map((group) => (
           <Card key={group.id} className="flex flex-col h-fit">
             <CardHeader className="pb-3">
@@ -473,8 +477,13 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
               <div className="flex gap-1 pt-2">
                 <textarea
                   placeholder="Titre de la tâche"
-                  value={newTodoTitle}
-                  onChange={(e) => setNewTodoTitle(e.target.value)}
+                  value={newTodoTitles[group.id] || ""}
+                  onChange={(e) =>
+                    setNewTodoTitles((prev) => ({
+                      ...prev,
+                      [group.id]: e.target.value,
+                    }))
+                  }
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -485,9 +494,9 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                 />
                 <Button
                   onClick={() => addTodo(group.id)}
-                  disabled={!newTodoTitle.trim()}
+                  disabled={!(newTodoTitles[group.id] || "").trim()}
                   size="sm"
-                  className="h-8 w-8 p-0"
+                  className="h-8 w-8 p-0 flex items-center justify-center"
                 >
                   <Plus className="h-3 w-3" />
                 </Button>
