@@ -3,18 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-interface Event {
-  id: number;
-  title: string;
-  status: string;
-  startDate: string | null;
-  endDate: string | null;
-  eventCode: string;
-  isCancelled: boolean;
-}
+import { Users } from "lucide-react";
 
 interface Organization {
   id: number;
@@ -25,7 +14,7 @@ interface Organization {
   organizationType: string;
   mission: string;
   createdAt: string;
-  events: Event[];
+  eventCount: number;
 }
 
 interface OrganizationsGridProps {
@@ -59,38 +48,32 @@ export function OrganizationsGrid({
   const getTypeColor = (type: string) => {
     switch (type) {
       case "ASSOCIATION":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300";
       case "PME":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300";
       case "ENTREPRISE":
-        return "bg-green-100 text-green-800";
+        return "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300";
       case "STARTUP":
-        return "bg-purple-100 text-purple-800";
+        return "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300";
       case "AUTO_ENTREPRENEUR":
-        return "bg-orange-100 text-orange-800";
+        return "bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
     }
   };
 
   if (organizations.length === 0) {
     return (
-      <div className="col-span-full text-center py-12">
+      <div className="text-center py-12">
         <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-lg font-semibold mb-2">
           {searchTerm ? "Aucune organisation trouvée" : "Aucune organisation"}
         </h3>
-        <p className="text-muted-foreground mb-4">
+        <p className="text-muted-foreground">
           {searchTerm
             ? "Essayez de modifier vos critères de recherche"
             : "Commencez par créer votre première organisation"}
         </p>
-        {!searchTerm && (
-          <Button onClick={() => router.push("/dashboard/organizations/new")}>
-            <Plus className="mr-2 h-4 w-4" />
-            Créer une organisation
-          </Button>
-        )}
       </div>
     );
   }
@@ -136,8 +119,8 @@ export function OrganizationsGrid({
                 {org.memberCount} membre{org.memberCount > 1 ? "s" : ""}
               </span>
               <span className="text-muted-foreground">
-                {org.events?.length || 0} événement
-                {(org.events?.length || 0) > 1 ? "s" : ""}
+                {org.eventCount || 0} événement
+                {(org.eventCount || 0) > 1 ? "s" : ""}
               </span>
             </div>
           </CardContent>

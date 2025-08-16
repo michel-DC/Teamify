@@ -24,13 +24,47 @@ interface ActiveOrganizationStore {
   activeOrganization: Organization | null;
   loading: boolean;
   error: string | null;
+  lastChangeTimestamp: number | null;
 
   // Actions
   setActiveOrganization: (organization: Organization | null) => void;
   clearActiveOrganization: () => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  forceRefreshAllStores: () => void;
 }
+
+/**
+ * Fonction utilitaire pour forcer le refresh de tous les stores
+ * Cette fonction doit être appelée lors du changement d'organisation
+ */
+export const forceRefreshAllStores = () => {
+  // Forcer le refresh du localStorage pour tous les stores
+  const storesToRefresh = [
+    "events-storage",
+    "organizations-storage",
+    "sidebar-storage",
+    "tasks-storage",
+  ];
+
+  storesToRefresh.forEach((storeName) => {
+    try {
+      localStorage.removeItem(storeName);
+    } catch (error) {
+      console.warn(`Impossible de supprimer le store ${storeName}:`, error);
+    }
+  });
+
+  // Émettre un événement personnalisé pour notifier les composants
+  window.dispatchEvent(
+    new CustomEvent("organization-changed", {
+      detail: { timestamp: Date.now() },
+    })
+  );
+
+  // Forcer un refresh de la page pour s'assurer que tous les composants se rechargent
+  window.location.reload();
+};
 
 export const useActiveOrganizationStore = create<ActiveOrganizationStore>()(
   persist(
@@ -39,14 +73,23 @@ export const useActiveOrganizationStore = create<ActiveOrganizationStore>()(
       activeOrganization: null,
       loading: false,
       error: null,
+      lastChangeTimestamp: null,
 
       // Actions
       setActiveOrganization: (organization) => {
-        set({ activeOrganization: organization, error: null });
+        set({
+          activeOrganization: organization,
+          error: null,
+          lastChangeTimestamp: Date.now(),
+        });
       },
 
       clearActiveOrganization: () => {
-        set({ activeOrganization: null, error: null });
+        set({
+          activeOrganization: null,
+          error: null,
+          lastChangeTimestamp: Date.now(),
+        });
       },
 
       setLoading: (loading) => {
@@ -56,11 +99,16 @@ export const useActiveOrganizationStore = create<ActiveOrganizationStore>()(
       setError: (error) => {
         set({ error });
       },
+
+      forceRefreshAllStores: () => {
+        forceRefreshAllStores();
+      },
     }),
     {
       name: "active-organization-storage",
       partialize: (state) => ({
         activeOrganization: state.activeOrganization,
+        lastChangeTimestamp: state.lastChangeTimestamp,
       }),
     }
   )

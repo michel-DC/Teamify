@@ -1,10 +1,11 @@
 "use client";
 
 import { useOrganization } from "@/hooks/useOrganization";
+import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 import { EventForm } from "@/components/dashboard/events/new/event-form-new";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,7 +17,9 @@ import {
 
 export default function CreateEventPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { organizations, loading } = useOrganization();
+  const { activeOrganization } = useActiveOrganization();
 
   if (loading) {
     return <div>Chargement...</div>;
@@ -43,6 +46,24 @@ export default function CreateEventPage() {
     );
   }
 
+  // Récupérer l'orgId depuis les paramètres URL
+  const urlOrgId = searchParams.get("orgId");
+
+  // Déterminer l'organisation cible
+  let targetOrganization;
+
+  if (urlOrgId) {
+    // Si un orgId est passé en paramètre URL, chercher cette organisation
+    targetOrganization = organizations.find(
+      (org) => org.id.toString() === urlOrgId
+    );
+  }
+
+  // Si pas trouvée via URL ou pas d'URL, utiliser l'organisation active
+  if (!targetOrganization) {
+    targetOrganization = activeOrganization || organizations[0];
+  }
+
   return (
     <div className="flex flex-col h-full">
       <header className="flex h-16 shrink-0 items-center gap-2 px-4">
@@ -66,7 +87,7 @@ export default function CreateEventPage() {
       </header>
 
       <div className="flex-1">
-        <EventForm orgId={organizations[0].id.toString()} />
+        <EventForm orgId={targetOrganization.id.toString()} />
       </div>
     </div>
   );

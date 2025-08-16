@@ -4,9 +4,10 @@ import { persist } from "zustand/middleware";
 // Types pour les organisations
 interface Organization {
   id: number;
+  publicId: string;
   name: string;
   bio?: string;
-  profileImage: string;
+  profileImage: string | null;
   memberCount: number;
   organizationType:
     | "ASSOCIATION"
@@ -16,6 +17,7 @@ interface Organization {
     | "AUTO_ENTREPRENEUR"
     | string;
   mission: string;
+  eventCount: number;
   location?: {
     city: string;
     lat: number;
@@ -26,17 +28,9 @@ interface Organization {
   createdAt: string;
 }
 
-interface Event {
-  id: number;
-  name: string;
-  description: string;
-  date: string;
-}
-
 interface OrganizationsStore {
   // État
   organizations: Organization[];
-  events: Event[];
   loading: boolean;
   initialized: boolean;
   lastFetch: number | null;
@@ -59,7 +53,6 @@ export const useOrganizationsStore = create<OrganizationsStore>()(
     (set, get) => ({
       // État initial
       organizations: [],
-      events: [],
       loading: false,
       initialized: false,
       lastFetch: null,
@@ -157,10 +150,9 @@ export const useOrganizationsStore = create<OrganizationsStore>()(
       },
     }),
     {
-      name: "organizations-storage", // Nom de la clé dans localStorage
+      name: "organizations-storage",
       partialize: (state) => ({
         organizations: state.organizations,
-        initialized: state.initialized,
         lastFetch: state.lastFetch,
       }),
     }

@@ -51,7 +51,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Transformation des données pour les événements avec icônes
   const eventsWithIcons = data.events.map((event) => ({
-    ...event,
+    name: event.title,
+    url: event.url,
     icon: iconMap[event.icon as keyof typeof iconMap] || Calendar,
   }));
 

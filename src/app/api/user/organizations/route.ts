@@ -15,11 +15,22 @@ export async function GET() {
   try {
     /**
      * Récupération des organisations appartenant à l'utilisateur
+     * Utilise directement le champ eventCount au lieu de récupérer tous les événements
      */
     const organizations = await prisma.organization.findMany({
       where: { ownerUid: user.uid },
-      include: {
-        events: true,
+      select: {
+        id: true,
+        publicId: true,
+        name: true,
+        bio: true,
+        profileImage: true,
+        memberCount: true,
+        organizationType: true,
+        mission: true,
+        eventCount: true,
+        createdAt: true,
+        location: true,
       },
     });
 
