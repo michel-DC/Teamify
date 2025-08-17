@@ -204,11 +204,13 @@ export default function EventsSlider() {
                         )}
                       >
                         {!isPlaceholder && event.imageUrl ? (
-                          <AutoSignedImage
-                            src={event.imageUrl}
-                            alt={event.title}
-                            className="w-full h-full object-cover rounded-t-lg"
-                          />
+                          <div className="w-full h-full">
+                            <AutoSignedImage
+                              src={event.imageUrl}
+                              alt={event.title}
+                              className="w-full h-full object-cover rounded-t-lg"
+                            />
+                          </div>
                         ) : (
                           <div className="flex items-center justify-center h-full">
                             {isPlaceholder ? (

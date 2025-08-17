@@ -101,7 +101,7 @@ export function AutoSignedImage({
   }
 
   // Affichage d'un placeholder en cas d'erreur sans fallback
-  if (error || imageError) {
+  if (error && !src) {
     return (
       <div
         className={cn(
@@ -142,12 +142,12 @@ export function AutoSignedImage({
 
   // Affichage de l'image
   return (
-    <div className="relative">
+    <div className="relative w-full h-full">
       <img
-        src={signedUrl || src}
+        src={signedUrl || src || ""}
         alt={alt}
         className={cn(
-          "object-cover transition-opacity duration-200",
+          "object-cover transition-opacity duration-200 w-full h-full",
           !imageLoaded ? "opacity-0" : "opacity-100",
           className
         )}

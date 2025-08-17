@@ -84,10 +84,9 @@ export function useAutoSignedImage(
       }
     } catch (err) {
       if (!abortControllerRef.current?.signal.aborted) {
-        console.error("Erreur lors de la génération de l'URL signée:", err);
-        setError(
-          err instanceof Error ? err : new Error("Erreur de génération")
-        );
+        console.warn("Erreur lors de la génération de l'URL signée:", err);
+        // Ne pas considérer comme une erreur fatale, juste utiliser l'URL originale
+        setError(null);
         setIsSigned(false);
       }
     } finally {
@@ -148,8 +147,13 @@ export function useAutoSignedImage(
     // Vérifier si c'est déjà une URL signée
     if (isSignedUrl(imageUrl)) {
       setIsSigned(true);
-      // Toujours régénérer pour avoir une URL fraîche
-      await generateFreshSignedUrl();
+      // Essayer de régénérer pour avoir une URL fraîche, mais ne pas échouer
+      try {
+        await generateFreshSignedUrl();
+      } catch {
+        // En cas d'erreur, utiliser l'URL originale
+        setSignedUrl(imageUrl);
+      }
     } else {
       // URL publique, pas besoin de signature
       setSignedUrl(imageUrl);
