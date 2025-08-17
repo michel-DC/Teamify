@@ -43,6 +43,7 @@ model Organization {
   members      Json?           @default("[]") 
   organizationInvites OrganizationInvite[]
   organizationMembers OrganizationMember[]
+  organizationPermissions OrganizationPermissions?
 }
 
 model Event {
@@ -166,6 +167,22 @@ model OrganizationMember {
   organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, userUid])
+}
+
+model OrganizationPermissions {
+  id                              Int      @id @default(autoincrement())
+  organizationId                  Int      @unique
+  adminsCanModifyEvents           Boolean  @default(true)
+  adminsCanDeleteEvents           Boolean  @default(true)
+  adminsCanInviteEventParticipants Boolean @default(true)
+  adminsCanInviteMembers          Boolean  @default(true)
+  adminsCanModifyOrg              Boolean  @default(false)
+  membersCanInviteEventParticipants Boolean @default(false)
+  membersCanInviteMembers         Boolean  @default(false)
+  createdAt                       DateTime @default(now())
+  updatedAt                       DateTime @updatedAt
+
+  organization                    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
 enum InvitationStatus {

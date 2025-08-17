@@ -128,7 +128,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
       if (data.event?.organization?.id) {
         setOrganizationId(data.event.organization.id);
         const membersResponse = await fetch(
-          `/api/organizations/by-id/${data.event.organization.id}/members`
+          `/api/organizations/by-public-id/${data.event.organization.publicId}/members`
         );
         const membersData = await membersResponse.json();
         if (membersData.members) {
