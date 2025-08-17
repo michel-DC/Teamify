@@ -179,7 +179,7 @@ export default function EventDetailsPage() {
         </div>
       </header>
       <div className="flex flex-col h-full">
-        <div className="flex-1 flex flex-col gap-6 p-6 lg:p-8 max-w-8xl mx-auto w-full">
+        <div className="flex-1 flex flex-col gap-6 p-6 lg:p-8 max-w-8xl mx-auto w-full px-12 lg:px-24">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row gap-8 items-center">
               {event.imageUrl && (
@@ -187,7 +187,7 @@ export default function EventDetailsPage() {
                   <AutoSignedImage
                     src={event.imageUrl}
                     alt={event.title}
-                    className="w-full max-w-xl h-auto rounded-2xl object-cover"
+                    className="w-full max-w-2xl h-auto rounded-2xl object-cover"
                   />
                 </div>
               )}
@@ -220,7 +220,6 @@ export default function EventDetailsPage() {
               </div>
             </div>
 
-            {/* Cards stylées comme section-card-event */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 px-4 lg:px-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

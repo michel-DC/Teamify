@@ -10,6 +10,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { Eye, EyeOff } from "lucide-react";
+import { IconBrandGoogle } from "@tabler/icons-react";
 import { ThemeToggle } from "../ui/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 
@@ -23,6 +25,8 @@ export const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
@@ -188,16 +192,31 @@ export const RegisterForm = () => {
                 <Label htmlFor="password" className="text-sm sm:text-base">
                   Mot de passe
                 </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  autoComplete="new-password"
-                  className="h-9 sm:h-10"
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    autoComplete="new-password"
+                    className="h-9 sm:h-10 pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label
@@ -206,16 +225,31 @@ export const RegisterForm = () => {
                 >
                   Confirmez votre mot de passe
                 </Label>
-                <Input
-                  id="confirmpassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  autoComplete="new-password"
-                  className="h-9 sm:h-10"
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmpassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    autoComplete="new-password"
+                    className="h-9 sm:h-10 pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -237,6 +271,22 @@ export const RegisterForm = () => {
               {loading ? "Création en cours..." : "S'inscrire"}
             </Button>
           </div>
+
+          {/* Séparateur et bouton Google */}
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Ou continuez avec
+              </span>
+            </div>
+          </div>
+          <Button variant="outline" type="button" className="w-full">
+            <IconBrandGoogle className="w-4 h-4 mr-2" />
+            <span>Google</span>
+          </Button>
 
           {/* Lien de connexion */}
           <div className="text-center text-xs sm:text-sm text-muted-foreground">

@@ -158,16 +158,6 @@ export function AutoSignedImage({
         onError={handleImageError}
       />
 
-      {/* Indicateur d'URL signée active */}
-      {isSigned && (
-        <div className="absolute top-1 right-1">
-          <div
-            className="w-2 h-2 bg-green-500 rounded-full animate-pulse"
-            title="URL signée active"
-          />
-        </div>
-      )}
-
       {/* Bouton de renouvellement manuel */}
       {showRefreshButton && isSigned && (
         <button
