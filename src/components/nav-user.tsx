@@ -105,19 +105,10 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <Sparkles />
-                Passer à l&apos;abonnement pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
                 <CircleUser />
-                Mon compte
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings />
-                Paramètres
+                <a href="/dashboard/profile" className="">
+                  Mon compte
+                </a>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <SunMoon />

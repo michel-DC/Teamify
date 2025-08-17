@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Shield, Users, Edit, Save, AlertTriangle } from "lucide-react";
+import { Shield, Users, Save, AlertTriangle } from "lucide-react";
 
 interface OrganizationPermissions {
   id: number;

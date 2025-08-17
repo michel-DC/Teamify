@@ -26,7 +26,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Separator } from "@/components/ui/separator";
 import { Trash2, Save, Building2, AlertTriangle } from "lucide-react";
 
 interface Organization {
@@ -95,7 +94,7 @@ export function GeneralSettings({
   /**
    * Gestion de l'upload d'image
    */
-  const handleImageUpload = (file: File) => {
+  const handleImageUpload = (file: File | null) => {
     setFormData((prev) => ({ ...prev, profileImage: file }));
   };
 
@@ -255,8 +254,8 @@ export function GeneralSettings({
           <div className="space-y-2">
             <Label>Image de profil</Label>
             <ImageUploadZone
-              onImageUpload={handleImageUpload}
-              currentImage={organization.profileImage}
+              onImageChange={handleImageUpload}
+              imagePreviewUrl={organization.profileImage}
               disabled={!canModify}
             />
           </div>

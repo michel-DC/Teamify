@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -15,10 +14,10 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { SettingsSidebar } from "./components/SettingsSidebar";
-import { GeneralSettings } from "./components/GeneralSettings";
-import { MembersSettings } from "./components/MembersSettings";
-import { PermissionsSettings } from "./components/PermissionsSettings";
+import { SettingsSidebar } from "./components/sidebar-settings";
+import { GeneralSettings } from "./components/general-settings";
+import { MembersSettings } from "./components/members-settings";
+import { PermissionsSettings } from "./components/permissions-settings";
 import { useOrganizationPermissions } from "@/hooks/useOrganization";
 import { ArrowLeft, Building2 } from "lucide-react";
 
