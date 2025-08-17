@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
-import { writeFile } from "fs/promises";
-import { join } from "path";
 import { EventCategory, EventStatus } from "@prisma/client";
 import { nanoid } from "nanoid";
+import { uploadImage } from "@/lib/upload-utils";
+import { writeFile } from "fs";
+import { join } from "path";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -89,21 +90,10 @@ export async function POST(req: Request) {
 
     let imageUrl: string | null = null;
 
-    const file = formData.get("file") as File;
+    const uploadedImageUrl = formData.get("imageUrl") as string;
 
-    if (file) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const fileName = `${Date.now()}-${file.name}`;
-      const path = join(
-        process.cwd(),
-        "public/uploads/organizations/events",
-        fileName
-      );
-
-      await writeFile(path, buffer);
-      imageUrl = `/uploads/organizations/events/${fileName}`;
+    if (uploadedImageUrl) {
+      imageUrl = uploadedImageUrl;
     }
 
     const missingFields = [];

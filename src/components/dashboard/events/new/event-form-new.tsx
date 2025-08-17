@@ -75,8 +75,8 @@ export function EventForm({ orgId }: EventFormProps) {
       }
 
       // Ajout de l'image si présente
-      if (formData.image) {
-        submitData.append("file", formData.image);
+      if (formData.imageUrl) {
+        submitData.append("imageUrl", formData.imageUrl);
       }
 
       const response = await fetch("/api/dashboard/events", {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ImageUploadZone } from "@/components/ui/image-upload-zone";
+import { CloudflareImageUpload } from "@/components/ui/cloudflare-image-upload";
 import { EventFormData } from "../../../../../../types/steps-event-creation";
 
 interface Step4Props {
@@ -21,8 +21,8 @@ export function Step4({
   onPrev,
   isStepComplete,
 }: Step4Props) {
-  const handleImageChange = (file: File | null) => {
-    updateFormData({ image: file || undefined });
+  const handleImageUploaded = (url: string) => {
+    updateFormData({ imageUrl: url });
   };
 
   return (
@@ -40,7 +40,11 @@ export function Step4({
         <Label className="text-base font-medium">
           Image de l&apos;événement
         </Label>
-        <ImageUploadZone onImageChange={handleImageChange} maxFileSize={5} />
+        <CloudflareImageUpload
+          onImageUploaded={handleImageUploaded}
+          type="event"
+          maxFileSize={5}
+        />
       </div>
 
       <div className="flex justify-between pt-6">

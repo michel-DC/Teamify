@@ -15,6 +15,7 @@ export interface StepProps {
       displayName?: string;
     } | null;
     file?: File;
+    imageUrl?: string;
   };
   setFormData: React.Dispatch<
     React.SetStateAction<{
@@ -30,6 +31,7 @@ export interface StepProps {
         displayName?: string;
       } | null;
       file?: File;
+      imageUrl?: string;
     }>
   >;
 }

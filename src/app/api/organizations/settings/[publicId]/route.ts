@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { writeFile } from "fs/promises";
-import { join } from "path";
+import { uploadImage } from "@/lib/upload-utils";
 
 export async function PUT(
   request: NextRequest,
@@ -79,21 +78,16 @@ export async function PUT(
      * Traitement de l'image de profil si fournie
      */
     if (profileImage && profileImage.size > 0) {
-      const bytes = await profileImage.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-
-      const timestamp = Date.now();
-      const fileName = `${timestamp}-${profileImage.name}`;
-      const uploadDir = join(
-        process.cwd(),
-        "public",
-        "uploads",
-        "organizations"
-      );
-      const filePath = join(uploadDir, fileName);
-
-      await writeFile(filePath, buffer);
-      profileImagePath = `/uploads/organizations/${fileName}`;
+      try {
+        const uploadResult = await uploadImage(profileImage, "organization");
+        profileImagePath = uploadResult.url;
+      } catch (uploadError) {
+        console.error("Erreur lors de l'upload:", uploadError);
+        return NextResponse.json(
+          { error: "Erreur lors de l'upload de l'image" },
+          { status: 500 }
+        );
+      }
     }
 
     /**

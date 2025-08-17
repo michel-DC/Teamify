@@ -21,13 +21,16 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "**.r2.cloudflarestorage.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
-  // Configuration pour Next.js 15
-  // Optimisations pour la production
   compress: true,
   poweredByHeader: false,
-  // Configuration pour permettre le déploiement avec des warnings
   typescript: {
     ignoreBuildErrors: true,
   },

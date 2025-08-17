@@ -25,6 +25,7 @@ export interface EventFormData {
 
   // Fichier image
   image?: File;
+  imageUrl?: string;
 }
 
 export type EventCreationStep =

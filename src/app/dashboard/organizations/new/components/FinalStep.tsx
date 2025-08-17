@@ -28,8 +28,8 @@ export default function FinalStep({ formData }: StepProps) {
         formDataToSend.append("location", JSON.stringify(formData.location));
       }
 
-      if (formData.file) {
-        formDataToSend.append("file", formData.file);
+      if (formData.imageUrl) {
+        formDataToSend.append("imageUrl", formData.imageUrl);
       }
 
       const res = await fetch("/api/organizations/create", {

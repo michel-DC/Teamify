@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
-import { writeFile } from "fs/promises";
-import { join } from "path";
 import { OrganizationType } from "@prisma/client";
+import { uploadImage } from "@/lib/upload-utils";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -18,7 +17,7 @@ export async function POST(req: Request) {
   const organizationType = formData.get("organizationType") as OrganizationType;
   const mission = formData.get("mission") as string;
   const memberCount = parseInt(formData.get("memberCount") as string) || 1;
-  const file = formData.get("file") as File | null;
+  const imageUrl = formData.get("imageUrl") as string | null;
   const locationRaw = formData.get("location") as string | null;
 
   // Parse location JSON si fourni
@@ -49,17 +48,8 @@ export async function POST(req: Request) {
   try {
     let profileImage = null as string | null;
 
-    if (file) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const fileName = `${Date.now()}-${file.name}`;
-      const path = join(
-        process.cwd(),
-        "public/uploads/organizations",
-        fileName
-      );
-      await writeFile(path, buffer);
-      profileImage = `/uploads/organizations/${fileName}`;
+    if (imageUrl) {
+      profileImage = imageUrl;
     }
 
     /**
