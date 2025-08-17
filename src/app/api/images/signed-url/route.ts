@@ -6,6 +6,12 @@ import {
   extractBucketFromR2Url,
 } from "@/lib/r2-utils";
 
+/**
+ * @param Route pour régénérer une URL signée pour une image R2
+ *
+ * Génère automatiquement une nouvelle URL signée valide pour 15 minutes
+ * à chaque requête, permettant un affichage continu des images.
+ */
 export async function POST(request: NextRequest) {
   try {
     // Vérification de l'authentification
@@ -15,7 +21,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { imageUrl, expiresIn = 15 * 60 } = body; // 15 minutes par défaut
+    const { imageUrl } = body;
 
     // Validation des paramètres
     if (!imageUrl) {
@@ -33,27 +39,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "URL R2 invalide" }, { status: 400 });
     }
 
-    // Vérification que l'utilisateur a accès à cette image
-    // (optionnel: vérifier les permissions selon le contexte)
+    // Utilisation du bucket par défaut si non spécifié
+    const targetBucket = bucketName || process.env.R2_BUCKET;
 
-    console.log("Génération d'URL signée:", {
-      bucketName,
+    if (!targetBucket) {
+      return NextResponse.json(
+        { error: "Configuration bucket manquante" },
+        { status: 500 }
+      );
+    }
+
+    console.log("Régénération d'URL signée:", {
+      bucketName: targetBucket,
       key,
-      expiresIn,
       originalUrl: imageUrl,
     });
 
-    // Génération de l'URL signée
-    const signedUrl = await generateSignedImageUrl(bucketName, key, expiresIn);
+    // Génération d'une nouvelle URL signée valide 15 minutes
+    const signedUrl = await generateSignedImageUrl(targetBucket, key, 15 * 60);
 
     return NextResponse.json({
       success: true,
       signedUrl,
-      expiresIn,
+      expiresIn: 15 * 60, // 15 minutes
       originalUrl: imageUrl,
     });
   } catch (error) {
-    console.error("Erreur lors de la génération de l'URL signée:", error);
+    console.error("Erreur lors de la régénération de l'URL signée:", error);
 
     return NextResponse.json(
       { error: "Erreur lors de la génération de l'URL signée" },

@@ -1,16 +1,11 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import {
-  generateSignedUrlForImage,
-  isSignedUrl,
-  getTimeUntilExpiration,
-} from "@/lib/upload-utils";
+import { useState, useEffect, useCallback, useRef } from "react";
 
-interface UseSignedImageOptions {
-  refreshThreshold?: number; // Seuil en secondes avant renouvellement
-  autoRefresh?: boolean; // Renouvellement automatique
+interface UseAutoSignedImageOptions {
+  refreshThreshold?: number; // Seuil de rafraîchissement en secondes (défaut: 60s)
+  autoRefresh?: boolean; // Renouvellement automatique activé par défaut
 }
 
-interface UseSignedImageReturn {
+interface UseAutoSignedImageReturn {
   signedUrl: string | null;
   isLoading: boolean;
   error: Error | null;
@@ -19,15 +14,15 @@ interface UseSignedImageReturn {
 }
 
 /**
- * @param Hook pour gérer les URLs signées avec renouvellement automatique
+ * @param Hook pour gérer automatiquement les URLs signées avec régénération
  *
- * Gère automatiquement le renouvellement des URLs signées avant leur expiration
- * et fournit des méthodes pour contrôler manuellement le processus.
+ * Régénère automatiquement l'URL signée à chaque requête pour maintenir
+ * l'affichage des images sans interruption due à l'expiration.
  */
-export function useSignedImage(
+export function useAutoSignedImage(
   imageUrl: string | null,
-  options: UseSignedImageOptions = {}
-): UseSignedImageReturn {
+  options: UseAutoSignedImageOptions = {}
+): UseAutoSignedImageReturn {
   const { refreshThreshold = 60, autoRefresh = true } = options;
 
   const [signedUrl, setSignedUrl] = useState<string | null>(imageUrl);
@@ -39,9 +34,9 @@ export function useSignedImage(
   const abortControllerRef = useRef<AbortController | null>(null);
 
   /**
-   * @param Génération d'une nouvelle URL signée
+   * @param Régénération d'une URL signée fraîche
    */
-  const generateSignedUrl = useCallback(async () => {
+  const generateFreshSignedUrl = useCallback(async () => {
     if (!imageUrl) {
       setSignedUrl(null);
       setIsSigned(false);
@@ -59,15 +54,32 @@ export function useSignedImage(
 
       abortControllerRef.current = new AbortController();
 
-      const response = await generateSignedUrlForImage(imageUrl);
+      const response = await fetch("/api/images/signed-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ imageUrl }),
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
 
       if (!abortControllerRef.current.signal.aborted) {
-        setSignedUrl(response.signedUrl);
-        setIsSigned(true);
+        if (data.success) {
+          setSignedUrl(data.signedUrl);
+          setIsSigned(true);
 
-        // Programmer le prochain renouvellement si activé
-        if (autoRefresh) {
-          scheduleNextRefresh(response.expiresIn);
+          // Programmer le prochain renouvellement si activé
+          if (autoRefresh) {
+            scheduleNextRefresh(data.expiresIn);
+          }
+        } else {
+          throw new Error(data.error || "Erreur de génération");
         }
       }
     } catch (err) {
@@ -101,11 +113,27 @@ export function useSignedImage(
 
       // Programmer le renouvellement
       refreshTimeoutRef.current = setTimeout(() => {
-        generateSignedUrl();
+        generateFreshSignedUrl();
       }, refreshDelay);
     },
-    [refreshThreshold, generateSignedUrl]
+    [refreshThreshold, generateFreshSignedUrl]
   );
+
+  /**
+   * @param Vérification si l'URL est déjà signée
+   */
+  const isSignedUrl = useCallback((url: string): boolean => {
+    try {
+      const urlObj = new URL(url);
+      return (
+        urlObj.searchParams.has("X-Amz-Signature") ||
+        urlObj.searchParams.has("X-Amz-Credential") ||
+        urlObj.searchParams.has("X-Amz-Date")
+      );
+    } catch {
+      return false;
+    }
+  }, []);
 
   /**
    * @param Initialisation de l'URL signée
@@ -120,39 +148,21 @@ export function useSignedImage(
     // Vérifier si c'est déjà une URL signée
     if (isSignedUrl(imageUrl)) {
       setIsSigned(true);
-
-      // Vérifier le temps restant
-      const timeRemaining = getTimeUntilExpiration(imageUrl);
-
-      if (timeRemaining !== null && timeRemaining <= refreshThreshold) {
-        // URL proche de l'expiration, la renouveler
-        await generateSignedUrl();
-      } else if (timeRemaining !== null && autoRefresh) {
-        // Programmer le renouvellement
-        scheduleNextRefresh(timeRemaining + refreshThreshold);
-        setSignedUrl(imageUrl);
-      } else {
-        setSignedUrl(imageUrl);
-      }
+      // Toujours régénérer pour avoir une URL fraîche
+      await generateFreshSignedUrl();
     } else {
       // URL publique, pas besoin de signature
       setSignedUrl(imageUrl);
       setIsSigned(false);
     }
-  }, [
-    imageUrl,
-    refreshThreshold,
-    autoRefresh,
-    generateSignedUrl,
-    scheduleNextRefresh,
-  ]);
+  }, [imageUrl, isSignedUrl, generateFreshSignedUrl]);
 
   /**
    * @param Renouvellement manuel
    */
   const refresh = useCallback(async () => {
-    await generateSignedUrl();
-  }, [generateSignedUrl]);
+    await generateFreshSignedUrl();
+  }, [generateFreshSignedUrl]);
 
   // Initialisation au montage et quand imageUrl change
   useEffect(() => {

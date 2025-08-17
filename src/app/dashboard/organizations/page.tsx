@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/Input";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 import {
   Search,
   Plus,
@@ -487,7 +488,7 @@ export default function OrganizationsDashboardPage() {
                 <CardHeader>
                   <div className="flex items-center space-x-4">
                     {org.profileImage ? (
-                      <img
+                      <AutoSignedImage
                         src={org.profileImage}
                         alt={org.name}
                         className="h-12 w-12 rounded-full object-cover"

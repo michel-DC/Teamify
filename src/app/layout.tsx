@@ -11,7 +11,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Teamify | Gestion d'événements en équipe",
+  title: "Teamify · Gestion d'événements en équipe",
   description: "Avec teamify ...",
 };
 

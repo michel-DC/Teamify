@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 import PreparationBanner from "@/components/dashboard/events/todo/preparation-banner";
 // import { StatCardDetails } from "@/components/dashboard/events/details/stat-card-details";
 import InvitationTable from "@/components/dashboard/events/details/invitation-table";
@@ -184,11 +184,9 @@ export default function EventDetailsPage() {
             <div className="flex flex-col md:flex-row gap-8 items-center">
               {event.imageUrl && (
                 <div className="md:w-1/2 w-full flex justify-center">
-                  <Image
+                  <AutoSignedImage
                     src={event.imageUrl}
                     alt={event.title}
-                    width={500}
-                    height={300}
                     className="w-full max-w-xl h-auto rounded-2xl object-cover"
                   />
                 </div>
