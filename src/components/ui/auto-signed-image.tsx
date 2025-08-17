@@ -83,13 +83,25 @@ export function AutoSignedImage({
     return <>{loadingComponent}</>;
   }
 
-  // Affichage du composant d'erreur personnalisé
-  if (error && errorComponent) {
-    return <>{errorComponent}</>;
+  // Affichage du loader par défaut
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "flex items-center justify-center bg-muted animate-pulse",
+          className
+        )}
+      >
+        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
-  // Affichage de l'image de fallback en cas d'erreur
-  if ((error || imageError) && fallbackSrc) {
+  // Vérifier si on a une URL valide à afficher
+  const hasValidUrl = signedUrl || src;
+
+  // Affichage de l'image de fallback en cas d'erreur ET si on n'a pas d'URL valide
+  if ((error || imageError) && fallbackSrc && !hasValidUrl) {
     return (
       <img
         src={fallbackSrc}
@@ -100,8 +112,8 @@ export function AutoSignedImage({
     );
   }
 
-  // Affichage d'un placeholder en cas d'erreur sans fallback
-  if (error && !src) {
+  // Affichage d'un placeholder SEULEMENT si on n'a aucune URL valide
+  if ((error || imageError) && !hasValidUrl) {
     return (
       <div
         className={cn(
@@ -126,18 +138,9 @@ export function AutoSignedImage({
     );
   }
 
-  // Affichage du loader par défaut
-  if (isLoading) {
-    return (
-      <div
-        className={cn(
-          "flex items-center justify-center bg-muted animate-pulse",
-          className
-        )}
-      >
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-      </div>
-    );
+  // Affichage du composant d'erreur personnalisé SEULEMENT si on n'a pas d'URL valide
+  if (error && errorComponent && !hasValidUrl) {
+    return <>{errorComponent}</>;
   }
 
   // Affichage de l'image

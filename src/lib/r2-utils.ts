@@ -126,7 +126,15 @@ export function extractKeyFromR2Url(url: string): string | null {
 
     // Supprimer le bucket name et récupérer le reste du chemin
     if (pathParts.length > 2) {
-      return pathParts.slice(2).join("/");
+      const extractedParts = pathParts.slice(2);
+
+      // Si la première partie est le même nom que le bucket par défaut, la supprimer
+      const defaultBucket = process.env.R2_BUCKET;
+      if (defaultBucket && extractedParts[0] === defaultBucket) {
+        return extractedParts.slice(1).join("/");
+      }
+
+      return extractedParts.join("/");
     }
 
     return null;

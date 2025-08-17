@@ -31,16 +31,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Extraction des informations depuis l'URL R2
-    const bucketName = extractBucketFromR2Url(imageUrl);
+    // Extraction de la clé depuis l'URL R2
     const key = extractKeyFromR2Url(imageUrl);
 
-    if (!bucketName || !key) {
+    if (!key) {
       return NextResponse.json({ error: "URL R2 invalide" }, { status: 400 });
     }
 
-    // Utilisation du bucket par défaut si non spécifié
-    const targetBucket = bucketName || process.env.R2_BUCKET;
+    // Utilisation du bucket par défaut
+    const targetBucket = process.env.R2_BUCKET;
 
     if (!targetBucket) {
       return NextResponse.json(

@@ -73,6 +73,7 @@ export function useAutoSignedImage(
         if (data.success) {
           setSignedUrl(data.signedUrl);
           setIsSigned(true);
+          setError(null); // S'assurer qu'il n'y a pas d'erreur
 
           // Programmer le prochain renouvellement si activé
           if (autoRefresh) {
@@ -88,6 +89,10 @@ export function useAutoSignedImage(
         // Ne pas considérer comme une erreur fatale, juste utiliser l'URL originale
         setError(null);
         setIsSigned(false);
+        // Garder l'URL originale si disponible
+        if (imageUrl) {
+          setSignedUrl(imageUrl);
+        }
       }
     } finally {
       if (!abortControllerRef.current?.signal.aborted) {
@@ -141,6 +146,7 @@ export function useAutoSignedImage(
     if (!imageUrl) {
       setSignedUrl(null);
       setIsSigned(false);
+      setError(null);
       return;
     }
 
@@ -153,11 +159,13 @@ export function useAutoSignedImage(
       } catch {
         // En cas d'erreur, utiliser l'URL originale
         setSignedUrl(imageUrl);
+        setError(null);
       }
     } else {
       // URL publique, pas besoin de signature
       setSignedUrl(imageUrl);
       setIsSigned(false);
+      setError(null);
     }
   }, [imageUrl, isSignedUrl, generateFreshSignedUrl]);
 
