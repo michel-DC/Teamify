@@ -32,36 +32,59 @@ interface Event {
 export function UpcomingEventsWidget() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { activeOrganization } = useActiveOrganization();
 
   useEffect(() => {
     const fetchUpcomingEvents = async () => {
-      if (!activeOrganization) return;
+      if (!activeOrganization) {
+        setLoading(false);
+        return;
+      }
 
       try {
+        setError(null);
         const response = await fetch(
           `/api/dashboard/events/data?organizationId=${activeOrganization.publicId}`
         );
+
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
         const data = await response.json();
 
-        if (data.events) {
+        if (data.events && Array.isArray(data.events)) {
           const now = new Date();
+          console.log("Événements récupérés:", data.events.length);
+
           const upcomingEvents = data.events
-            .filter((event: Event) => new Date(event.startDate) > now)
-            .sort(
-              (a: Event, b: Event) =>
-                new Date(a.startDate).getTime() -
-                new Date(b.startDate).getTime()
-            )
+            .filter((event: any) => {
+              // Vérification que startDate existe et est valide
+              if (!event.startDate) return false;
+              const eventDate = new Date(event.startDate);
+              return !isNaN(eventDate.getTime()) && eventDate > now;
+            })
+            .sort((a: any, b: any) => {
+              const dateA = new Date(a.startDate);
+              const dateB = new Date(b.startDate);
+              return dateA.getTime() - dateB.getTime();
+            })
             .slice(0, 5);
 
+          console.log("Événements à venir trouvés:", upcomingEvents.length);
           setEvents(upcomingEvents);
+        } else {
+          console.log("Aucun événement trouvé ou format invalide");
+          setEvents([]);
         }
       } catch (error) {
         console.error(
           "Erreur lors du chargement des événements à venir:",
           error
         );
+        setError("Erreur lors du chargement des événements");
+        setEvents([]);
       } finally {
         setLoading(false);
       }
@@ -73,13 +96,13 @@ export function UpcomingEventsWidget() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "PUBLIE":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
       case "BROUILLON":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
       case "ANNULE":
-        return "bg-red-100 text-red-800";
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -99,6 +122,11 @@ export function UpcomingEventsWidget() {
   const getDaysUntilEvent = (startDate: string) => {
     const now = new Date();
     const eventDate = new Date(startDate);
+
+    if (isNaN(eventDate.getTime())) {
+      return "Date invalide";
+    }
+
     const diffTime = eventDate.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -112,16 +140,39 @@ export function UpcomingEventsWidget() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Événements à venir</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Événements à venir
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="animate-pulse">
-                <div className="h-4 w-3/4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-3 w-1/2 bg-gray-200 rounded"></div>
+                <div className="h-4 w-3/4 bg-muted rounded mb-2"></div>
+                <div className="h-3 w-1/2 bg-muted rounded"></div>
               </div>
             ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Événements à venir
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-muted-foreground">
+            <AlertCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p className="text-red-600 dark:text-red-400">{error}</p>
+            <p className="text-sm mt-2">Veuillez réessayer plus tard</p>
           </div>
         </CardContent>
       </Card>
@@ -156,7 +207,7 @@ export function UpcomingEventsWidget() {
             {events.map((event) => (
               <div
                 key={event.id}
-                className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
@@ -172,7 +223,7 @@ export function UpcomingEventsWidget() {
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       <span>{formatDateToFrench(event.startDate)}</span>
-                      <span className="text-blue-600 font-medium">
+                      <span className="text-primary font-medium">
                         ({getDaysUntilEvent(event.startDate)})
                       </span>
                     </div>
