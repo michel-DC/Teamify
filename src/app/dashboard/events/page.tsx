@@ -63,7 +63,7 @@ export default function EventOverview() {
               <EventsTableWrapper />
             </div>
             <Separator className="my-6" />
-            <div className="px-12">
+            <div className="px-12" id="maps-section">
               <MapsSection />
             </div>
             {/* <div className="px-12">

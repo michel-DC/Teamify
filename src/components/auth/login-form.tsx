@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { IconBrandGoogle } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LoadingScreen } from "@/components/ui/Loader";
@@ -55,7 +54,7 @@ export const LoginForm = ({
     if (showLogoutMessage === "true") {
       sessionStorage.removeItem("showLogoutMessage");
       toast.success("Vous avez été déconnecté avec succès", {
-        duration: 3000,
+        duration: 7000,
       });
     }
   }, []);
@@ -143,7 +142,10 @@ export const LoginForm = ({
 
         // Toast de succès avec prénom pendant 3s
         toast.success(
-          `Vous êtes maintenant connecté en tant que ${data.user.firstname}!`,
+          <>
+            Vous êtes maintenant connecté en tant que{" "}
+            <b>{data.user.firstname}</b>
+          </>,
           {
             duration: 3000,
           }

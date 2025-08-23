@@ -24,7 +24,14 @@ export default function ClientGate({ children }: ClientGateProps) {
     setAuthChecked(ok);
     if (!ok) {
       setRedirecting(true);
-      router.replace("/auth/login");
+      import("sonner").then(({ toast }) => {
+        toast.info("Vous devez être connecté pour accéder au dashboard.", {
+          duration: 2000,
+        });
+      });
+      setTimeout(() => {
+        router.replace("/auth/login");
+      }, 2000);
     }
   }, [checkAuth, router]);
 

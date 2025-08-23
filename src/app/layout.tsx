@@ -33,7 +33,7 @@ export default function RootLayout({
         <ThemeProvider defaultTheme="light" storageKey="theme">
           <DataPersistenceManager />
           {children}
-          <Toaster position="top-right" />
+          <Toaster position="top-left" />
         </ThemeProvider>
       </body>
     </html>
