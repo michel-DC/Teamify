@@ -53,7 +53,7 @@ export const LoginForm = ({
     const showLogoutMessage = sessionStorage.getItem("showLogoutMessage");
     if (showLogoutMessage === "true") {
       sessionStorage.removeItem("showLogoutMessage");
-      toast.success("Vous avez été déconnecté avec succès", {
+      toast.success("Vous avez été déconnecté avec succès ​🥵​", {
         duration: 7000,
       });
     }
@@ -99,7 +99,7 @@ export const LoginForm = ({
           toast.success(
             <>
               Vous êtes maintenant connecté en tant que{" "}
-              <b>{data.user.firstname}</b>
+              <b>{data.user.firstname}</b> ​❤️‍🔥​
             </>,
             {
               duration: 3000,
@@ -144,7 +144,7 @@ export const LoginForm = ({
         toast.success(
           <>
             Vous êtes maintenant connecté en tant que{" "}
-            <b>{data.user.firstname}</b>
+            <b>{data.user.firstname}</b> ​❤️‍🔥​
           </>,
           {
             duration: 3000,
@@ -228,9 +228,7 @@ export const LoginForm = ({
                 variant="outline"
                 className="w-full h-10 flex items-center justify-center gap-3 border-border hover:bg-muted/50 transition-colors"
                 onClick={() => {
-                  toast.info(
-                    "La connexion avec google sera disponible prochainement"
-                  );
+                  toast.info("Cette option n'est pas encore disponible 😢");
                 }}
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">

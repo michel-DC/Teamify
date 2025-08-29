@@ -51,7 +51,7 @@ export default function DeleteEventModal({
         throw new Error("La suppression a échoué.");
       }
 
-      toast.success("Événement supprimé avec succès !");
+      toast.success("Événement supprimé avec succès 😱​");
       setIsOpen(false);
       router.push(`/dashboard/events/details/${eventSlug}`);
       router.refresh();

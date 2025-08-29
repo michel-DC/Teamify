@@ -88,7 +88,7 @@ export function EventForm({ orgId }: EventFormProps) {
         throw new Error("Erreur lors de la création de l'événement");
       }
 
-      toast.success("Événement créé avec succès");
+      toast.success("Événement créé avec succès 🤩​");
       router.refresh();
       router.push("/dashboard/events");
     } catch (error) {

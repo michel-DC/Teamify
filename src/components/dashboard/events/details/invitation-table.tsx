@@ -119,7 +119,7 @@ export default function InvitationTable({
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchInvitations();
-    toast.success("Liste des invitations mise à jour");
+    toast.success("Liste des invitations mise à jour 👏​");
   };
 
   /**
@@ -292,7 +292,7 @@ export default function InvitationTable({
       setCurrentPage(1);
 
       // Notification de succès
-      toast.success(`Invitation envoyée avec succès à ${email}`, {
+      toast.success(`Invitation envoyée avec succès à ${email} 😜​`, {
         description:
           "L'email a été envoyé et l'invitation est en attente de réponse.",
       });

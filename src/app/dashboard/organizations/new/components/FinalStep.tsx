@@ -39,7 +39,7 @@ export default function FinalStep({ formData }: StepProps) {
       });
 
       if (res.ok) {
-        toast.success("Organisation créée avec succès !", {
+        toast.success("Organisation créée avec succès ​🚀​", {
           duration: 3000,
           onAutoClose: () => {
             router.push("/dashboard/organizations");

@@ -74,7 +74,7 @@ export const RegisterForm = () => {
 
       if (res.ok) {
         const responseData = JSON.parse(text);
-        toast.success(`Bienvenue sur teamify ${lastname} !`, {
+        toast.success(`Bienvenue sur teamify ${lastname} ​👑​`, {
           duration: 4000,
           onAutoClose: () => {
             // Si il y a un code d'invitation et que l'utilisateur a une organisation, aller au dashboard

@@ -74,7 +74,7 @@ function JoinEventContent() {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
-            errorData.error || "Erreur lors de la récupération de l'invitation"
+            errorData.error || "Erreur lors de la récupération de l'invitation​"
           );
         }
 
@@ -114,7 +114,7 @@ function JoinEventContent() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la réponse");
+        throw new Error(errorData.error || "Erreur lors de la réponse 😭​");
       }
 
       const data = await response.json();
@@ -122,12 +122,12 @@ function JoinEventContent() {
 
       toast.success(
         status === "ACCEPTED"
-          ? "Invitation acceptée avec succès !"
-          : "Invitation déclinée avec succès !"
+          ? "Invitation acceptée avec succès 🤩​"
+          : "Invitation déclinée avec succès 😢​​"
       );
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Erreur lors de la réponse"
+        err instanceof Error ? err.message : "Erreur lors de la réponse 😭​"
       );
     } finally {
       setResponding(false);

@@ -360,7 +360,7 @@ export default function EditEventPage() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("Événement modifié avec succès !");
+        toast.success("Événement modifié avec succès 🤩​");
         router.push(`/dashboard/events/details/${params.slug}`);
       } else {
         toast.error(result.error || "Erreur lors de la modification");
