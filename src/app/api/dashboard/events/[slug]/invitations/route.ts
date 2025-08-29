@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
-/**
- * @param Récupération des invitations pour un événement
- *
- * Retourne toutes les invitations associées à un événement
- */
+// récupération des invitations pour l'événement en fonction de son slug
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }

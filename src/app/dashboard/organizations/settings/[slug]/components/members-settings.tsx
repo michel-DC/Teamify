@@ -122,18 +122,18 @@ export function MembersSettings({
       );
 
       if (response.ok) {
-        toast.success("Rôle mis à jour avec succès");
+        toast.success("Rôle mis à jour avec succès ​😎​");
         fetchMembers(); // Recharger la liste
       } else {
         const errorData = await response.json();
         console.error("Erreur API:", errorData);
         toast.error(
-          errorData.error || "Erreur lors de la modification du rôle"
+          errorData.error || "Erreur lors de la modification du rôle 😭​"
         );
       }
     } catch (error) {
       console.error("Erreur lors de la modification du rôle:", error);
-      toast.error("Erreur lors de la modification du rôle");
+      toast.error("Erreur lors de la modification du rôle 😭​");
     } finally {
       setRoleChangeLoading(null);
     }
@@ -153,15 +153,15 @@ export function MembersSettings({
       );
 
       if (response.ok) {
-        toast.success("Membre supprimé avec succès");
+        toast.success("Membre supprimé avec succès ​🫀​");
         fetchMembers(); // Recharger la liste
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erreur lors de la suppression");
+        toast.error(error.message || "Erreur lors de la suppression 😭​");
       }
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
-      toast.error("Erreur lors de la suppression");
+      toast.error("Erreur lors de la suppression 😭​");
     }
   };
 

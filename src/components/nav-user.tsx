@@ -5,8 +5,7 @@ import {
   CircleUser,
   SunMoon,
   LogOut,
-  Sparkles,
-  Settings,
+  Bell,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -108,6 +107,12 @@ export function NavUser({
                 <CircleUser />
                 <a href="/dashboard/profile" className="">
                   Mon compte
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Bell />
+                <a href="#" className="">
+                  Notifications
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem>

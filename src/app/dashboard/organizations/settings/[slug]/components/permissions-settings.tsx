@@ -123,17 +123,17 @@ export function PermissionsSettings({
       );
 
       if (response.ok) {
-        toast.success("Permissions mises à jour avec succès");
+        toast.success("Permissions mises à jour avec succès 🤫​");
         fetchPermissions(); // Recharger les données
       } else {
         const error = await response.json();
         toast.error(
-          error.message || "Erreur lors de la mise à jour des permissions"
+          error.message || "Erreur lors de la mise à jour des permissions 😭​"
         );
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour des permissions:", error);
-      toast.error("Erreur lors de la mise à jour des permissions");
+      toast.error("Erreur lors de la mise à jour des permissions 😭​");
     } finally {
       setSaving(false);
     }

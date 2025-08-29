@@ -39,19 +39,22 @@ export default function FinalStep({ formData }: StepProps) {
       });
 
       if (res.ok) {
-        toast.success("Organisation créée avec succès !", {
-          duration: 3000,
-          onAutoClose: () => {
-            router.push("/dashboard");
-          },
-        });
+        toast.success(
+          "Votre première organisation a été créée avec succès 🥳​",
+          {
+            duration: 3000,
+            onAutoClose: () => {
+              router.push("/dashboard");
+            },
+          }
+        );
       } else {
         const errorData = await res.json();
         toast.error(`Erreur: ${errorData.error || res.statusText}`);
       }
     } catch (err) {
       console.error("Erreur:", err);
-      toast.error("Erreur lors de la création de l'organisation.");
+      toast.error("Erreur lors de la création de l'organisation 😭​");
     } finally {
       setLoading(false);
     }

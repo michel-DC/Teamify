@@ -6,6 +6,7 @@ import { Upload, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { uploadImage, validateImageFile } from "@/lib/upload-utils";
 import { toast } from "sonner";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 
 interface CloudflareImageUploadProps {
   onImageUploaded: (url: string) => void;
@@ -167,7 +168,7 @@ export function CloudflareImageUpload({
 
       {previewUrl && (
         <div className="relative w-full max-w-xs mx-auto">
-          <img
+          <AutoSignedImage
             src={previewUrl}
             alt="Aperçu"
             className="w-full h-48 object-cover rounded-lg border"

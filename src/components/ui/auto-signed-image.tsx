@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { RefreshCw, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 interface AutoSignedImageProps {
   src: string | null;
@@ -103,11 +104,13 @@ export function AutoSignedImage({
   // Affichage de l'image de fallback en cas d'erreur ET si on n'a pas d'URL valide
   if ((error || imageError) && fallbackSrc && !hasValidUrl) {
     return (
-      <img
+      <Image
         src={fallbackSrc}
         alt={alt}
         className={cn("object-cover", className)}
         onLoad={onLoad}
+        width={100}
+        height={100}
       />
     );
   }

@@ -125,15 +125,15 @@ export function GeneralSettings({
       );
 
       if (response.ok) {
-        toast.success("Organisation mise à jour avec succès");
+        toast.success("Organisation mise à jour avec succès ​🚀​");
         onOrganizationUpdate();
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erreur lors de la mise à jour");
+        toast.error(error.message || "Erreur lors de la mise à jour 😭​");
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error);
-      toast.error("Erreur lors de la mise à jour");
+      toast.error("Erreur lors de la mise à jour 😭​");
     } finally {
       setLoading(false);
     }
@@ -155,16 +155,16 @@ export function GeneralSettings({
       );
 
       if (response.ok) {
-        toast.success("Organisation supprimée avec succès");
+        toast.success("Organisation supprimée avec succès 🤩​");
         // Redirection vers le dashboard des organisations
         window.location.href = "/dashboard/organizations";
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erreur lors de la suppression");
+        toast.error(error.message || "Erreur lors de la suppression 😭​");
       }
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
-      toast.error("Erreur lors de la suppression");
+      toast.error("Erreur lors de la suppression 😭​");
     } finally {
       setDeleteLoading(false);
     }
@@ -263,7 +263,7 @@ export function GeneralSettings({
           {canModify && (
             <Button onClick={handleSave} disabled={loading} className="w-full">
               <Save className="h-4 w-4 mr-2" />
-              {loading ? "Sauvegarde..." : "Sauvegarder les modifications"}
+              {loading ? "Sauvegarde..." : "Sauvegarder les modifications 🤩​"}
             </Button>
           )}
         </CardContent>

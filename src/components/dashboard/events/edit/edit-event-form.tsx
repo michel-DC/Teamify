@@ -142,7 +142,7 @@ export default function EditEventForm({ eventId }: EditEventFormProps) {
       });
 
       if (response.ok) {
-        toast.success("Événement mis à jour avec succès !");
+        toast.success("Événement mis à jour avec succès 🤩​");
         router.push("/dashboard/events");
         router.refresh();
       } else {

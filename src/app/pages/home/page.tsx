@@ -158,7 +158,7 @@ export const HomePage = () => {
                     découvrez une nouvelle façon de collaborer.
                   </p>
                   <Link href="/auth/register">
-                    <Button className="px-8 py-4 text-lg px-6 py-3 bg-indigo-600 hover:bg-indigo-800 text-white rounded-lg cursor-pointer p-6">
+                    <Button className="px-8 py-4 text-lg bg-indigo-600 hover:bg-indigo-800 text-white rounded-lg cursor-pointer p-6">
                       Essayer gratuitement
                     </Button>
                   </Link>

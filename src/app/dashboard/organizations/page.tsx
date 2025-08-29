@@ -21,6 +21,9 @@ import {
   Mail,
   BarChart3,
   Activity,
+  Crown,
+  Shield,
+  User,
 } from "lucide-react";
 import {
   Breadcrumb,
@@ -83,10 +86,17 @@ interface OrganizationStats {
   };
 }
 
+interface UserRole {
+  organizationId: string;
+  publicId: string;
+  role: "OWNER" | "ADMIN" | "MEMBER";
+}
+
 export default function OrganizationsDashboardPage() {
   const router = useRouter();
   const { organizations, loading } = useOrganization();
   const [searchTerm, setSearchTerm] = useState("");
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [stats, setStats] = useState<OrganizationStats>({
     totalOrganizations: 0,
     totalMembers: 0,
@@ -151,6 +161,49 @@ export default function OrganizationsDashboardPage() {
     fetchStats();
   }, []);
 
+  /**
+   * Récupération des rôles de l'utilisateur dans chaque organisation
+   */
+  useEffect(() => {
+    const fetchUserRoles = async () => {
+      if (organizations.length === 0) return;
+
+      try {
+        const rolesPromises = organizations.map(async (org) => {
+          try {
+            const response = await fetch(
+              `/api/user/organizations/${org.publicId}/role`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              return {
+                organizationId: org.id.toString(),
+                publicId: org.publicId,
+                role: data.role,
+              };
+            }
+          } catch (error) {
+            console.error(
+              `Erreur lors de la récupération du rôle pour ${org.name}:`,
+              error
+            );
+          }
+          return null;
+        });
+
+        const roles = await Promise.all(rolesPromises);
+        const validRoles = roles.filter(
+          (role): role is UserRole => role !== null
+        );
+        setUserRoles(validRoles);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des rôles:", error);
+      }
+    };
+
+    fetchUserRoles();
+  }, [organizations]);
+
   const filteredOrganizations = organizations.filter(
     (org) =>
       org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -189,6 +242,41 @@ export default function OrganizationsDashboardPage() {
         return "bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300";
       default:
         return "bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300";
+    }
+  };
+
+  // Fonction pour obtenir le rôle de l'utilisateur dans une organisation
+  const getUserRole = (publicId: string) => {
+    return userRoles.find((role) => role.publicId === publicId)?.role || null;
+  };
+
+  // Fonction pour obtenir les informations du rôle avec icône et label
+  const getRoleInfo = (role: string) => {
+    switch (role) {
+      case "OWNER":
+        return {
+          label: "Gérant",
+          icon: <Crown className="h-3 w-3" />,
+          color: "text-yellow-600 dark:text-yellow-400",
+        };
+      case "ADMIN":
+        return {
+          label: "Admin",
+          icon: <Shield className="h-3 w-3" />,
+          color: "text-blue-600 dark:text-blue-400",
+        };
+      case "MEMBER":
+        return {
+          label: "Membre",
+          icon: <User className="h-3 w-3" />,
+          color: "text-gray-600 dark:text-gray-400",
+        };
+      default:
+        return {
+          label: "Membre",
+          icon: <User className="h-3 w-3" />,
+          color: "text-gray-600 dark:text-gray-400",
+        };
     }
   };
 
@@ -480,77 +568,97 @@ export default function OrganizationsDashboardPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredOrganizations.map((org) => (
-              <Card
-                key={org.id}
-                className="hover:shadow-md transition-shadow relative"
-              >
-                <CardHeader>
-                  <div className="flex items-center space-x-4">
-                    {org.profileImage ? (
-                      <AutoSignedImage
-                        src={org.profileImage}
-                        alt={org.name}
-                        className="h-12 w-12 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Users className="h-6 w-6 text-primary" />
+            {filteredOrganizations.map((org) => {
+              const userRole = getUserRole(org.publicId);
+              const roleInfo = userRole ? getRoleInfo(userRole) : null;
+
+              return (
+                <Card
+                  key={org.id}
+                  className="hover:shadow-md transition-shadow relative"
+                >
+                  <CardHeader>
+                    <div className="flex items-center space-x-4">
+                      {org.profileImage ? (
+                        <AutoSignedImage
+                          src={org.profileImage}
+                          alt={org.name}
+                          className="h-12 w-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Users className="h-6 w-6 text-primary" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-lg truncate">
+                          {org.name}
+                        </CardTitle>
+                        <Badge
+                          variant="outline"
+                          className={`${getTypeColor(
+                            org.organizationType
+                          )} border-0`}
+                        >
+                          {getTypeLabel(org.organizationType)}
+                        </Badge>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-muted"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">Ouvrir le menu</span>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleSettingsClick(org.publicId)}
+                            className="cursor-pointer"
+                          >
+                            <Settings className="mr-2 h-4 w-4" />
+                            Paramètres
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      {(org.bio && org.bio.length > 160
+                        ? org.bio.slice(0, 157) + "…"
+                        : org.bio) || "Aucune description"}
+                    </p>
+                    <div className="flex items-center justify-between text-sm mb-3">
+                      <span className="text-muted-foreground">
+                        {org.memberCount} membre{org.memberCount > 1 ? "s" : ""}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {org.eventCount || 0} événement
+                        {(org.eventCount || 0) > 1 ? "s" : ""}
+                      </span>
+                    </div>
+
+                    {/* Affichage du rôle de l'utilisateur */}
+                    {roleInfo && (
+                      <div className="flex items-center gap-2 text-xs border-t pt-3">
+                        <div className={`${roleInfo.color}`}>
+                          {roleInfo.icon}
+                        </div>
+                        <span className="text-muted-foreground">
+                          Dans cette organisation vous êtes{" "}
+                          <span className={`font-medium ${roleInfo.color}`}>
+                            {roleInfo.label}
+                          </span>
+                        </span>
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-lg truncate">
-                        {org.name}
-                      </CardTitle>
-                      <Badge
-                        variant="outline"
-                        className={`${getTypeColor(
-                          org.organizationType
-                        )} border-0`}
-                      >
-                        {getTypeLabel(org.organizationType)}
-                      </Badge>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="h-8 w-8 p-0 hover:bg-muted"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Ouvrir le menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleSettingsClick(org.publicId)}
-                          className="cursor-pointer"
-                        >
-                          <Settings className="mr-2 h-4 w-4" />
-                          Paramètres
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                    {(org.bio && org.bio.length > 160
-                      ? org.bio.slice(0, 157) + "…"
-                      : org.bio) || "Aucune description"}
-                  </p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {org.memberCount} membre{org.memberCount > 1 ? "s" : ""}
-                    </span>
-                    <span className="text-muted-foreground">
-                      {org.eventCount || 0} événement
-                      {(org.eventCount || 0) > 1 ? "s" : ""}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
 
           {filteredOrganizations.length === 0 && (
