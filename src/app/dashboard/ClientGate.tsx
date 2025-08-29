@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { LoadingScreen } from "@/components/ui/Loader";
 import { useAuth } from "@/context/auth/authController";
@@ -19,21 +19,27 @@ export default function ClientGate({ children }: ClientGateProps) {
   const [redirecting, setRedirecting] = useState(false);
   const [verifyingServer, setVerifyingServer] = useState(false);
 
+  const toastShownRef = useRef(false);
+
   useEffect(() => {
     const ok = checkAuth();
     setAuthChecked(ok);
-    if (!ok) {
+
+    if (!ok && !toastShownRef.current) {
+      toastShownRef.current = true;
       setRedirecting(true);
+
       import("sonner").then(({ toast }) => {
-        toast.info("Vous devez être connecté pour accéder au dashboard.", {
-          duration: 2000,
+        toast.error("Vous devez être connecté pour accéder au dashboard 🛡️", {
+          duration: 5000,
         });
       });
+
       setTimeout(() => {
         router.replace("/auth/login");
       }, 2000);
     }
-  }, [checkAuth, router]);
+  }, []);
 
   useEffect(() => {
     const verifyServerHasOrg = async () => {

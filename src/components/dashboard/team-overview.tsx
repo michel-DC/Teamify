@@ -7,13 +7,16 @@ import { Button } from "@/components/ui/button";
 import {
   Users,
   Crown,
-  UserCheck,
   UserPlus,
   Mail,
   Calendar,
   MapPin,
+  Shield,
+  User,
+  Settings,
 } from "lucide-react";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
+import { useSidebar } from "@/components/ui/sidebar";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -33,6 +36,7 @@ export function TeamOverview() {
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const { activeOrganization } = useActiveOrganization();
+  const { open, isMobile } = useSidebar();
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -57,7 +61,7 @@ export function TeamOverview() {
                   member.user?.email?.split("@")[0] ||
                   "Membre",
                 email: member.user?.email || "email@example.com",
-                role: member.role || "Membre",
+                role: member.role || "MEMBER",
                 status:
                   index % 3 === 0
                     ? "online"
@@ -86,7 +90,7 @@ export function TeamOverview() {
                 id: "1",
                 name: "Organisateur Principal",
                 email: "organisateur@example.com",
-                role: "Organisateur",
+                role: "OWNER",
                 status: "online",
                 lastActive: new Date().toISOString(),
                 eventsOrganized: 1,
@@ -102,7 +106,7 @@ export function TeamOverview() {
               id: "1",
               name: "Organisateur Principal",
               email: "organisateur@example.com",
-              role: "Organisateur",
+              role: "OWNER",
               status: "online",
               lastActive: new Date().toISOString(),
               eventsOrganized: 1,
@@ -119,7 +123,7 @@ export function TeamOverview() {
             id: "1",
             name: "Organisateur Principal",
             email: "organisateur@example.com",
-            role: "Organisateur",
+            role: "OWNER",
             status: "online",
             lastActive: new Date().toISOString(),
             eventsOrganized: 1,
@@ -148,18 +152,33 @@ export function TeamOverview() {
     }
   };
 
-  const getRoleBadge = (role: string) => {
+  // Conversion des rôles API en noms conventionnels avec icônes
+  const getRoleInfo = (role: string) => {
     switch (role) {
-      case "Organisateur":
-        return <Badge variant="default">Organisateur</Badge>;
-      case "Co-organisateur":
-        return <Badge variant="secondary">Co-organisateur</Badge>;
-      case "Assistant":
-        return <Badge variant="outline">Assistant</Badge>;
-      case "Membre":
-        return <Badge variant="secondary">Membre</Badge>;
+      case "OWNER":
+        return {
+          label: "Gérant",
+          icon: <Crown className="h-3 w-3" />,
+          variant: "default" as const,
+        };
+      case "ADMIN":
+        return {
+          label: "Admin",
+          icon: <Shield className="h-3 w-3" />,
+          variant: "secondary" as const,
+        };
+      case "MEMBER":
+        return {
+          label: "Membre",
+          icon: <User className="h-3 w-3" />,
+          variant: "outline" as const,
+        };
       default:
-        return <Badge variant="outline">{role}</Badge>;
+        return {
+          label: role,
+          icon: <User className="h-3 w-3" />,
+          variant: "outline" as const,
+        };
     }
   };
 
@@ -179,19 +198,19 @@ export function TeamOverview() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Équipe</CardTitle>
+          <CardTitle className="text-sm sm:text-base">Équipe</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="flex items-center space-x-3 animate-pulse"
+                className="flex items-center space-x-2 sm:space-x-3 animate-pulse"
               >
-                <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                <div className="h-8 w-8 sm:h-10 sm:w-10 bg-gray-200 rounded-full"></div>
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 w-3/4 bg-gray-200 rounded"></div>
-                  <div className="h-3 w-1/2 bg-gray-200 rounded"></div>
+                  <div className="h-3 sm:h-4 w-3/4 bg-gray-200 rounded"></div>
+                  <div className="h-2 sm:h-3 w-1/2 bg-gray-200 rounded"></div>
                 </div>
               </div>
             ))}
@@ -202,100 +221,133 @@ export function TeamOverview() {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          <Users className="h-5 w-5" />
-          Équipe ({members.length} membres)
+    <Card className="transition-all duration-200">
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+        <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+          <Users className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="hidden xs:inline">Équipe</span>
+          <span className="xs:hidden">Équipe</span>
+          <span className="hidden sm:inline">({members.length} membres)</span>
+          <span className="sm:hidden">({members.length})</span>
         </CardTitle>
         <Link
           href={
-            activeOrganization
-              ? `/dashboard/organizations/settings/${activeOrganization.publicId}/members`
-              : "#"
+            activeOrganization ? `/dashboard/organizations/invitations` : "#"
           }
         >
-          <Button variant="outline" size="sm">
-            <UserPlus className="h-4 w-4 mr-1" />
-            Ajouter
+          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+            <UserPlus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+            <span className="hidden xs:inline">Ajouter</span>
+            <span className="xs:hidden">+</span>
           </Button>
         </Link>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {members.map((member) => (
-            <div
-              key={member.id}
-              className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-gray-50 transition-colors"
-            >
-              <div className="relative">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={member.avatar} />
-                  <AvatarFallback>
-                    {member.name
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")}
-                  </AvatarFallback>
-                </Avatar>
-                <div
-                  className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-white ${getStatusColor(
-                    member.status
-                  )}`}
-                />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between mb-1">
-                  <h4 className="text-sm font-medium truncate">
-                    {member.name}
-                    {member.role === "Organisateur" && (
-                      <Crown className="h-3 w-3 ml-1 inline text-yellow-500" />
-                    )}
-                  </h4>
-                  {getRoleBadge(member.role)}
+        <div className="space-y-3 sm:space-y-4">
+          {members.map((member) => {
+            const roleInfo = getRoleInfo(member.role);
+            return (
+              <div
+                key={member.id}
+                className={`
+                  flex items-start sm:items-center space-x-2 sm:space-x-3 p-2 sm:p-3 rounded-lg border hover:bg-gray-50 transition-colors
+                  ${isMobile ? "flex-col sm:flex-row" : "flex-row"}
+                  ${!open && !isMobile ? "lg:flex-col xl:flex-row" : ""}
+                `}
+              >
+                <div className="relative flex-shrink-0">
+                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
+                    <AvatarImage src={member.avatar} />
+                    <AvatarFallback className="text-xs sm:text-sm">
+                      {member.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div
+                    className={`absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full border-2 border-white ${getStatusColor(
+                      member.status
+                    )}`}
+                  />
                 </div>
 
-                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Mail className="h-3 w-3" />
-                    <span className="truncate">{member.email}</span>
-                  </div>
-
-                  {member.location && (
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      <span>{member.location}</span>
+                <div className="flex-1 min-w-0">
+                  {/* Header avec nom et rôle */}
+                  <div
+                    className={`
+                    flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1 sm:mb-2 space-y-1 sm:space-y-0
+                    ${!open && !isMobile ? "lg:flex-col xl:flex-row" : ""}
+                  `}
+                  >
+                    <div className="flex items-center space-x-1 sm:space-x-2">
+                      <h4 className="text-xs sm:text-sm font-medium truncate">
+                        {member.name}
+                      </h4>
+                      {member.role === "OWNER" && (
+                        <Crown className="h-3 w-3 text-yellow-500 flex-shrink-0" />
+                      )}
                     </div>
-                  )}
+                    <Badge variant={roleInfo.variant} className="w-fit text-xs">
+                      <span className="mr-1">{roleInfo.icon}</span>
+                      <span className="hidden sm:inline">{roleInfo.label}</span>
+                      <span className="sm:hidden">
+                        {roleInfo.label.charAt(0)}
+                      </span>
+                    </Badge>
+                  </div>
 
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    <span>{member.eventsOrganized} événements</span>
+                  {/* Informations détaillées */}
+                  <div
+                    className={`
+                    flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-4 text-xs text-muted-foreground
+                    ${!open && !isMobile ? "lg:flex-col xl:flex-row" : ""}
+                  `}
+                  >
+                    <div className="flex items-center gap-1">
+                      <Mail className="h-3 w-3 flex-shrink-0" />
+                      <span className="truncate hidden sm:inline">
+                        {member.email}
+                      </span>
+                      <span className="truncate sm:hidden">
+                        {member.email.split("@")[0]}
+                      </span>
+                    </div>
+
+                    {member.location && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3 flex-shrink-0" />
+                        <span className="hidden md:inline">
+                          {member.location}
+                        </span>
+                        <span className="md:hidden">
+                          {member.location.split(",")[0]}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="text-xs text-muted-foreground mt-1">
-                  {member.status === "online"
-                    ? "En ligne"
-                    : member.status === "away"
-                    ? "Absent"
-                    : `Dernière activité: ${formatTimeAgo(member.lastActive)}`}
-                </div>
+                {/* Bouton d'action */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-shrink-0 p-1 sm:p-2"
+                >
+                  <Mail className="h-3 w-3 sm:h-4 sm:w-4" />
+                </Button>
               </div>
-
-              <Button variant="ghost" size="sm">
-                <Mail className="h-4 w-4" />
-              </Button>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {members.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Aucun membre dans l'équipe</p>
-            <p className="text-sm">Invitez des membres pour commencer</p>
+          <div className="text-center py-6 sm:py-8 text-muted-foreground">
+            <Users className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 opacity-50" />
+            <p className="text-sm sm:text-base">Aucun membre dans l'équipe</p>
+            <p className="text-xs sm:text-sm">
+              Invitez des membres pour commencer
+            </p>
           </div>
         )}
       </CardContent>

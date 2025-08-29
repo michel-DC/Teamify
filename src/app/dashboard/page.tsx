@@ -10,7 +10,6 @@ import { EventCategoriesChart } from "@/components/dashboard/event-categories-ch
 import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { TeamOverview } from "@/components/dashboard/team-overview";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 import {
@@ -47,9 +46,14 @@ export default function Page() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Tableau de bord</h1>
         <p className="text-muted-foreground">
-          {activeOrganization
-            ? `Bienvenue dans votre espace de gestion pour ${activeOrganization.name}`
-            : "Sélectionnez une organisation pour commencer"}
+          {activeOrganization ? (
+            <>
+              Bienvenue dans votre espace de gestion pour{" "}
+              <span className="font-bold">{activeOrganization.name}</span>
+            </>
+          ) : (
+            "Sélectionnez une organisation pour commencer"
+          )}
         </p>
       </div>
 
@@ -74,12 +78,22 @@ export default function Page() {
       <PerformanceMetrics />
 
       {/* Section avec graphique et événements à venir */}
+      <div className="text-center space-y-2">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          Graphique et événements à venir
+        </h2>
+      </div>
       <div className="grid gap-6 md:grid-cols-2">
         <EventCategoriesChart />
         <UpcomingEventsWidget />
       </div>
 
       {/* Section avec équipe et notifications */}
+      <div className="text-center space-y-2">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          Équipe et notifications
+        </h2>
+      </div>
       <div className="grid gap-6 md:grid-cols-2">
         <TeamOverview />
         <NotificationCenter />
@@ -87,88 +101,6 @@ export default function Page() {
 
       {/* Activités récentes */}
       <RecentActivities />
-
-      {/* Section d'informations supplémentaires */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Prochaines étapes</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center space-x-2 text-sm">
-              <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
-              <span>Finaliser les préparatifs de la conférence</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-              <span>Envoyer les invitations restantes</span>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <div className="h-2 w-2 bg-yellow-500 rounded-full"></div>
-              <span>Réviser le budget des événements</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Ressources</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="text-sm space-y-2">
-              <div className="flex justify-between">
-                <span>Espace de stockage</span>
-                <span className="text-muted-foreground">75% utilisé</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-blue-600 h-2 rounded-full"
-                  style={{ width: "75%" }}
-                ></div>
-              </div>
-            </div>
-            <div className="text-sm space-y-2">
-              <div className="flex justify-between">
-                <span>Événements ce mois</span>
-                <span className="text-muted-foreground">8/12</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-green-600 h-2 rounded-full"
-                  style={{ width: "67%" }}
-                ></div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Support</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="text-sm space-y-2">
-              <p className="text-muted-foreground">
-                Besoin d'aide ? Notre équipe est là pour vous accompagner.
-              </p>
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2 text-sm">
-                  <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                  <span>Support disponible 24/7</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <div className="h-2 w-2 bg-blue-500 rounded-full"></div>
-                  <span>Documentation complète</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm">
-                  <div className="h-2 w-2 bg-purple-500 rounded-full"></div>
-                  <span>Formation gratuite</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   );
 }
