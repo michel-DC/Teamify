@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   ChevronsUpDown,
   CircleUser,
@@ -28,6 +29,44 @@ import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
 
+interface UserData {
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+/**
+ * Génère les initiales à partir du nom de l'utilisateur
+ */
+const generateInitials = (name: string): string => {
+  return name
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+/**
+ * Formate l'URL de l'image de profil
+ */
+const formatImageUrl = (imageUrl?: string): string | undefined => {
+  if (!imageUrl) return undefined;
+
+  // Si c'est déjà une URL complète, la retourner
+  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+    return imageUrl;
+  }
+
+  // Si c'est une URL relative, ajouter le domaine
+  if (imageUrl.startsWith("/")) {
+    return `${window.location.origin}${imageUrl}`;
+  }
+
+  // Sinon, traiter comme une URL relative
+  return `${window.location.origin}/${imageUrl}`;
+};
+
 export function NavUser({
   user,
 }: {
@@ -39,6 +78,57 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { theme, setTheme } = useTheme();
+  const [userData, setUserData] = useState<UserData>({
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar,
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  /**
+   * Récupère les données utilisateur depuis l'API
+   */
+  useEffect(() => {
+    const fetchUserData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/auth/me", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // Les données sont dans data.user
+          const userDataFromApi = data.user || data;
+          const imageUrl =
+            userDataFromApi.avatar || userDataFromApi.profileImage;
+          const formattedImageUrl = formatImageUrl(imageUrl);
+
+          setUserData({
+            name: userDataFromApi.name || user.name,
+            email: userDataFromApi.email || user.email,
+            avatar: formattedImageUrl,
+          });
+        } else {
+          console.warn("Impossible de récupérer les données utilisateur");
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des données utilisateur:",
+          error
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [user.name, user.email, user.avatar]);
 
   const handleThemeChange = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -63,6 +153,8 @@ export function NavUser({
     window.location.href = "/auth/login";
   };
 
+  const userInitials = generateInitials(userData.name);
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -73,12 +165,21 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                <AvatarImage
+                  src={userData.avatar}
+                  alt={userData.name}
+                  onError={() => {
+                    setImageError(true);
+                  }}
+                  onLoad={() => setImageError(false)}
+                />
+                <AvatarFallback className="rounded-lg">
+                  {isLoading ? "..." : userInitials}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs">{user.email}</span>
+                <span className="truncate font-medium">{userData.name}</span>
+                <span className="truncate text-xs">{userData.email}</span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
@@ -92,12 +193,21 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarImage
+                    src={userData.avatar}
+                    alt={userData.name}
+                    onError={() => {
+                      setImageError(true);
+                    }}
+                    onLoad={() => setImageError(false)}
+                  />
+                  <AvatarFallback className="rounded-lg">
+                    {isLoading ? "..." : userInitials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{userData.name}</span>
+                  <span className="truncate text-xs">{userData.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
