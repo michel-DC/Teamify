@@ -83,11 +83,13 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
   const [organizationMembers, setOrganizationMembers] = useState<
     Array<{
       id: string;
-      name: string;
-      email: string;
-      firstname?: string;
-      lastname?: string;
-      uid?: string;
+      userUid: string;
+      user: {
+        uid: string;
+        email: string;
+        firstname: string;
+        lastname: string;
+      };
     }>
   >([]);
   const [organizationId, setOrganizationId] = useState<number | null>(null);
@@ -293,20 +295,41 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
   };
 
   const getAssignedMemberName = (assignedTo: string) => {
-    const member = organizationMembers.find(
-      (m) => m.id === assignedTo || m.uid === assignedTo
-    );
-    return member ? member.name : assignedTo;
+    // Recherche d'abord par userUid (nouveau format)
+    let member = organizationMembers.find((m) => m.userUid === assignedTo);
+
+    // Si pas trouvé, recherche par id (ancien format pour compatibilité)
+    if (!member) {
+      member = organizationMembers.find((m) => m.id === assignedTo);
+    }
+
+    if (member && member.user) {
+      return `${member.user.firstname} ${member.user.lastname}`.trim();
+    }
+    return assignedTo;
   };
 
   const getAssignedMemberInitials = (assignedTo: string) => {
-    const member = organizationMembers.find(
-      (m) => m.id === assignedTo || m.uid === assignedTo
-    );
-    if (member && member.firstname && member.lastname) {
-      return `${member.firstname[0]}${member.lastname[0]}`.toUpperCase();
+    // Recherche d'abord par userUid (nouveau format)
+    let member = organizationMembers.find((m) => m.userUid === assignedTo);
+
+    // Si pas trouvé, recherche par id (ancien format pour compatibilité)
+    if (!member) {
+      member = organizationMembers.find((m) => m.id === assignedTo);
     }
-    return assignedTo.substring(0, 2).toUpperCase();
+
+    if (
+      member &&
+      member.user &&
+      member.user.firstname &&
+      member.user.lastname
+    ) {
+      return `${member.user.firstname[0]}${member.user.lastname[0]}`.toUpperCase();
+    }
+    if (assignedTo && assignedTo.length >= 2) {
+      return assignedTo.substring(0, 2).toUpperCase();
+    }
+    return "??";
   };
 
   if (loading) {
@@ -490,7 +513,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                       addTodo(group.id);
                     }
                   }}
-                  className="text-sm min-h-[60px] resize-none flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="text-sm min-h-[60px] resize-none flex-1 rounded-md border border-input bg-background px-3 py-2 ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
                 <Button
                   onClick={() => addTodo(group.id)}
@@ -588,22 +611,27 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                 <SelectContent>
                   <SelectItem value="none">Aucune assignation</SelectItem>
                   {organizationMembers.map((member) => (
-                    <SelectItem
-                      key={member.id || member.uid}
-                      value={member.id || member.uid || ""}
-                    >
+                    <SelectItem key={member.userUid} value={member.userUid}>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-6 w-6">
                           <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                            {member.firstname && member.lastname
-                              ? `${member.firstname[0]}${member.lastname[0]}`.toUpperCase()
-                              : member.name.substring(0, 2).toUpperCase()}
+                            {member.user &&
+                            member.user.firstname &&
+                            member.user.lastname
+                              ? `${member.user.firstname[0]}${member.user.lastname[0]}`.toUpperCase()
+                              : member.user && member.user.email
+                              ? member.user.email.substring(0, 2).toUpperCase()
+                              : "??"}
                           </AvatarFallback>
                         </Avatar>
-                        <span>{member.name}</span>
-                        {member.email && (
+                        <span>
+                          {member.user
+                            ? `${member.user.firstname} ${member.user.lastname}`.trim()
+                            : member.userUid}
+                        </span>
+                        {member.user && member.user.email && (
                           <span className="text-muted-foreground text-xs">
-                            ({member.email})
+                            ({member.user.email})
                           </span>
                         )}
                       </div>

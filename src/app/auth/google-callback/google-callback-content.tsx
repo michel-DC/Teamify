@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -14,14 +14,23 @@ export function GoogleCallbackContent() {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasRedirected, setHasRedirected] = useState(false);
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
     const processGoogleAuth = async () => {
+      // Protection contre les appels multiples
+      if (isProcessingRef.current) {
+        return;
+      }
+
+      isProcessingRef.current = true;
+
       const code = searchParams.get("code");
 
       if (!code) {
         setError("Code d'autorisation manquant");
         setIsProcessing(false);
+        isProcessingRef.current = false;
         return;
       }
 
@@ -64,11 +73,15 @@ export function GoogleCallbackContent() {
 
         setHasRedirected(true);
 
-        // Utiliser window.location.href pour une redirection complète
-        window.location.href = redirectPath;
+        // Délai court pour permettre au toast de s'afficher
+        setTimeout(() => {
+          // Utiliser window.location.href pour une redirection complète
+          window.location.href = redirectPath;
+        }, 100);
       } catch (error) {
         setError(error instanceof Error ? error.message : "Erreur inconnue");
         setIsProcessing(false);
+        isProcessingRef.current = false;
       }
     };
 

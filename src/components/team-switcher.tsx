@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ChevronsUpDown, Plus } from "lucide-react";
-import Image from "next/image";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 
 import {
   DropdownMenu,
@@ -99,13 +99,13 @@ export function TeamSwitcher({
             >
               <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                 {profileImage ? (
-                  <Image
-                    src={profileImage}
-                    alt={displayName}
-                    width={16}
-                    height={16}
-                    className="rounded-full"
-                  />
+                  <div className="w-4 h-4">
+                    <AutoSignedImage
+                      src={profileImage}
+                      alt={displayName}
+                      className="rounded-full w-full h-full"
+                    />
+                  </div>
                 ) : (
                   <GalleryVerticalEnd className="size-4" />
                 )}
@@ -135,13 +135,13 @@ export function TeamSwitcher({
               >
                 <div className="flex size-6 items-center justify-center rounded-md border">
                   {org.profileImage ? (
-                    <Image
-                      src={org.profileImage}
-                      alt={org.name}
-                      width={24}
-                      height={24}
-                      className="rounded-full"
-                    />
+                    <div className="w-6 h-6">
+                      <AutoSignedImage
+                        src={org.profileImage}
+                        alt={org.name}
+                        className="rounded-full w-full h-full"
+                      />
+                    </div>
                   ) : (
                     <GalleryVerticalEnd className="h-6 w-6" />
                   )}

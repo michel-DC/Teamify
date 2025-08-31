@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       },
       body: new URLSearchParams({
         code,
-        client_id: process.env.GOOGLE_CLIENT_ID!,
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
         client_secret: process.env.GOOGLE_CLIENT_SECRET!,
         redirect_uri: `${
           process.env.NEXTAUTH_URL || "http://localhost:3000"
@@ -44,10 +44,7 @@ export async function POST(req: Request) {
     });
 
     if (!tokenResponse.ok) {
-      console.error("[google-auth] Token exchange failed", {
-        status: tokenResponse.status,
-        statusText: tokenResponse.statusText,
-      });
+      const errorText = await tokenResponse.text();
       return NextResponse.json(
         { error: "Échec de l'authentification Google" },
         { status: 400 }
@@ -68,10 +65,7 @@ export async function POST(req: Request) {
     );
 
     if (!userResponse.ok) {
-      console.error("[google-auth] User info fetch failed", {
-        status: userResponse.status,
-        statusText: userResponse.statusText,
-      });
+      const errorText = await userResponse.text();
       return NextResponse.json(
         { error: "Impossible de récupérer les informations utilisateur" },
         { status: 400 }
