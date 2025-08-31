@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { StepProps } from "../../../../types/steps";
+import { StepProps } from "@/types/steps";
 import Image from "next/image";
 import { useState } from "react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 export default function FinalStep({ formData }: StepProps) {
   const router = useRouter();
@@ -28,30 +28,33 @@ export default function FinalStep({ formData }: StepProps) {
         formDataToSend.append("location", JSON.stringify(formData.location));
       }
 
-      if (formData.file) {
-        formDataToSend.append("file", formData.file);
+      if (formData.imageUrl) {
+        formDataToSend.append("imageUrl", formData.imageUrl);
       }
 
-      const res = await fetch("/api/organization/create", {
+      const res = await fetch("/api/organizations/create", {
         method: "POST",
         credentials: "include",
         body: formDataToSend,
       });
 
       if (res.ok) {
-        toast.success("Organisation créée avec succès !", {
-          duration: 3000,
-          onAutoClose: () => {
-            router.push("/dashboard");
-          },
-        });
+        toast.success(
+          "Votre première organisation a été créée avec succès 🥳​",
+          {
+            duration: 3000,
+            onAutoClose: () => {
+              router.push("/dashboard");
+            },
+          }
+        );
       } else {
         const errorData = await res.json();
         toast.error(`Erreur: ${errorData.error || res.statusText}`);
       }
     } catch (err) {
       console.error("Erreur:", err);
-      toast.error("Erreur lors de la création de l'organisation.");
+      toast.error("Erreur lors de la création de l'organisation 😭​");
     } finally {
       setLoading(false);
     }
@@ -59,7 +62,6 @@ export default function FinalStep({ formData }: StepProps) {
 
   return (
     <div className="space-y-4">
-      <Toaster position="top-center" richColors />
       <h1 className="text-2xl font-bold text-foreground">
         Félicitations, votre organisation est prête !
       </h1>

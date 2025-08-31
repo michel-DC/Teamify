@@ -36,7 +36,7 @@ import { Calendar, MapPin } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { fr } from "date-fns/locale";
-import { ImageUploadZone } from "@/components/ui/image-upload-zone";
+import { CloudflareImageUpload } from "@/components/ui/cloudflare-image-upload";
 
 /**
  * @param Mappage des catégories d'événements vers des labels français
@@ -253,19 +253,10 @@ export default function EditEventPage() {
   };
 
   /**
-   * Gère le changement d'image
+   * Gère l'upload d'image
    */
-  const handleImageChange = (file: File | null) => {
-    setNewImage(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-    }
+  const handleImageUploaded = (url: string) => {
+    setFormData((prev) => ({ ...prev, imageUrl: url }));
   };
 
   useEffect(() => {
@@ -356,9 +347,9 @@ export default function EditEventPage() {
         );
       }
 
-      // Ajout de la nouvelle image si sélectionnée
-      if (newImage) {
-        submitData.append("file", newImage);
+      // Ajout de la nouvelle image si uploadée
+      if (formData.imageUrl) {
+        submitData.append("imageUrl", formData.imageUrl);
       }
 
       const response = await fetch(`/api/dashboard/events/${params.slug}`, {
@@ -369,7 +360,7 @@ export default function EditEventPage() {
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("Événement modifié avec succès !");
+        toast.success("Événement modifié avec succès 🤩​");
         router.push(`/dashboard/events/details/${params.slug}`);
       } else {
         toast.error(result.error || "Erreur lors de la modification");
@@ -438,10 +429,11 @@ export default function EditEventPage() {
                   <Label className="text-base font-medium">
                     Image de l&apos;événement
                   </Label>
-                  <ImageUploadZone
-                    onImageChange={handleImageChange}
-                    imagePreviewUrl={formData.imageUrl}
+                  <CloudflareImageUpload
+                    onImageUploaded={handleImageUploaded}
+                    type="event"
                     maxFileSize={5}
+                    currentImageUrl={formData.imageUrl}
                   />
                 </div>
 

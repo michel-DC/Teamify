@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar, MapPin, Users, Sparkles } from "lucide-react";
-import Image from "next/image";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 import { cn, formatEventStatus, formatDateToFrench } from "@/lib/utils";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
@@ -204,14 +204,13 @@ export default function EventsSlider() {
                         )}
                       >
                         {!isPlaceholder && event.imageUrl ? (
-                          <Image
-                            src={event.imageUrl}
-                            alt={event.title}
-                            width={288}
-                            height={80}
-                            className="w-full h-full object-cover rounded-t-lg"
-                            unoptimized
-                          />
+                          <div className="w-full h-full">
+                            <AutoSignedImage
+                              src={event.imageUrl}
+                              alt={event.title}
+                              className="w-full h-full object-cover rounded-t-lg"
+                            />
+                          </div>
                         ) : (
                           <div className="flex items-center justify-center h-full">
                             {isPlaceholder ? (

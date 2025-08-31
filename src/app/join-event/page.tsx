@@ -74,7 +74,7 @@ function JoinEventContent() {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(
-            errorData.error || "Erreur lors de la récupération de l'invitation"
+            errorData.error || "Erreur lors de la récupération de l'invitation​"
           );
         }
 
@@ -114,7 +114,7 @@ function JoinEventContent() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la réponse");
+        throw new Error(errorData.error || "Erreur lors de la réponse 😭​");
       }
 
       const data = await response.json();
@@ -122,12 +122,12 @@ function JoinEventContent() {
 
       toast.success(
         status === "ACCEPTED"
-          ? "Invitation acceptée avec succès !"
-          : "Invitation déclinée avec succès !"
+          ? "Invitation acceptée avec succès 🤩​"
+          : "Invitation déclinée avec succès 😢​​"
       );
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : "Erreur lors de la réponse"
+        err instanceof Error ? err.message : "Erreur lors de la réponse 😭​"
       );
     } finally {
       setResponding(false);
@@ -279,7 +279,7 @@ function JoinEventContent() {
                 <Button
                   onClick={() => handleResponse("ACCEPTED")}
                   disabled={responding}
-                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  className="flex-1"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   J'accepte l'invitation
@@ -328,8 +328,13 @@ function JoinEventFallback() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Chargement...</p>
+        <div className="flex min-h-screen items-center justify-center">
+          <span
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
+            aria-label="Chargement"
+            role="status"
+          />
+        </div>
       </div>
     </div>
   );

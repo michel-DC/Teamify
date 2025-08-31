@@ -14,17 +14,34 @@ export async function GET() {
     }
 
     /**
-     * Vérification du nombre d'organisations appartenant à l'utilisateur
+     * Vérification du nombre d'organisations dont l'utilisateur est propriétaire
      */
-    const organizationsCount = await prisma.organization.count({
+    const ownedOrganizationsCount = await prisma.organization.count({
       where: {
         ownerUid: user.uid,
       },
     });
 
-    const hasOrganization = organizationsCount > 0;
+    /**
+     * Vérification du nombre d'organisations dont l'utilisateur est membre
+     */
+    const memberOrganizationsCount = await prisma.organizationMember.count({
+      where: {
+        userUid: user.uid,
+      },
+    });
 
-    return NextResponse.json({ hasOrganization }, { status: 200 });
+    const hasOrganization =
+      ownedOrganizationsCount > 0 || memberOrganizationsCount > 0;
+
+    return NextResponse.json(
+      {
+        hasOrganization,
+        ownedCount: ownedOrganizationsCount,
+        memberCount: memberOrganizationsCount,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error(
       "Une erreur est survenue lors de la vérification de l'organisation",

@@ -1,12 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
-/**
- * @param Récupération des invitations pour un événement
- *
- * Retourne toutes les invitations associées à un événement
- */
+// récupération des invitations pour l'événement en fonction de son slug
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -23,11 +19,17 @@ export async function GET(
 
     const { slug } = await params;
 
-    // Vérifier que l'événement appartient à l'utilisateur
+    // Récupérer l'événement avec son organisation
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerUid: user.uid,
+      },
+      include: {
+        organization: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
 
@@ -35,6 +37,19 @@ export async function GET(
       return NextResponse.json(
         { error: "Événement non trouvé" },
         { status: 404 }
+      );
+    }
+
+    // Vérifier que l'utilisateur a accès à l'organisation de l'événement
+    const hasAccess = await hasOrganizationAccess(
+      user.uid,
+      event.organization.id
+    );
+
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: "Vous n'avez pas les permissions pour voir cet événement" },
+        { status: 403 }
       );
     }
 

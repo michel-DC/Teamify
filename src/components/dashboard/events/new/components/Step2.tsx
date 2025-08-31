@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { EventFormData } from "../../../../../../types/steps-event-creation";
+import { EventFormData } from "../../../../../types/steps-event-creation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";

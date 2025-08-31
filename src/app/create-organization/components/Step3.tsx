@@ -1,7 +1,7 @@
 "use client";
 
-import { StepProps } from "../../../../types/steps";
-import { ImageUploadZone } from "@/components/ui/image-upload-zone";
+import { StepProps } from "@/types/steps";
+import { CloudflareImageUpload } from "@/components/ui/cloudflare-image-upload";
 
 export default function Step3({ next, prev, setFormData }: StepProps) {
   const handleNext = () => {
@@ -12,10 +12,10 @@ export default function Step3({ next, prev, setFormData }: StepProps) {
     if (prev) prev();
   };
 
-  const handleImageChange = (file: File | null) => {
+  const handleImageUploaded = (url: string) => {
     setFormData((prev) => ({
       ...prev,
-      file: file || undefined,
+      imageUrl: url,
     }));
   };
 
@@ -24,7 +24,11 @@ export default function Step3({ next, prev, setFormData }: StepProps) {
       <h2 className="text-xl font-semibold text-foreground">
         Ajoutez une photo de profil pour votre organisation
       </h2>
-      <ImageUploadZone onImageChange={handleImageChange} maxFileSize={5} />
+      <CloudflareImageUpload
+        onImageUploaded={handleImageUploaded}
+        type="organization"
+        maxFileSize={5}
+      />
       <div className="flex justify-between gap-4">
         <button
           onClick={handlePrev}

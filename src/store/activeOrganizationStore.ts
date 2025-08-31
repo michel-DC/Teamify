@@ -62,8 +62,8 @@ export const forceRefreshAllStores = () => {
     })
   );
 
-  // Forcer un refresh de la page pour s'assurer que tous les composants se rechargent
-  window.location.reload();
+  // Note: Le rechargement de la page a été supprimé pour une meilleure UX
+  // Les stores se rechargeront automatiquement lors de leur prochaine utilisation
 };
 
 export const useActiveOrganizationStore = create<ActiveOrganizationStore>()(
@@ -77,6 +77,14 @@ export const useActiveOrganizationStore = create<ActiveOrganizationStore>()(
 
       // Actions
       setActiveOrganization: (organization) => {
+        // Supprimer le localStorage sidebar-storage pour plus de cohérence
+        // lors de tout changement d'organisation
+        try {
+          localStorage.removeItem("sidebar-storage");
+        } catch (error) {
+          console.warn("Impossible de supprimer sidebar-storage:", error);
+        }
+
         set({
           activeOrganization: organization,
           error: null,

@@ -24,12 +24,22 @@ export default function ClientGate({ children }: ClientGateProps) {
      *
      * Redirige vers la page de connexion si l'utilisateur n'est pas authentifié.
      */
-    const ok = checkAuth();
-    setAuthChecked(ok);
-    if (!ok) {
-      setRedirecting(true);
-      router.replace("/auth/login");
-    }
+    const verifyAuth = async () => {
+      try {
+        const ok = await checkAuth();
+        setAuthChecked(ok);
+        if (!ok) {
+          setRedirecting(true);
+          router.replace("/auth/login");
+        }
+      } catch (error) {
+        setAuthChecked(false);
+        setRedirecting(true);
+        router.replace("/auth/login");
+      }
+    };
+
+    verifyAuth();
   }, [checkAuth, router]);
 
   useEffect(() => {

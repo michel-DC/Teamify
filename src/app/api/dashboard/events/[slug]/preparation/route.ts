@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
 export async function GET(
   request: Request,
@@ -24,20 +24,31 @@ export async function GET(
     const { slug } = await params;
 
     /**
-     * Recherche l'événement correspondant au slug et appartenant à l'utilisateur
+     * Recherche l'événement correspondant au slug
      */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerUid: user.uid,
       },
     });
 
-    // Si l'événement n'existe pas ou n'appartient pas à l'utilisateur
+    // Si l'événement n'existe pas
     if (!event) {
       return NextResponse.json(
         { error: "Événement non trouvé" },
         { status: 404 }
+      );
+    }
+
+    /**
+     * Vérification que l'utilisateur a accès à l'organisation de l'événement
+     */
+    const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
+
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: "Accès non autorisé à cet événement" },
+        { status: 403 }
       );
     }
 
@@ -93,7 +104,6 @@ export async function POST(
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerUid: user.uid,
       },
     });
 
@@ -101,6 +111,18 @@ export async function POST(
       return NextResponse.json(
         { error: "Événement non trouvé" },
         { status: 404 }
+      );
+    }
+
+    /**
+     * Vérification que l'utilisateur a accès à l'organisation de l'événement
+     */
+    const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
+
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: "Accès non autorisé à cet événement" },
+        { status: 403 }
       );
     }
 
@@ -162,7 +184,6 @@ export async function PATCH(
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerUid: user.uid,
       },
     });
 
@@ -170,6 +191,18 @@ export async function PATCH(
       return NextResponse.json(
         { error: "Événement non trouvé" },
         { status: 404 }
+      );
+    }
+
+    /**
+     * Vérification que l'utilisateur a accès à l'organisation de l'événement
+     */
+    const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
+
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: "Accès non autorisé à cet événement" },
+        { status: 403 }
       );
     }
 
@@ -265,7 +298,6 @@ export async function DELETE(
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
-        ownerUid: user.uid,
       },
     });
 
@@ -273,6 +305,18 @@ export async function DELETE(
       return NextResponse.json(
         { error: "Événement non trouvé" },
         { status: 404 }
+      );
+    }
+
+    /**
+     * Vérification que l'utilisateur a accès à l'organisation de l'événement
+     */
+    const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
+
+    if (!hasAccess) {
+      return NextResponse.json(
+        { error: "Accès non autorisé à cet événement" },
+        { status: 403 }
       );
     }
 

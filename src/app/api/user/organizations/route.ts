@@ -14,10 +14,9 @@ export async function GET() {
 
   try {
     /**
-     * Récupération des organisations appartenant à l'utilisateur
-     * Utilise directement le champ eventCount au lieu de récupérer tous les événements
+     * Récupération des organisations dont l'utilisateur est propriétaire
      */
-    const organizations = await prisma.organization.findMany({
+    const ownedOrganizations = await prisma.organization.findMany({
       where: { ownerUid: user.uid },
       select: {
         id: true,
@@ -34,7 +33,48 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({ organizations });
+    /**
+     * Récupération des organisations dont l'utilisateur est membre
+     */
+    const memberOrganizations = await prisma.organization.findMany({
+      where: {
+        organizationMembers: {
+          some: {
+            userUid: user.uid,
+          },
+        },
+      },
+      select: {
+        id: true,
+        publicId: true,
+        name: true,
+        bio: true,
+        profileImage: true,
+        memberCount: true,
+        organizationType: true,
+        mission: true,
+        eventCount: true,
+        createdAt: true,
+        location: true,
+      },
+    });
+
+    /**
+     * Combinaison des deux listes en évitant les doublons
+     */
+    const allOrganizations = [...ownedOrganizations];
+
+    // Ajouter les organisations dont l'utilisateur est membre mais pas propriétaire
+    memberOrganizations.forEach((memberOrg) => {
+      const isAlreadyIncluded = allOrganizations.some(
+        (org) => org.id === memberOrg.id
+      );
+      if (!isAlreadyIncluded) {
+        allOrganizations.push(memberOrg);
+      }
+    });
+
+    return NextResponse.json({ organizations: allOrganizations });
   } catch (error) {
     console.error(
       "Une erreur est survenue lors de la récupération des organisations",

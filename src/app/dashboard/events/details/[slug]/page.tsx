@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 import PreparationBanner from "@/components/dashboard/events/todo/preparation-banner";
 // import { StatCardDetails } from "@/components/dashboard/events/details/stat-card-details";
 import InvitationTable from "@/components/dashboard/events/details/invitation-table";
@@ -29,6 +29,39 @@ import {
   Slash,
 } from "lucide-react";
 import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
+import { useOrganizationPermissions } from "@/hooks/useOrganization";
+
+/**
+ * Extrait le nom de la ville depuis une adresse complète
+ */
+const extractCityName = (address: string): string => {
+  if (!address) return "Non défini";
+
+  // Divise l'adresse par les virgules
+  const parts = address.split(",").map((part) => part.trim());
+
+  // Cherche la ville (généralement après le code postal ou dans les premières parties)
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    // Ignore les codes postaux (5 chiffres en France)
+    if (/^\d{5}$/.test(part)) continue;
+    // Ignore les parties qui ressemblent à des codes ou des numéros
+    if (/^\d+$/.test(part)) continue;
+    // Retourne la première partie qui ressemble à une ville
+    if (
+      part.length > 2 &&
+      !part.includes("Rue") &&
+      !part.includes("Avenue") &&
+      !part.includes("Boulevard")
+    ) {
+      return part;
+    }
+  }
+
+  // Si aucune ville n'est trouvée, retourne la première partie non vide
+  const firstValidPart = parts.find((part) => part.length > 2);
+  return firstValidPart || "Ville inconnue";
+};
 
 type EventDetails = {
   id: number;
@@ -46,6 +79,7 @@ type EventDetails = {
   preparationPercentage?: number;
   eventCode: string;
   slug?: string;
+  orgId: number;
 };
 
 export default function EventDetailsPage() {
@@ -54,6 +88,8 @@ export default function EventDetailsPage() {
   const [event, setEvent] = useState<EventDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { canModifyEvent, canDeleteEvent, fetchUserRole } =
+    useOrganizationPermissions();
 
   useEffect(() => {
     const fetchEventDetails = async () => {
@@ -64,6 +100,11 @@ export default function EventDetailsPage() {
         }
         const data = await response.json();
         setEvent(data.event);
+
+        // Récupérer le rôle de l'utilisateur dans l'organisation
+        if (data.event?.organization?.publicId) {
+          await fetchUserRole(data.event.organization.publicId);
+        }
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "Une erreur est survenue"
@@ -76,7 +117,7 @@ export default function EventDetailsPage() {
     if (params.slug) {
       fetchEventDetails();
     }
-  }, [params.slug]);
+  }, [params.slug, fetchUserRole]);
 
   const formatDate = (d?: Date | string | null) => {
     return formatDateToFrench(d);
@@ -138,17 +179,15 @@ export default function EventDetailsPage() {
         </div>
       </header>
       <div className="flex flex-col h-full">
-        <div className="flex-1 flex flex-col gap-6 p-6 lg:p-8 max-w-8xl mx-auto w-full">
+        <div className="flex-1 flex flex-col gap-6 p-6 lg:p-8 max-w-8xl mx-auto w-full px-12 lg:px-24">
           <div className="flex flex-col gap-8">
             <div className="flex flex-col md:flex-row gap-8 items-center">
               {event.imageUrl && (
                 <div className="md:w-1/2 w-full flex justify-center">
-                  <Image
+                  <AutoSignedImage
                     src={event.imageUrl}
                     alt={event.title}
-                    width={500}
-                    height={300}
-                    className="w-full max-w-xl h-auto rounded-2xl object-cover"
+                    className="w-full max-w-2xl h-auto rounded-2xl object-cover"
                   />
                 </div>
               )}
@@ -157,27 +196,30 @@ export default function EventDetailsPage() {
                   {event.title}
                 </h1>
                 <div className="flex gap-4">
-                  <Button
-                    className="bg-green-700 hover:bg-green-800 text-white"
-                    onClick={() =>
-                      router.push(`/dashboard/events/edit/${params.slug}`)
-                    }
-                  >
-                    Modifier l&apos;évènement
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() =>
-                      router.push(`/dashboard/events/delete/${params.slug}`)
-                    }
-                  >
-                    Supprimer l&apos;évènement
-                  </Button>
+                  {canModifyEvent && (
+                    <Button
+                      className="bg-green-700 hover:bg-green-800 text-white"
+                      onClick={() =>
+                        router.push(`/dashboard/events/edit/${params.slug}`)
+                      }
+                    >
+                      Modifier l&apos;évènement
+                    </Button>
+                  )}
+                  {canDeleteEvent && (
+                    <Button
+                      variant="destructive"
+                      onClick={() =>
+                        router.push(`/dashboard/events/delete/${params.slug}`)
+                      }
+                    >
+                      Supprimer l&apos;évènement
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Cards stylées comme section-card-event */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 px-4 lg:px-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -238,7 +280,7 @@ export default function EventDetailsPage() {
                     {event.capacity ?? "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Nombre maximum de participants
+                    Nombre prévisionnel de participants
                   </p>
                 </CardContent>
               </Card>
@@ -250,7 +292,7 @@ export default function EventDetailsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">
-                    {event.location || "—"}
+                    {extractCityName(event.location)}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Ville / adresse
