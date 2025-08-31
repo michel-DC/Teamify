@@ -126,113 +126,157 @@ export async function POST(
       html: `
 <!DOCTYPE html>
 <html lang="fr">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Invitation à l'événement - Teamify</title>
-      <style>
-         body { margin:0; padding:0; background-color:#f9fafb; font-family: Arial, sans-serif; }
-         table { border-spacing:0; border-collapse:collapse; }
-         img { display:block; border:0; }
-         a { text-decoration:none; }
-         @media screen and (max-width:600px) {
-         .container { width:100% !important; }
-         .content-padding { padding:20px !important; }
-         h1 { font-size:20px !important; }
-         p { font-size:14px !important; }
-         }
-      </style>
-   </head>
-   <body style="margin:0; padding:0; background-color:#f9fafb;">
-      <table role="presentation" width="100%" bgcolor="#f9fafb">
-         <tr>
-            <td align="center">
-               <!-- Container -->
-               <table role="presentation" width="600" class="container" style="max-width:600px; background-color:#ffffff;">
-                  <!-- Logo -->
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitation à l'événement - Teamify</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #f9fafb;
+        font-family: Arial, sans-serif;
+        color: #020102;
+      }
+      table { border-spacing: 0; border-collapse: collapse; }
+      img { display: block; border: 0; }
+      a { text-decoration: none; }
+      hr {
+        border: none;
+        height: 2px;
+        background: #FCA7DB;
+        margin: 30px 0;
+      }
+      @media screen and (max-width: 600px) {
+        .container { width: 100% !important; }
+        .content-padding { padding: 20px !important; }
+        h1 { font-size: 22px !important; }
+        p { font-size: 14px !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <table role="presentation" width="100%" bgcolor="#f9fafb">
+      <tr>
+        <td align="center">
+          <!-- Container -->
+          <table role="presentation" width="600" class="container" style="max-width:600px; background-color:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.05);">
+            
+            <!-- Header -->
+            <tr>
+              <td align="center" style="padding:24px;">
+                <img src="https://teamify.onlinemichel.dev/images/logo/teamify-logo.png"
+                  alt="Teamify"
+                  width="160"
+                  style="display:block;">
+              </td>
+            </tr>
+
+            <!-- Hero -->
+            <tr>
+              <td class="content-padding" style="padding:32px 40px 20px; text-align:left;">
+                <h1 style="margin:0; font-size:24px; font-weight:700; color:#6D5DE6;">
+                  Bonjour ${receiverName},
+                </h1>
+                <p style="margin:16px 0 0; font-size:16px; line-height:1.6; color:#020102;">
+                  Vous avez été invité à participer à un événement organisé sur <strong>Teamify</strong>.  
+                  Nous sommes ravis de vous compter parmi les participants.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Separator -->
+            <tr>
+              <td style="padding:0 40px;">
+                <hr>
+              </td>
+            </tr>
+
+            <!-- Event Card -->
+            <tr>
+              <td style="padding:20px 40px;">
+                <table role="presentation" width="100%" style="border:1px solid #eee; border-radius:10px; background:#fafafa;" cellpadding="0" cellspacing="0">
                   <tr>
-                     <td align="center" style="padding:20px 0; background-color:#ffffff;">
-                        <img src="https://teamify.onlinemichel.dev/images/logo/teamify-logo.png" 
-                        alt="Logo Teamify" 
-                        width="200" 
-                        style="display:block; width:200px; max-width:80%; height:auto;">
-                     </td>
-                  </tr>
-                  <!-- Content -->
-                  <tr>
-                     <td class="content-padding" style="padding:30px; color:#1f2937; text-align:left;">
-                        <h1 style="font-size:24px; font-weight:600; margin:0 0 20px;">Bonjour ${receiverName}</h1>
-                        <p style="font-size:16px; color:#4b5563; line-height:1.7; margin:0 0 30px;">
-                           Vous avez été invité à participer à un événement organisé sur Teamify. 
-                           Nous sommes ravis de vous compter parmi les participants !
-                        </p>
-                        <!-- Event Section -->
-                        <table role="presentation" width="100%" style="background-color:#f8fafc; border-radius:8px; border-left:4px solid #4a148c; margin-bottom:30px;" cellpadding="0" cellspacing="0">
-                           <tr>
-                              <td style="padding:20px;">
-                                 <h2 style="font-size:20px; font-weight:600; margin:0 0 15px;">Détails de l'événement</h2>
-                                 <p style="margin:0; font-size:15px;"><strong>Événement :</strong> ${eventName}</p>
-                                 <p style="margin:0; font-size:15px;"><strong>Catégorie :</strong> ${eventCategory}</p>
-                                 ${
-                                   eventDate
-                                     ? `
-                                 <p style="margin:0; font-size:15px;"><strong>Date :</strong> ${eventDate}</p>
-                                 `
-                                     : ""
-                                 }
-                                 ${
-                                   eventLocation
-                                     ? `
-                                 <p style="margin:0; font-size:15px;"><strong>Lieu :</strong> ${eventLocation}</p>
-                                 `
-                                     : ""
-                                 }
-                                 <p style="margin:0; font-size:15px;"><strong>Participants :</strong> ${participantsCount} personne${
+                    <td style="padding:20px;">
+                      <h2 style="margin:0 0 15px; font-size:18px; font-weight:600; color:#6D5DE6;">Détails de l'événement</h2>
+                      
+                      <p style="margin:0 0 6px; font-size:15px;"><strong>Événement :</strong> ${eventName}</p>
+                      <p style="margin:0 0 6px; font-size:15px;"><strong>Catégorie :</strong> ${eventCategory}</p>
+                      ${
+                        eventDate
+                          ? `<p style="margin:0 0 6px; font-size:15px;"><strong>Date :</strong> ${eventDate}</p>`
+                          : ""
+                      }
+                      ${
+                        eventLocation
+                          ? `<p style="margin:0 0 6px; font-size:15px;"><strong>Lieu :</strong> ${eventLocation}</p>`
+                          : ""
+                      }
+                      <p style="margin:0 0 6px; font-size:15px;">
+                        <strong>Participants :</strong> ${participantsCount} personne${
         participantsCount > 1 ? "s" : ""
       }
-                                 </p>
-                                 ${
-                                   truncatedDescription
-                                     ? `
-                                 <p style="margin:0; font-size:15px;"><strong>Description :</strong> ${truncatedDescription}</p>
-                                 `
-                                     : ""
-                                 }
-                              </td>
-                           </tr>
-                        </table>
-                        <!-- CTA Button -->
-                        <div style="text-align:center; margin:30px 0;">
-                           <a href="${
-                             process.env.NEXT_PUBLIC_APP_URL ||
-                             "https://teamify.onlinemichel.dev"
-                           }/join-event?code=${invitationCode}" 
-                           style="display:inline-block; background-color:#4a148c; color:#fff; padding:14px 28px; border-radius:6px; font-weight:600; font-size:16px;">
-                           Répondre à l'invitation
-                           </a>
-                        </div>
-                     </td>
+                      </p>
+                      ${
+                        truncatedDescription
+                          ? `<p style="margin:12px 0 0; font-size:15px; color:#4b5563;"><strong>Description :</strong> ${truncatedDescription}</p>`
+                          : ""
+                      }
+                    </td>
                   </tr>
-                  <!-- Footer -->
-                  <tr>
-                     <td align="center" style="padding:20px; background-color:#f9fafb; font-size:12px; color:#9ca3af;">
-                        <img src="https://teamify.onlinemichel.dev/images/logo/favicon.svg" alt="Favicon" width="24" style="margin-bottom:10px;">
-                        <p style="margin:0;">Vous recevez cet email car vous êtes invité sur Teamify. 
-                           Consultez nos <a href="${
-                             process.env.NEXT_PUBLIC_APP_URL ||
-                             "https://teamify.onlinemichel.dev"
-                           }/mentions-legales" style="color:#4a148c;">mentions légales</a> et notre <a href="${
-        process.env.NEXT_PUBLIC_APP_URL || "https://teamify.onlinemichel.dev"
-      }/politique-confidentialite" style="color:#4a148c;">politique de confidentialité</a>.
-                        </p>
-                     </td>
-                  </tr>
-               </table>
-               <!-- End Container -->
-            </td>
-         </tr>
-      </table>
-   </body>
+                </table>
+              </td>
+            </tr>
+
+            <!-- CTA -->
+            <tr>
+              <td align="center" style="padding:30px 40px 20px;">
+                <a href="${
+                  process.env.NEXT_PUBLIC_APP_URL ||
+                  "https://teamify.onlinemichel.dev"
+                }/join-event?code=${invitationCode}"
+                  style="display:inline-block; background-color:#6D5DE6; color:#ffffff; padding:14px 28px; border-radius:8px; font-size:16px; font-weight:600;">
+                  Répondre à l'invitation
+                </a>
+              </td>
+            </tr>
+
+            <!-- Secondary Note in Rose -->
+            <tr>
+              <td align="center" style="padding:10px 40px 40px;">
+                <p style="margin:0; font-size:14px; color:#FCA7DB; font-weight:600;">
+                  Invitation valable uniquement via ce lien
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td align="center" style="padding:20px 40px; font-size:12px; color:#6b7280;">
+                <p style="margin:0 0 6px;">
+                  Vous recevez cet email car vous êtes invité sur <strong>Teamify</strong>.
+                </p>
+                <p style="margin:0;">
+                  Consultez nos 
+                  <a href="${
+                    process.env.NEXT_PUBLIC_APP_URL ||
+                    "https://teamify.onlinemichel.dev"
+                  }/legal-mentions" style="color:#6D5DE6; font-weight:600;">mentions légales</a> 
+                  et notre 
+                  <a href="${
+                    process.env.NEXT_PUBLIC_APP_URL ||
+                    "https://teamify.onlinemichel.dev"
+                  }/privacy-policy" style="color:#6D5DE6; font-weight:600;">politique de confidentialité</a>.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+          <!-- End Container -->
+        </td>
+      </tr>
+    </table>
+  </body>
 </html>
       `,
     });
