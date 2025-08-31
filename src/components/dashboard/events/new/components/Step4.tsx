@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { CloudflareImageUpload } from "@/components/ui/cloudflare-image-upload";
-import { EventFormData } from "../../../../../../types/steps-event-creation";
+import { EventFormData } from "../../../../../types/steps-event-creation";
 
 interface Step4Props {
   formData: EventFormData;

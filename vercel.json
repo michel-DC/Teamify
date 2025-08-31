@@ -3,6 +3,7 @@
   "git": {
     "deploymentEnabled": {
       "non‑stable": false,
+      "non-stable-google-auth": false,
       "stable": false,
       "main": true
     }

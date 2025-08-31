@@ -56,7 +56,6 @@ export function UpcomingEventsWidget() {
 
         if (data.events && Array.isArray(data.events)) {
           const now = new Date();
-          console.log("Événements récupérés:", data.events.length);
 
           const upcomingEvents = data.events
             .filter((event: any) => {
@@ -72,10 +71,8 @@ export function UpcomingEventsWidget() {
             })
             .slice(0, 5);
 
-          console.log("Événements à venir trouvés:", upcomingEvents.length);
           setEvents(upcomingEvents);
         } else {
-          console.log("Aucun événement trouvé ou format invalide");
           setEvents([]);
         }
       } catch (error) {

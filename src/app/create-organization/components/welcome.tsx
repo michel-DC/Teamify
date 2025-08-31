@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { StepProps } from "../../../../types/steps";
+import { StepProps } from "@/types/steps";
 import Image from "next/image";
 import { toast } from "sonner";
 

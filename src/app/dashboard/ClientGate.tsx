@@ -22,24 +22,37 @@ export default function ClientGate({ children }: ClientGateProps) {
   const toastShownRef = useRef(false);
 
   useEffect(() => {
-    const ok = checkAuth();
-    setAuthChecked(ok);
+    const verifyAuth = async () => {
+      try {
+        const ok = await checkAuth();
+        setAuthChecked(ok);
 
-    if (!ok && !toastShownRef.current) {
-      toastShownRef.current = true;
-      setRedirecting(true);
+        if (!ok && !toastShownRef.current) {
+          toastShownRef.current = true;
+          setRedirecting(true);
 
-      import("sonner").then(({ toast }) => {
-        toast.error("Vous devez être connecté pour accéder au dashboard 🛡️", {
-          duration: 5000,
-        });
-      });
+          import("sonner").then(({ toast }) => {
+            toast.error(
+              "Vous devez être connecté pour accéder au dashboard 🛡️",
+              {
+                duration: 5000,
+              }
+            );
+          });
 
-      setTimeout(() => {
+          setTimeout(() => {
+            router.replace("/auth/login");
+          }, 2000);
+        }
+      } catch (error) {
+        setAuthChecked(false);
+        setRedirecting(true);
         router.replace("/auth/login");
-      }, 2000);
-    }
-  }, []);
+      }
+    };
+
+    verifyAuth();
+  }, [checkAuth, router]);
 
   useEffect(() => {
     const verifyServerHasOrg = async () => {

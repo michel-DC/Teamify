@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { StepProps } from "../../../../types/steps";
+import { StepProps } from "@/types/steps";
 import Image from "next/image";
 import { useState } from "react";
 import { toast, Toaster } from "sonner";
