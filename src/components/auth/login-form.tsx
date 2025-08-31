@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LoadingScreen } from "@/components/ui/Loader";
 import { useTheme } from "@/components/theme-provider";
+import { useAuth } from "@/hooks/useAuth";
 
 export const LoginForm = ({
   className,
@@ -20,6 +21,7 @@ export const LoginForm = ({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { theme, setTheme } = useTheme();
+  const { loginWithGoogle, isSyncing } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -227,9 +229,8 @@ export const LoginForm = ({
                 type="button"
                 variant="outline"
                 className="w-full h-10 flex items-center justify-center gap-3 border-border hover:bg-muted/50 transition-colors"
-                onClick={() => {
-                  toast.info("Cette option n'est pas encore disponible 😢");
-                }}
+                onClick={() => loginWithGoogle(inviteCode || undefined)}
+                disabled={isSyncing || loading || blocking}
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path
@@ -250,7 +251,9 @@ export const LoginForm = ({
                   />
                 </svg>
                 <span className="text-sm font-medium">
-                  Continuer avec Google
+                  {isSyncing
+                    ? "Connexion en cours..."
+                    : "Continuer avec Google"}
                 </span>
               </Button>
 

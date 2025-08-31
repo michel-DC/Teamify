@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "../styles/globals.css";
 import { DataPersistenceManager } from "@/components/data-persistence-manager";
 import { ThemeProvider } from "@/components/theme-provider";
+
 import { Toaster } from "sonner";
 
 const poppins = Poppins({
