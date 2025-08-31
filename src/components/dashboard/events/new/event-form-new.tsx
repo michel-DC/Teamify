@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { EventFormData } from "../../../../../types/steps-event-creation";
+import { EventFormData } from "../../../../types/steps-event-creation";
 import { StepWizard } from "./components/StepWizard";
 import { useOrganization } from "@/hooks/useOrganization";
 import { Badge } from "@/components/ui/badge";
 import { Building2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface EventFormProps {
   orgId: string;
@@ -128,12 +129,14 @@ export function EventForm({ orgId }: EventFormProps) {
         )}
       </div>
 
-      <StepWizard
-        orgId={orgId}
-        onComplete={handleFormComplete}
-        onCancel={handleCancel}
-        eventCode={eventCode}
-      />
+      <div className="border border-border rounded-lg p-4 max-w-5xl mx-auto">
+        <StepWizard
+          orgId={orgId}
+          onComplete={handleFormComplete}
+          onCancel={handleCancel}
+          eventCode={eventCode}
+        />
+      </div>
 
       {isLoading && (
         <div className="fixed inset-0 bg-background/80 flex items-center justify-center z-50">

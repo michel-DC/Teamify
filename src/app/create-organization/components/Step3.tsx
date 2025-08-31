@@ -1,6 +1,6 @@
 "use client";
 
-import { StepProps } from "../../../../types/steps";
+import { StepProps } from "@/types/steps";
 import { CloudflareImageUpload } from "@/components/ui/cloudflare-image-upload";
 
 export default function Step3({ next, prev, setFormData }: StepProps) {

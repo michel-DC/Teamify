@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { StepProps } from "../../../../types/steps";
+import { StepProps } from "@/types/steps";
 
 export default function Step4({
   next,

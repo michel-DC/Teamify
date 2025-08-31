@@ -1,6 +1,6 @@
 "use client";
 
-import { EventFormData } from "../../../../../../types/steps-event-creation";
+import { EventFormData } from "../../../../../types/steps-event-creation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";

@@ -6,7 +6,7 @@ import type {
   GoogleAuthRequest,
   GoogleUserInfo,
   GoogleTokenResponse,
-} from "../../../../../types/google-auth";
+} from "@/types/google-auth";
 
 /**
  * Route API pour l'authentification Google OAuth
