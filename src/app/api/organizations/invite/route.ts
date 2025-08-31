@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     // Vérification que l'utilisateur est propriétaire ou membre avec rôle admin
     const isOwner = organization.ownerUid === user.uid;
     const isAdmin = organization.organizationMembers.some(
-      (member) => member.userUid === user.uid && member.role === "admin"
+      (member) => member.userUid === user.uid && member.role === "ADMIN"
     );
 
     if (!isOwner && !isAdmin) {
@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
                   <!-- Footer -->
                   <tr>
                      <td align="center" style="padding:20px; background-color:#f9fafb; font-size:12px; color:#9ca3af;">
-                        <img src="https://teamify.onlinemichel.dev/images/logo/teamify-favicon.png" alt="Favicon" width="24" style="margin-bottom:10px;">
+                        <img src="https://teamify.onlinemichel.dev/images/logo/favicon.svg" alt="Favicon" width="24" style="margin-bottom:10px;">
                         <p style="margin:0;">Vous recevez cet email car vous êtes invité sur Teamify. 
                            Consultez nos <a href="${
                              process.env.NEXT_PUBLIC_APP_URL ||

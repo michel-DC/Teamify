@@ -216,7 +216,7 @@ export async function POST(
                   <!-- Footer -->
                   <tr>
                      <td align="center" style="padding:20px; background-color:#f9fafb; font-size:12px; color:#9ca3af;">
-                        <img src="https://teamify.onlinemichel.dev/images/logo/teamify-favicon.png" alt="Favicon" width="24" style="margin-bottom:10px;">
+                        <img src="https://teamify.onlinemichel.dev/images/logo/favicon.svg" alt="Favicon" width="24" style="margin-bottom:10px;">
                         <p style="margin:0;">Vous recevez cet email car vous êtes invité sur Teamify. 
                            Consultez nos <a href="${
                              process.env.NEXT_PUBLIC_APP_URL ||

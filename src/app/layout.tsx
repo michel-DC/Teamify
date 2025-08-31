@@ -28,7 +28,7 @@ export default function RootLayout({
       className={`${poppins.variable} h-full bg-background text-foreground`}
     >
       <head>
-        <link rel="icon" href="/images/logo/favicon.png" type="image/x-icon" />
+        <link rel="icon" href="/images/logo/favicon.svg" type="image/x-icon" />
       </head>
       <body className={poppins.className}>
         <ThemeProvider defaultTheme="light" storageKey="theme">
