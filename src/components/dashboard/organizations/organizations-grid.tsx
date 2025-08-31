@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users } from "lucide-react";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 
 interface Organization {
   id: number;
@@ -89,7 +90,7 @@ export function OrganizationsGrid({
           <CardHeader>
             <div className="flex items-center space-x-4">
               {org.profileImage ? (
-                <img
+                <AutoSignedImage
                   src={org.profileImage}
                   alt={org.name}
                   className="h-12 w-12 rounded-full object-cover"

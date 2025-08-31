@@ -139,7 +139,7 @@ export default function InvitationTable() {
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchData();
-    toast.success("Liste des invitations mise à jour");
+    toast.success("Liste des invitations mise à jour 👏​");
   };
 
   /**
@@ -188,7 +188,7 @@ export default function InvitationTable() {
     link.click();
     document.body.removeChild(link);
 
-    toast.success("Export CSV téléchargé avec succès");
+    toast.success("Export CSV téléchargé avec succès 👏​");
   };
 
   /**
@@ -263,7 +263,7 @@ export default function InvitationTable() {
       });
       setInviteDialogOpen(false);
 
-      toast.success("Invitation envoyée avec succès !");
+      toast.success("Invitation envoyée avec succès 😜​");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Erreur lors de l'envoi"

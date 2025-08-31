@@ -14,15 +14,24 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Suspense } from "react";
 
-export default function CreateEventPage() {
+function CreateEventPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { organizations, loading } = useOrganization();
   const { activeOrganization } = useActiveOrganization();
 
   if (loading) {
-    return <div>Chargement...</div>;
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <span
+          className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
+          aria-label="Chargement"
+          role="status"
+        />
+      </div>
+    );
   }
 
   if (organizations.length === 0) {
@@ -90,5 +99,23 @@ export default function CreateEventPage() {
         <EventForm orgId={targetOrganization.id.toString()} />
       </div>
     </div>
+  );
+}
+
+export default function CreateEventPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <span
+            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"
+            aria-label="Chargement"
+            role="status"
+          />
+        </div>
+      }
+    >
+      <CreateEventPageContent />
+    </Suspense>
   );
 }

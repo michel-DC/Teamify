@@ -1,6 +1,6 @@
 "use client";
 
-import { StepProps } from "../../../../types/steps";
+import { StepProps } from "@/types/steps";
 
 export default function Step5({
   next,

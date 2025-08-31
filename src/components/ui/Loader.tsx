@@ -50,9 +50,7 @@ export function LoadingScreen({
         className
       )}
     >
-      <div className="bg-card p-8 rounded-lg shadow-lg border">
-        <Loader size="lg" text={text} />
-      </div>
+      <Loader size="lg" text={text} />
     </div>
   );
 }

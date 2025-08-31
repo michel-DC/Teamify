@@ -179,7 +179,7 @@ export function StatCardDetails({ event }: { event: EventDetails }) {
               Capacité maximale <IconTrendingUp className="size-4" />
             </div>
             <div className="text-muted-foreground">
-              Nombre maximum de participants pour cet évènement
+              Nombre prévisionnel de participants pour cet évènement
             </div>
           </CardFooter>
         </Card>

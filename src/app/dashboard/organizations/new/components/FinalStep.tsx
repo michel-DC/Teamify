@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { StepProps } from "../../../../../../types/steps";
+import { StepProps } from "@/types/steps";
 import Image from "next/image";
 import { useState } from "react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 export default function FinalStep({ formData }: StepProps) {
   const router = useRouter();
@@ -28,18 +28,18 @@ export default function FinalStep({ formData }: StepProps) {
         formDataToSend.append("location", JSON.stringify(formData.location));
       }
 
-      if (formData.file) {
-        formDataToSend.append("file", formData.file);
+      if (formData.imageUrl) {
+        formDataToSend.append("imageUrl", formData.imageUrl);
       }
 
-      const res = await fetch("/api/organization/create", {
+      const res = await fetch("/api/organizations/create", {
         method: "POST",
         credentials: "include",
         body: formDataToSend,
       });
 
       if (res.ok) {
-        toast.success("Organisation créée avec succès !", {
+        toast.success("Organisation créée avec succès ​🚀​", {
           duration: 3000,
           onAutoClose: () => {
             router.push("/dashboard/organizations");
@@ -59,7 +59,6 @@ export default function FinalStep({ formData }: StepProps) {
 
   return (
     <div className="space-y-4">
-      <Toaster position="top-center" richColors />
       <h1 className="text-2xl font-bold text-foreground">
         Félicitations, votre organisation est prête !
       </h1>

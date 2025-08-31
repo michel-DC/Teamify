@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
@@ -30,16 +30,27 @@ export async function GET(request: Request) {
     }
 
     /**
-     * Vérification que l'organisation appartient à l'utilisateur
+     * Récupération de l'organisation par son publicId
      */
     const organization = await prisma.organization.findFirst({
       where: {
         publicId: organizationPublicId,
-        ownerUid: user.uid,
       },
     });
 
     if (!organization) {
+      return NextResponse.json(
+        { error: "Organisation non trouvée" },
+        { status: 404 }
+      );
+    }
+
+    /**
+     * Vérification que l'utilisateur a accès à l'organisation (propriétaire OU membre)
+     */
+    const hasAccess = await hasOrganizationAccess(user.uid, organization.id);
+
+    if (!hasAccess) {
       return NextResponse.json(
         { error: "Organisation non trouvée ou non autorisée" },
         { status: 404 }
@@ -48,11 +59,11 @@ export async function GET(request: Request) {
 
     /**
      * Récupération des événements de l'organisation spécifiée
+     * (tous les événements de l'organisation, pas seulement ceux créés par l'utilisateur)
      */
     const events = await prisma.event.findMany({
       where: {
         orgId: organization.id,
-        ownerUid: user.uid,
       },
       include: {
         organization: {
