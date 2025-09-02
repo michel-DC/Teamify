@@ -16,7 +16,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Teamify | Dashboard",
+  title: "Teamify · Dashboard",
   description: "Dashboard utilisateur de gestion d'organisation",
 };
 
