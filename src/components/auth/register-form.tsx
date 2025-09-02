@@ -113,8 +113,6 @@ export const RegisterForm = () => {
       <div className="flex flex-col gap-1 xs:gap-2 sm:gap-3 md:gap-4 lg:gap-6 w-full max-w-[320px] xs:max-w-[480px] sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-4xl 2xl:max-w-5xl">
         <ThemeToggle />
 
-        <Toaster position="top-center" richColors />
-
         <form
           onSubmit={handleSubmit}
           className="space-y-4 sm:space-y-6 max-w-lg sm:max-w-xl mx-auto w-full border border-border rounded-lg p-4 sm:p-6 bg-card"

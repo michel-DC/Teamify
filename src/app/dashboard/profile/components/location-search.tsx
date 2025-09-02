@@ -37,7 +37,9 @@ export function LocationSearch({
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  );
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Recherche avec debounce
@@ -80,7 +82,10 @@ export function LocationSearch({
 
       const data = await response.json();
       setResults(data.results || []);
-      setShowResults(true);
+      // N'afficher les résultats que si l'input est focus
+      if (document.activeElement === inputRef.current) {
+        setShowResults(true);
+      }
     } catch (err) {
       setError("Erreur lors de la recherche de localisation");
       setResults([]);
@@ -115,10 +120,12 @@ export function LocationSearch({
     setQuery(e.target.value);
     if (!e.target.value) {
       onChange(null);
+      setShowResults(false);
     }
   };
 
   const handleInputFocus = () => {
+    // Réafficher les résultats seulement si il y a des résultats disponibles
     if (results.length > 0) {
       setShowResults(true);
     }
@@ -133,7 +140,7 @@ export function LocationSearch({
 
   return (
     <div className="relative">
-      <Label htmlFor="location"></Label>
+      <Label htmlFor="location">Localisation</Label>
       <div className="relative">
         <Input
           ref={inputRef}

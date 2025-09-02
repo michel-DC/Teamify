@@ -82,6 +82,14 @@ export function ProfileSection({
         )}
       </div>
 
+      {/* Disclaimer de confidentialité */}
+      <div className="text-xs text-muted-foreground border-l-2 border-border pl-3 py-2">
+        <p>
+          Les informations de ce profil peuvent être visibles publiquement par
+          d'autres utilisateurs de la plateforme.
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
@@ -145,7 +153,7 @@ export function ProfileSection({
           </div>
 
           <div>
-            <Label htmlFor="location">Localisation</Label>
+            <Label htmlFor="location"> </Label>
             {editing ? (
               <LocationSearch
                 value={formData.location}
