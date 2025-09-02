@@ -15,6 +15,7 @@ export async function GET() {
   try {
     /**
      * Récupération des organisations dont l'utilisateur est propriétaire
+     * avec le rôle OWNER
      */
     const ownedOrganizations = await prisma.organization.findMany({
       where: { ownerUid: user.uid },
@@ -33,8 +34,15 @@ export async function GET() {
       },
     });
 
+    // Ajouter le rôle OWNER aux organisations dont l'utilisateur est propriétaire
+    const ownedWithRole = ownedOrganizations.map((org) => ({
+      ...org,
+      role: "OWNER",
+    }));
+
     /**
      * Récupération des organisations dont l'utilisateur est membre
+     * avec leur rôle spécifique
      */
     const memberOrganizations = await prisma.organization.findMany({
       where: {
@@ -56,16 +64,32 @@ export async function GET() {
         eventCount: true,
         createdAt: true,
         location: true,
+        organizationMembers: {
+          where: {
+            userUid: user.uid,
+          },
+          select: {
+            role: true,
+          },
+        },
       },
     });
 
+    // Extraire le rôle de l'utilisateur dans chaque organisation
+    const memberWithRole = memberOrganizations.map((org) => ({
+      ...org,
+      role: org.organizationMembers[0]?.role || "MEMBER",
+      organizationMembers: undefined, // Supprimer ce champ de la réponse
+    }));
+
     /**
      * Combinaison des deux listes en évitant les doublons
+     * Les organisations dont l'utilisateur est propriétaire ont priorité
      */
-    const allOrganizations = [...ownedOrganizations];
+    const allOrganizations = [...ownedWithRole];
 
     // Ajouter les organisations dont l'utilisateur est membre mais pas propriétaire
-    memberOrganizations.forEach((memberOrg) => {
+    memberWithRole.forEach((memberOrg) => {
       const isAlreadyIncluded = allOrganizations.some(
         (org) => org.id === memberOrg.id
       );

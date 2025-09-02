@@ -25,5 +25,5 @@ export interface Organization {
   name: string;
   profileImage: string | null;
   memberCount: number;
-  role: string;
+  role: "OWNER" | "ADMIN" | "MEMBER";
 }
