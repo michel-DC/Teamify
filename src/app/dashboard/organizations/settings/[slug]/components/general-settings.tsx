@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUploadZone } from "@/components/ui/image-upload-zone";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -253,9 +254,23 @@ export function GeneralSettings({
 
           <div className="space-y-2">
             <Label>Image de profil</Label>
+            {organization.profileImage && (
+              <div className="mb-4">
+                <Label className="text-sm text-muted-foreground mb-2 block">
+                  Image actuelle
+                </Label>
+                <div className="relative w-24 h-24 rounded-lg overflow-hidden border">
+                  <AutoSignedImage
+                    src={organization.profileImage}
+                    alt="Image de profil actuelle"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
             <ImageUploadZone
               onImageChange={handleImageUpload}
-              imagePreviewUrl={organization.profileImage}
+              imagePreviewUrl={null}
               disabled={!canModify}
             />
           </div>

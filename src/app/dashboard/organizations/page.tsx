@@ -578,51 +578,60 @@ export default function OrganizationsDashboardPage() {
                   className="hover:shadow-md transition-shadow relative"
                 >
                   <CardHeader>
-                    <div className="flex items-center space-x-4">
-                      {org.profileImage ? (
-                        <AutoSignedImage
-                          src={org.profileImage}
-                          alt={org.name}
-                          className="h-12 w-12 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Users className="h-6 w-6 text-primary" />
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-4 flex-1 min-w-0">
+                        {org.profileImage ? (
+                          <AutoSignedImage
+                            src={org.profileImage}
+                            alt={org.name}
+                            className="h-12 w-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Users className="h-6 w-6 text-primary" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-lg truncate">
+                            {org.name}
+                          </CardTitle>
                         </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-lg truncate">
-                          {org.name}
-                        </CardTitle>
+                      </div>
+                      <div className="flex flex-col items-end space-y-2">
                         <Badge
                           variant="outline"
                           className={`${getTypeColor(
                             org.organizationType
-                          )} border-0`}
+                          )} border-0 max-w-[120px] truncate text-xs`}
+                          title={getTypeLabel(org.organizationType)}
                         >
-                          {getTypeLabel(org.organizationType)}
+                          {getTypeLabel(org.organizationType).length > 5 &&
+                            getTypeLabel(org.organizationType).slice(0, 5) +
+                              "..."}
+                          {getTypeLabel(org.organizationType).length <= 5 &&
+                            getTypeLabel(org.organizationType)}
                         </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="h-8 w-8 p-0 hover:bg-muted rotate-90"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Ouvrir le menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handleSettingsClick(org.publicId)}
+                              className="cursor-pointer"
+                            >
+                              <Settings className="mr-2 h-4 w-4" />
+                              Paramètres
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className="h-8 w-8 p-0 hover:bg-muted"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Ouvrir le menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleSettingsClick(org.publicId)}
-                            className="cursor-pointer"
-                          >
-                            <Settings className="mr-2 h-4 w-4" />
-                            Paramètres
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </div>
                   </CardHeader>
                   <CardContent>
