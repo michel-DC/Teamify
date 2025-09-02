@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Building2, Shield, Trash2, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 
 import { UserProfile } from "../types";
 
@@ -92,16 +93,31 @@ export function ProfileSidebar({
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
           >
-            <Avatar className="h-24 w-24 mx-auto mb-4 cursor-pointer transition-all duration-200 group-hover:ring-2 group-hover:ring-primary/20">
-              <AvatarImage
-                src={userProfile.profileImage || ""}
-                alt={`${userProfile.firstname} ${userProfile.lastname}`}
-              />
-              <AvatarFallback className="text-2xl">
-                {userProfile.firstname?.charAt(0).toUpperCase()}
-                {userProfile.lastname?.charAt(0).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <div className="h-24 w-24 mx-auto mb-4 cursor-pointer transition-all duration-200 group-hover:ring-2 group-hover:ring-primary/20 rounded-full overflow-hidden">
+              {userProfile.profileImage ? (
+                <AutoSignedImage
+                  src={userProfile.profileImage}
+                  alt={`${userProfile.firstname} ${userProfile.lastname}`}
+                  className="w-full h-full object-cover"
+                  fallbackSrc=""
+                  errorComponent={
+                    <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+                      <span className="text-2xl font-semibold text-primary">
+                        {userProfile.firstname?.charAt(0).toUpperCase()}
+                        {userProfile.lastname?.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  }
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-primary/10 to-primary/20 flex items-center justify-center">
+                  <span className="text-2xl font-semibold text-primary">
+                    {userProfile.firstname?.charAt(0).toUpperCase()}
+                    {userProfile.lastname?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+            </div>
 
             {/* Overlay de modification au hover */}
             {hovered && (
