@@ -57,7 +57,7 @@ export function GoogleCallbackContent() {
         localStorage.setItem("isLoggedIn", "true");
 
         // Afficher un message de succès
-        toast.success("Connexion Google réussie !", {
+        toast.success("Connexion Google réussie 🎉", {
           duration: 3000,
         });
 

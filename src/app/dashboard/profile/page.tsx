@@ -83,7 +83,7 @@ export default function ProfilePage() {
         toast.success("Profil mis à jour avec succès 🎉");
         fetchUserProfile(); // Rafraîchir les données
       } else {
-        toast.error("Erreur lors de la mise à jour du profil");
+        toast.error("Erreur lors de la mise à jour du profil 💥");
       }
     } catch (error) {
       console.error("Erreur lors de la mise à jour du profil:", error);
@@ -99,11 +99,11 @@ export default function ProfilePage() {
       });
 
       if (response.ok) {
-        toast.success("Compte supprimé avec succès");
+        toast.success("Compte supprimé avec succès 🤩​");
         // Rediriger vers la page de connexion
         window.location.href = "/auth/login";
       } else {
-        toast.error("Erreur lors de la suppression du compte");
+        toast.error("Erreur lors de la suppression du compte 💥");
       }
     } catch (error) {
       console.error("Erreur lors de la suppression du compte:", error);
@@ -182,6 +182,7 @@ export default function ProfilePage() {
             userProfile={userProfile}
             activeSection={activeSection}
             onSectionChange={setActiveSection}
+            onProfileUpdate={handleProfileUpdate}
           />
         </div>
 
