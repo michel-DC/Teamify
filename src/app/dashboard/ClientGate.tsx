@@ -3,7 +3,7 @@
 import { ReactNode, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { LoadingScreen } from "@/components/ui/Loader";
-import { useAuth } from "@/context/auth/authController";
+import { useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
 
 interface ClientGateProps {
@@ -20,31 +20,64 @@ export default function ClientGate({ children }: ClientGateProps) {
   const [verifyingServer, setVerifyingServer] = useState(false);
 
   const toastShownRef = useRef(false);
+  const authAttemptsRef = useRef(0);
+  const maxAuthAttempts = 3;
 
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        const ok = await checkAuth();
-        setAuthChecked(ok);
+        // Vérifier d'abord le localStorage pour une vérification rapide
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
-        if (!ok && !toastShownRef.current) {
-          toastShownRef.current = true;
+        if (!isLoggedIn) {
+          setAuthChecked(false);
           setRedirecting(true);
+          return;
+        }
 
-          import("sonner").then(({ toast }) => {
-            toast.error(
-              "Vous devez être connecté pour accéder au dashboard 🛡️",
-              {
-                duration: 5000,
-              }
-            );
-          });
+        // Vérifier l'authentification côté serveur
+        const authResult = await checkAuth();
+        const isAuthenticated = authResult.isAuthenticated;
 
-          setTimeout(() => {
-            router.replace("/auth/login");
-          }, 2000);
+        setAuthChecked(isAuthenticated);
+
+        if (!isAuthenticated) {
+          // Si l'authentification échoue mais que localStorage indique une connexion,
+          // attendre un peu et réessayer (problème de synchronisation des cookies)
+          if (authAttemptsRef.current < maxAuthAttempts) {
+            authAttemptsRef.current++;
+            setTimeout(() => {
+              verifyAuth();
+            }, 1000 * authAttemptsRef.current); // Délai progressif
+            return;
+          }
+
+          // Nettoyer le localStorage si l'authentification échoue définitivement
+          localStorage.removeItem("isLoggedIn");
+
+          if (!toastShownRef.current) {
+            toastShownRef.current = true;
+            setRedirecting(true);
+
+            import("sonner").then(({ toast }) => {
+              toast.error(
+                "Votre session a expiré. Veuillez vous reconnecter 🛡️",
+                {
+                  duration: 5000,
+                }
+              );
+            });
+
+            setTimeout(() => {
+              router.replace("/auth/login");
+            }, 2000);
+          }
         }
       } catch (error) {
+        console.error(
+          "Erreur lors de la vérification d'authentification:",
+          error
+        );
         setAuthChecked(false);
         setRedirecting(true);
         router.replace("/auth/login");

@@ -101,53 +101,6 @@ export function DeleteAccountSection({
           </div>
         </CardContent>
       </Card>
-
-      <Card className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
-        <CardHeader>
-          <CardTitle className="text-amber-600 flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Alternatives à la suppression
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <p className="text-sm text-amber-700 dark:text-amber-300">
-              Avant de supprimer votre compte, considérez ces alternatives :
-            </p>
-            <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="font-medium">
-                  • Désactiver temporairement :
-                </span>
-                <span>
-                  Votre compte sera masqué mais vos données préservées
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-medium">• Transférer la propriété :</span>
-                <span>
-                  Si vous êtes propriétaire d'organisations, transférez-les à un
-                  autre membre
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="font-medium">• Exporter vos données :</span>
-                <span>
-                  Téléchargez une copie de vos informations avant la suppression
-                </span>
-              </li>
-            </ul>
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" size="sm">
-                Désactiver temporairement
-              </Button>
-              <Button variant="outline" size="sm">
-                Exporter mes données
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

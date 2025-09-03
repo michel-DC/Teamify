@@ -73,18 +73,60 @@ export const useAuth = () => {
    */
   const checkAuth = useCallback(async () => {
     try {
+      // Vérifier d'abord le localStorage pour une vérification rapide
+      const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+      if (!isLoggedIn) {
+        console.log(
+          "[useAuth] localStorage indique que l'utilisateur n'est pas connecté"
+        );
+        return { isAuthenticated: false, user: null };
+      }
+
+      console.log(
+        "[useAuth] Vérification de l'authentification côté serveur..."
+      );
+
       const response = await fetch("/api/auth/me", {
         credentials: "include",
       });
 
+      console.log("[useAuth] Réponse de /api/auth/me:", {
+        status: response.status,
+        ok: response.ok,
+        statusText: response.statusText,
+      });
+
       if (response.ok) {
         const user = await response.json();
-        return { isAuthenticated: true, user };
+        console.log("[useAuth] Utilisateur authentifié:", {
+          uid: user.user?.uid,
+          email: user.user?.email,
+        });
+        return { isAuthenticated: true, user: user.user };
       }
 
-      return { isAuthenticated: false, user: null };
+      // Si la réponse n'est pas ok, essayer de récupérer l'erreur
+      let errorMessage = "Erreur d'authentification";
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch {
+        // Impossible de parser l'erreur
+      }
+
+      console.log("[useAuth] Échec de l'authentification:", errorMessage);
+      return { isAuthenticated: false, user: null, error: errorMessage };
     } catch (error) {
-      return { isAuthenticated: false, user: null };
+      console.error(
+        "[useAuth] Erreur lors de la vérification d'authentification:",
+        error
+      );
+      return {
+        isAuthenticated: false,
+        user: null,
+        error: error instanceof Error ? error.message : "Erreur inconnue",
+      };
     }
   }, []);
 

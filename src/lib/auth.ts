@@ -34,19 +34,57 @@ export async function verifyToken(
  * Récupère l'utilisateur actuellement connecté via le token
  */
 export async function getCurrentUser() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value;
+  try {
+    console.log("[getCurrentUser] Début de la récupération de l'utilisateur");
 
-  if (!token) return null;
+    const cookieStore = cookies();
+    const token = (await cookieStore).get("token")?.value;
 
-  const payload = await verifyToken(token);
-  if (!payload?.userUid) return null;
+    console.log("[getCurrentUser] Token récupéré:", {
+      hasToken: !!token,
+      tokenLength: token?.length || 0,
+      tokenPreview: token ? `${token.substring(0, 20)}...` : "aucun",
+    });
 
-  const user = await prisma.user.findUnique({
-    where: { uid: payload.userUid },
-  });
+    if (!token) {
+      console.log("[getCurrentUser] Aucun token trouvé dans les cookies");
+      return null;
+    }
 
-  return user;
+    console.log("[getCurrentUser] Vérification du token JWT...");
+    const payload = await verifyToken(token);
+
+    console.log("[getCurrentUser] Résultat de la vérification du token:", {
+      hasPayload: !!payload,
+      userUid: payload?.userUid,
+    });
+
+    if (!payload?.userUid) {
+      console.log("[getCurrentUser] Token invalide ou expiré");
+      return null;
+    }
+
+    console.log(
+      "[getCurrentUser] Recherche de l'utilisateur dans la base de données..."
+    );
+    const user = await prisma.user.findUnique({
+      where: { uid: payload.userUid },
+    });
+
+    console.log("[getCurrentUser] Résultat de la recherche utilisateur:", {
+      userFound: !!user,
+      uid: user?.uid,
+      email: user?.email,
+    });
+
+    return user;
+  } catch (error) {
+    console.error(
+      "[getCurrentUser] Erreur lors de la récupération de l'utilisateur:",
+      error
+    );
+    return null;
+  }
 }
 
 /**

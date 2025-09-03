@@ -256,10 +256,10 @@ export function OrganizationsSection({
                           <DropdownMenuItem asChild>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <div className="flex items-center w-full cursor-pointer text-destructive hover:text-destructive">
-                                  <Trash2 className="h-4 w-4 mr-2" />
+                                <DropdownMenuItem className="flex items-center w-full text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                  <Trash2 className="h-2 w-2 mr-2 text-destructive focus:text-destructive" />
                                   Supprimer l'organisation
-                                </div>
+                                </DropdownMenuItem>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
@@ -295,10 +295,10 @@ export function OrganizationsSection({
                           <DropdownMenuItem asChild>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <div className="flex items-center w-full cursor-pointer text-destructive hover:text-destructive">
-                                  <LogOut className="h-4 w-4 mr-2" />
+                                <DropdownMenuItem className="flex items-center w-full text-destructive focus:bg-destructive/10 focus:text-destructive">
+                                  <LogOut className="h-2 w-2 mr-2 text-destructive focus:text-destructive" />
                                   Quitter l'organisation
-                                </div>
+                                </DropdownMenuItem>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>

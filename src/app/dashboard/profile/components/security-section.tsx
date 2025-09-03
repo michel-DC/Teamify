@@ -5,13 +5,66 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Save, Eye, EyeOff, Lock, Shield } from "lucide-react";
+import { Save, Eye, EyeOff, Lock, Shield, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useChangePassword } from "@/hooks/useChangePassword";
+import { toast } from "sonner";
 
 export function SecuritySection() {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const { isLoading, changePassword, isGoogleUser, isLoadingCheck } =
+    useChangePassword();
+
+  // Gestion des changements de valeur des inputs
+  const handleInputChange =
+    (field: keyof typeof formData) =>
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (isGoogleUser) {
+        toast.error(
+          "Impossible de changer le mot de passe pour un compte Google"
+        );
+        return;
+      }
+      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    };
+
+  // Gestion de la soumission du formulaire
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (isGoogleUser) {
+      toast.error(
+        "Impossible de changer le mot de passe pour un compte Google"
+      );
+      return;
+    }
+
+    await changePassword(formData);
+
+    // Réinitialisation du formulaire après succès
+    setFormData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+  };
+
+  // Gestion du focus des inputs pour les utilisateurs Google
+  const handleInputFocus = () => {
+    if (isGoogleUser) {
+      toast.error(
+        "Impossible de changer le mot de passe pour un compte Google"
+      );
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -23,142 +76,136 @@ export function SecuritySection() {
             <Lock className="h-5 w-5" />
             Changer le mot de passe
           </CardTitle>
+          {isLoadingCheck ? (
+            <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              <span>Vérification du type de compte...</span>
+            </div>
+          ) : isGoogleUser ? (
+            <div className="flex items-center gap-2 text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+              <AlertCircle className="h-4 w-4" />
+              <span>Compte Google - Impossible de changer le mot de passe</span>
+            </div>
+          ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="currentPassword">Mot de passe actuel</Label>
-            <div className="relative">
-              <Input
-                id="currentPassword"
-                type={showPassword ? "text" : "password"}
-                placeholder="Votre mot de passe actuel"
-              />
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+                <div className="relative">
+                  <Input
+                    id="currentPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Votre mot de passe actuel"
+                    value={formData.currentPassword}
+                    onChange={handleInputChange("currentPassword")}
+                    onFocus={handleInputFocus}
+                    disabled={isGoogleUser}
+                    className={
+                      isGoogleUser ? "opacity-50 cursor-not-allowed" : ""
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowPassword(!showPassword)}
+                    disabled={isGoogleUser}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+                <div className="relative">
+                  <Input
+                    id="newPassword"
+                    type={showNewPassword ? "text" : "password"}
+                    placeholder="Votre nouveau mot de passe"
+                    value={formData.newPassword}
+                    onChange={handleInputChange("newPassword")}
+                    onFocus={handleInputFocus}
+                    disabled={isGoogleUser}
+                    className={
+                      isGoogleUser ? "opacity-50 cursor-not-allowed" : ""
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    disabled={isGoogleUser}
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="confirmPassword">
+                  Confirmer le mot de passe
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirmez votre nouveau mot de passe"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange("confirmPassword")}
+                    onFocus={handleInputFocus}
+                    disabled={isGoogleUser}
+                    className={
+                      isGoogleUser ? "opacity-50 cursor-not-allowed" : ""
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={isGoogleUser}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+
               <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3"
-                onClick={() => setShowPassword(!showPassword)}
+                type="submit"
+                className="w-full"
+                disabled={isGoogleUser || isLoading}
+                onClick={() => {
+                  if (isGoogleUser) {
+                    toast.error(
+                      "Impossible de changer le mot de passe pour un compte Google"
+                    );
+                  }
+                }}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
+                <Save className="h-4 w-4 mr-2" />
+                {isLoading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
               </Button>
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="newPassword">Nouveau mot de passe</Label>
-            <div className="relative">
-              <Input
-                id="newPassword"
-                type={showNewPassword ? "text" : "password"}
-                placeholder="Votre nouveau mot de passe"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-              >
-                {showNewPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirmez votre nouveau mot de passe"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <Button className="w-full">
-            <Save className="h-4 w-4 mr-2" />
-            Mettre à jour le mot de passe
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Paramètres de confidentialité
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium">Profil public</h4>
-              <p className="text-sm text-muted-foreground">
-                Permettre aux autres utilisateurs de voir votre profil
-              </p>
-            </div>
-            <Button variant="outline" size="sm">
-              Configurer
-            </Button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium">Notifications par email</h4>
-              <p className="text-sm text-muted-foreground">
-                Recevoir des notifications par email
-              </p>
-            </div>
-            <Button variant="outline" size="sm">
-              Configurer
-            </Button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium">Historique de connexion</h4>
-              <p className="text-sm text-muted-foreground">
-                Consulter vos connexions récentes
-              </p>
-            </div>
-            <Button variant="outline" size="sm">
-              Voir l'historique
-            </Button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-medium">Authentification à deux facteurs</h4>
-              <p className="text-sm text-muted-foreground">
-                Sécuriser votre compte avec un second facteur
-              </p>
-            </div>
-            <Button variant="outline" size="sm">
-              Activer
-            </Button>
-          </div>
+          </form>
         </CardContent>
       </Card>
 
@@ -182,12 +229,6 @@ export function SecuritySection() {
                 </p>
               </div>
               <Badge variant="secondary">Actuelle</Badge>
-            </div>
-
-            <div className="text-center">
-              <Button variant="outline" size="sm">
-                Déconnecter toutes les autres sessions
-              </Button>
             </div>
           </div>
         </CardContent>

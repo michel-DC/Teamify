@@ -2,9 +2,9 @@
 
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/auth/authController";
-import { useOrganization } from "@/hooks/useOrganization";
 import { LoadingScreen } from "@/components/ui/Loader";
+import { useAuth } from "@/hooks/useAuth";
+import { useOrganization } from "@/hooks/useOrganization";
 
 interface ClientGateProps {
   children: ReactNode;
@@ -26,13 +26,33 @@ export default function ClientGate({ children }: ClientGateProps) {
      */
     const verifyAuth = async () => {
       try {
-        const ok = await checkAuth();
-        setAuthChecked(ok);
-        if (!ok) {
+        // Vérifier d'abord le localStorage pour une vérification rapide
+        const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+        if (!isLoggedIn) {
+          setAuthChecked(false);
+          setRedirecting(true);
+          router.replace("/auth/login");
+          return;
+        }
+
+        // Vérifier l'authentification côté serveur
+        const authResult = await checkAuth();
+        const isAuthenticated = authResult.isAuthenticated;
+
+        setAuthChecked(isAuthenticated);
+
+        if (!isAuthenticated) {
+          // Nettoyer le localStorage si l'authentification échoue
+          localStorage.removeItem("isLoggedIn");
           setRedirecting(true);
           router.replace("/auth/login");
         }
       } catch (error) {
+        console.error(
+          "Erreur lors de la vérification d'authentification:",
+          error
+        );
         setAuthChecked(false);
         setRedirecting(true);
         router.replace("/auth/login");
