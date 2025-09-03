@@ -154,9 +154,14 @@ export function SummaryStep({
             </div>
             <div>
               <span className="font-medium">Statut :</span>
-              <Badge variant="outline" className="ml-2">
-                {statusLabels[formData.status]}
-              </Badge>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className="ml-2">
+                  {statusLabels[formData.status]}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  (calculé automatiquement)
+                </span>
+              </div>
             </div>
           </CardContent>
         </Card>

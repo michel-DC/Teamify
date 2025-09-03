@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { EventStatus } from "@prisma/client";
+import { calculateEventStatus } from "@/lib/event-status-utils";
+import { Badge } from "@/components/ui/badge";
+import React from "react";
 
 interface Step3Props {
   formData: EventFormData;
@@ -31,6 +34,29 @@ export function Step3({
   onPrev,
   isStepComplete,
 }: Step3Props) {
+  // Calcul automatique du statut basé sur les dates
+  const calculatedStatus =
+    formData.startDate && formData.endDate
+      ? calculateEventStatus(formData.startDate, formData.endDate)
+      : EventStatus.A_VENIR;
+
+  // Mise à jour automatique du statut dans le formulaire
+  React.useEffect(() => {
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      formData.status !== calculatedStatus
+    ) {
+      updateFormData({ status: calculatedStatus });
+    }
+  }, [
+    formData.startDate,
+    formData.endDate,
+    calculatedStatus,
+    formData.status,
+    updateFormData,
+  ]);
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -70,20 +96,17 @@ export function Step3({
           </div>
         </div>
 
-        <div>
-          <Label htmlFor="status">Statut de l'événement *</Label>
-          <select
-            id="status"
-            value={formData.status}
-            onChange={(e) => updateFormData({ status: e.target.value })}
-            className="w-full p-2 border rounded-md mt-1 bg-background text-foreground"
-          >
-            {Object.entries(statusLabels).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+        {/* Affichage du statut calculé automatiquement */}
+        <div className="space-y-2">
+          <Label>Statut de l'événement</Label>
+          <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+            <Badge variant="outline" className="text-sm">
+              {statusLabels[calculatedStatus]}
+            </Badge>
+            <span className="text-sm text-muted-foreground">
+              Statut calculé automatiquement selon les dates définies
+            </span>
+          </div>
         </div>
       </div>
 
