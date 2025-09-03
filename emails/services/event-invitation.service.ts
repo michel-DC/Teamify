@@ -22,10 +22,15 @@ export class EventInvitationService {
 
       // Envoi via Resend
       const { data: resendData, error } = await resend.emails.send({
-        from: "Teamify <contact@onlinemichel.dev>",
+        from: "Teamify - Gestion d'événements <contact@onlinemichel.dev>",
         to: [email],
         subject: `Invitation à l'événement : ${data.eventName}`,
         html: htmlContent,
+        // Ajout d'une image de profil personnalisée
+        headers: {
+          "X-Profile-Image":
+            "https://teamify.onlinemichel.dev/images/logo/favicon-v2.png",
+        },
       });
 
       if (error) {

@@ -47,6 +47,7 @@ model Organization {
   publicId                String?                  @unique @default(cuid())
   eventCount              Int                      @default(0)
   events                  Event[]
+  isDeleted               Boolean                  @default(false)
   owner                   User                     @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
   organizationInvites     OrganizationInvite[]
   organizationMembers     OrganizationMember[]

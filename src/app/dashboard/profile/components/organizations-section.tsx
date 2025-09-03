@@ -1,16 +1,44 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Settings, Users } from "lucide-react";
+import {
+  Building2,
+  Settings,
+  Users,
+  LogOut,
+  Trash2,
+  AlertTriangle,
+} from "lucide-react";
 import { AutoSignedImage } from "@/components/ui/auto-signed-image";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 import { Organization } from "../types";
 
 interface OrganizationsSectionProps {
   organizations: Organization[];
+  onOrganizationUpdate?: () => void;
 }
 
 /**
@@ -48,7 +76,76 @@ const getRoleDisplay = (role: string) => {
 
 export function OrganizationsSection({
   organizations,
+  onOrganizationUpdate,
 }: OrganizationsSectionProps) {
+  const [loadingStates, setLoadingStates] = useState<Record<number, boolean>>(
+    {}
+  );
+
+  /**
+   * Gestion de la sortie d'une organisation
+   */
+  const handleLeaveOrganization = async (organizationId: number) => {
+    setLoadingStates((prev) => ({ ...prev, [organizationId]: true }));
+
+    try {
+      const response = await fetch("/api/organizations/leave", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ organizationId }),
+      });
+
+      if (response.ok) {
+        toast.success("Vous avez quitté l'organisation avec succès");
+        onOrganizationUpdate?.();
+      } else {
+        const error = await response.json();
+        toast.error(
+          error.error || "Erreur lors de la sortie de l'organisation"
+        );
+      }
+    } catch (error) {
+      console.error("Erreur lors de la sortie:", error);
+      toast.error("Erreur lors de la sortie de l'organisation");
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [organizationId]: false }));
+    }
+  };
+
+  /**
+   * Gestion de la suppression d'une organisation
+   */
+  const handleDeleteOrganization = async (organizationId: number) => {
+    setLoadingStates((prev) => ({ ...prev, [organizationId]: true }));
+
+    try {
+      const response = await fetch("/api/organizations/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ organizationId }),
+      });
+
+      if (response.ok) {
+        toast.success("Organisation supprimée avec succès");
+        onOrganizationUpdate?.();
+      } else {
+        const error = await response.json();
+        toast.error(
+          error.error || "Erreur lors de la suppression de l'organisation"
+        );
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      toast.error("Erreur lors de la suppression de l'organisation");
+    } finally {
+      setLoadingStates((prev) => ({ ...prev, [organizationId]: false }));
+    }
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {organizations.length === 0 ? (
@@ -68,6 +165,8 @@ export function OrganizationsSection({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           {organizations.map((org) => {
             const roleDisplay = getRoleDisplay(org.role);
+            const isLoading = loadingStates[org.id] || false;
+
             return (
               <Card
                 key={org.id}
@@ -127,15 +226,112 @@ export function OrganizationsSection({
                       </span>
                     </div>
 
-                    {/* Bouton des paramètres */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
-                      title="Paramètres de l'organisation"
-                    >
-                      <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
-                    </Button>
+                    {/* Menu des actions */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary transition-colors"
+                          title="Actions de l'organisation"
+                          disabled={isLoading}
+                        >
+                          <Settings className="h-3 w-3 sm:h-4 sm:w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem asChild>
+                          <a
+                            href={`/dashboard/organizations/settings/${org.publicId}`}
+                          >
+                            <Settings className="h-4 w-4 mr-2" />
+                            Paramètres
+                          </a>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        {/* Action selon le rôle */}
+                        {org.role === "OWNER" ? (
+                          <DropdownMenuItem asChild>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <div className="flex items-center w-full cursor-pointer text-destructive hover:text-destructive">
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Supprimer l'organisation
+                                </div>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="flex items-center gap-2">
+                                    <AlertTriangle className="h-5 w-5 text-destructive" />
+                                    Supprimer l'organisation
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Cette action est irréversible. Tous les
+                                    événements, membres et données associés à
+                                    cette organisation seront définitivement
+                                    supprimés.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() =>
+                                      handleDeleteOrganization(org.id)
+                                    }
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    disabled={isLoading}
+                                  >
+                                    {isLoading
+                                      ? "Suppression..."
+                                      : "Supprimer définitivement"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem asChild>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <div className="flex items-center w-full cursor-pointer text-destructive hover:text-destructive">
+                                  <LogOut className="h-4 w-4 mr-2" />
+                                  Quitter l'organisation
+                                </div>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="flex items-center gap-2">
+                                    <LogOut className="h-5 w-5 text-destructive" />
+                                    Quitter l'organisation
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Êtes-vous sûr de vouloir quitter cette
+                                    organisation ? Vous perdrez l'accès à tous
+                                    les événements et données associés.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() =>
+                                      handleLeaveOrganization(org.id)
+                                    }
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    disabled={isLoading}
+                                  >
+                                    {isLoading
+                                      ? "Sortie..."
+                                      : "Quitter l'organisation"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </CardContent>
               </Card>

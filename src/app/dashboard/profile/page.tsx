@@ -59,12 +59,31 @@ export default function ProfilePage() {
       const response = await fetch("/api/user/organizations", {
         credentials: "include",
       });
+
       if (response.ok) {
         const data = await response.json();
         setOrganizations(data.organizations || []);
+      } else {
+        const errorData = await response.json();
+        console.error("Erreur API organisations:", response.status, errorData);
+
+        if (response.status === 401) {
+          console.warn("Utilisateur non authentifié");
+          // Rediriger vers la page de connexion si non authentifié
+          window.location.href = "/auth/login";
+        } else {
+          toast.error(
+            `Erreur lors de la récupération des organisations: ${
+              errorData.error || "Erreur serveur"
+            }`
+          );
+        }
       }
     } catch (error) {
       console.error("Erreur lors de la récupération des organisations:", error);
+      toast.error(
+        "Erreur de connexion lors de la récupération des organisations"
+      );
     }
   };
 
@@ -142,7 +161,12 @@ export default function ProfilePage() {
           />
         );
       case "organizations":
-        return <OrganizationsSection organizations={organizations} />;
+        return (
+          <OrganizationsSection
+            organizations={organizations}
+            onOrganizationUpdate={fetchUserOrganizations}
+          />
+        );
       case "security":
         return <SecuritySection />;
       case "delete":

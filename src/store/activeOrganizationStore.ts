@@ -6,7 +6,7 @@ interface Organization {
   publicId: string;
   name: string;
   bio?: string;
-  profileImage?: string;
+  profileImage: string | null;
   memberCount: number;
   organizationType: string;
   mission: string;

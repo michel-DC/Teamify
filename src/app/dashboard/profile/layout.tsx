@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Teamify · Votre profil",
-  description: "Accédez à cette page pour voir votre profil sur Teamify.",
+  title: "Teamify · Mon profil",
+  description: "Accédez à cette page pour voir mon profil sur Teamify.",
 };
 
 export default function ProfileLayout({

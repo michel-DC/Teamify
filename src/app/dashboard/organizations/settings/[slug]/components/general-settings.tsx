@@ -148,12 +148,13 @@ export function GeneralSettings({
 
     setDeleteLoading(true);
     try {
-      const response = await fetch(
-        `/api/organizations/settings/${organization.publicId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch("/api/organizations/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ organizationId: organization.id }),
+      });
 
       if (response.ok) {
         toast.success("Organisation supprimée avec succès 🤩​");
@@ -161,7 +162,7 @@ export function GeneralSettings({
         window.location.href = "/dashboard/organizations";
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erreur lors de la suppression 😭​");
+        toast.error(error.error || "Erreur lors de la suppression 😭​");
       }
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);

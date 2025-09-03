@@ -6,79 +6,60 @@ export const generateOrganizationInvitationEmail = (
   receiverName: string
 ): string => {
   const content = `
-          <!-- Content -->
+          <!-- Contenu carte -->
           <tr>
-            <td class="content-padding" style="padding:32px 40px 20px; text-align:left;">
-              <h1 style="font-size:24px; font-weight:700; margin:0 0 20px; color:#6D5DE6;">
-                Bonjour ${receiverName},
-              </h1>
-              <p style="font-size:16px; color:#4b5563; line-height:1.7; margin:0 0 30px;">
+            <td class="content-padding" style="padding:32px; text-align:left; background:#ffffff;">
+              <h1 style="margin:0 0 16px; color:#020102;">Bonjour ${receiverName},</h1>
+              <p style="margin:0 0 24px;">
                 <strong>${
                   data.inviterName
-                }</strong> vous a invité à rejoindre une organisation sur <strong>Teamify</strong>.  
-                Nous sommes ravis de vous accueillir dans notre communauté.
+                }</strong> vous a invité à rejoindre une organisation sur <strong>Teamify</strong>.
               </p>
-            </td>
-          </tr>
 
-          <!-- Separator -->
-          <tr>
-            <td style="padding:0 40px;">
-              <hr>
-            </td>
-          </tr>
+              <!-- Détails (même background que la carte, pas de sous-card grisée) -->
+              <div style="margin:0 0 24px;">
+                <p style="margin:0 0 8px;"><strong>Organisation :</strong> ${
+                  data.organizationName
+                }</p>
+                <p style="margin:0 0 8px;"><strong>Type :</strong> ${
+                  data.organizationType
+                }</p>
+                <p style="margin:0 0 8px;"><strong>Membres :</strong> ${
+                  data.memberCount
+                } membre${data.memberCount > 1 ? "s" : ""}</p>
+                ${
+                  data.mission
+                    ? `<p style="margin:0 0 8px;"><strong>Mission :</strong> ${data.mission}</p>`
+                    : ""
+                }
+                ${
+                  data.bio
+                    ? `<p style="margin:0 0 8px;"><strong>Description :</strong> ${data.bio}</p>`
+                    : ""
+                }
+              </div>
 
-          <!-- Organization Section -->
-          <tr>
-            <td style="padding:20px 40px;">
-              <table role="presentation" width="100%" style="border:1px solid #eee; border-radius:10px; background:#fafafa;" cellpadding="0" cellspacing="0">
-                <tr>
-                  <td style="padding:20px;">
-                    <h2 style="font-size:18px; font-weight:600; margin:0 0 15px; color:#6D5DE6;">Détails de l'organisation</h2>
-                    <p style="margin:0 0 6px; font-size:15px;"><strong>Organisation :</strong> ${
-                      data.organizationName
-                    }</p>
-                    <p style="margin:0 0 6px; font-size:15px;"><strong>Type :</strong> ${
-                      data.organizationType
-                    }</p>
-                    <p style="margin:0 0 6px; font-size:15px;"><strong>Membres :</strong> ${
-                      data.memberCount
-                    } membre${data.memberCount > 1 ? "s" : ""}</p>
-                    ${
-                      data.mission
-                        ? `<p style="margin:0 0 6px; font-size:15px;"><strong>Mission :</strong> ${data.mission}</p>`
-                        : ""
-                    }
-                    ${
-                      data.bio
-                        ? `<p style="margin:0 0 6px; font-size:15px;"><strong>Description :</strong> ${data.bio}</p>`
-                        : ""
-                    }
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-
-          <!-- CTA -->
-          <tr>
-            <td align="center" style="padding:30px 40px 20px;">
-              <a href="${
-                process.env.NEXT_PUBLIC_APP_URL ||
-                "https://teamify.onlinemichel.dev"
-              }/invite/${data.inviteCode}" 
-                 style="display:inline-block; background-color:#6D5DE6; color:#ffffff; padding:14px 28px; border-radius:8px; font-weight:600; font-size:16px;">
-                Rejoindre l'organisation
-              </a>
-            </td>
-          </tr>
-
-          <!-- Secondary Note -->
-          <tr>
-            <td align="center" style="padding:10px 40px 40px;">
-              <p style="margin:0; font-size:14px; color:#FCA7DB; font-weight:600;">
-                Invitation valable uniquement via ce lien
-              </p>
+              <!-- CTA  -->
+              <div style="margin:24px 0 0;">
+                <a href="${
+                  process.env.NEXT_PUBLIC_APP_URL ||
+                  "https://teamify.onlinemichel.dev"
+                }/invite/${data.inviteCode}"
+                   style="
+                     display:block;
+                     width:calc(100% - 48px);
+                     text-align:center;
+                     background-color:#6D5DE6;
+                     color:#ffffff;
+                     padding:14px 24px;
+                     border-radius:9999px;
+                     font-weight:600;
+                     font-size:16px;
+                     margin:0 auto;
+                   ">
+                  Rejoindre l'organisation
+                </a>
+              </div>
             </td>
           </tr>
   `;

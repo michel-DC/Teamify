@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,26 +48,6 @@ const generateInitials = (name: string): string => {
     .slice(0, 2);
 };
 
-/**
- * Formate l'URL de l'image de profil
- */
-const formatImageUrl = (imageUrl?: string): string | undefined => {
-  if (!imageUrl) return undefined;
-
-  // Si c'est déjà une URL complète, la retourner
-  if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-    return imageUrl;
-  }
-
-  // Si c'est une URL relative, ajouter le domaine
-  if (imageUrl.startsWith("/")) {
-    return `${window.location.origin}${imageUrl}`;
-  }
-
-  // Sinon, traiter comme une URL relative
-  return `${window.location.origin}/${imageUrl}`;
-};
-
 export function NavUser({
   user,
 }: {
@@ -84,7 +65,6 @@ export function NavUser({
     avatar: user.avatar,
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [imageError, setImageError] = useState(false);
 
   /**
    * Récupère les données utilisateur depuis l'API
@@ -107,12 +87,11 @@ export function NavUser({
           const userDataFromApi = data.user || data;
           const imageUrl =
             userDataFromApi.avatar || userDataFromApi.profileImage;
-          const formattedImageUrl = formatImageUrl(imageUrl);
 
           setUserData({
             name: userDataFromApi.name || user.name,
             email: userDataFromApi.email || user.email,
-            avatar: formattedImageUrl,
+            avatar: imageUrl,
           });
         } else {
           console.warn("Impossible de récupérer les données utilisateur");
@@ -165,17 +144,22 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage
-                  src={userData.avatar}
-                  alt={userData.name}
-                  onError={() => {
-                    setImageError(true);
-                  }}
-                  onLoad={() => setImageError(false)}
-                />
-                <AvatarFallback className="rounded-lg">
-                  {isLoading ? "..." : userInitials}
-                </AvatarFallback>
+                {userData.avatar ? (
+                  <AutoSignedImage
+                    src={userData.avatar}
+                    alt={userData.name}
+                    className="w-full h-full object-cover rounded-lg"
+                    errorComponent={
+                      <AvatarFallback className="rounded-lg">
+                        {isLoading ? "..." : userInitials}
+                      </AvatarFallback>
+                    }
+                  />
+                ) : (
+                  <AvatarFallback className="rounded-lg">
+                    {isLoading ? "..." : userInitials}
+                  </AvatarFallback>
+                )}
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{userData.name}</span>
@@ -193,17 +177,22 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src={userData.avatar}
-                    alt={userData.name}
-                    onError={() => {
-                      setImageError(true);
-                    }}
-                    onLoad={() => setImageError(false)}
-                  />
-                  <AvatarFallback className="rounded-lg">
-                    {isLoading ? "..." : userInitials}
-                  </AvatarFallback>
+                  {userData.avatar ? (
+                    <AutoSignedImage
+                      src={userData.avatar}
+                      alt={userData.name}
+                      className="w-full h-full object-cover rounded-lg"
+                      errorComponent={
+                        <AvatarFallback className="rounded-lg">
+                          {isLoading ? "..." : userInitials}
+                        </AvatarFallback>
+                      }
+                    />
+                  ) : (
+                    <AvatarFallback className="rounded-lg">
+                      {isLoading ? "..." : userInitials}
+                    </AvatarFallback>
+                  )}
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{userData.name}</span>
