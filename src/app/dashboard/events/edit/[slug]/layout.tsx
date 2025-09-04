@@ -3,15 +3,16 @@ import { prisma } from "@/lib/prisma";
 
 type EventsLayoutProps = Readonly<{
   children: React.ReactNode;
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }>;
 
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const eventName = await getEventNameBySlug(params.slug);
+  const { slug } = await params;
+  const eventName = await getEventNameBySlug(slug);
 
   return {
     title: `Modifier l'événement: ${
