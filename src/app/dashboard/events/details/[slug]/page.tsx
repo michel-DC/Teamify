@@ -27,9 +27,11 @@ import {
   Users,
   Eye,
   Slash,
+  CalendarPlus,
 } from "lucide-react";
 import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
 import { useOrganizationPermissions } from "@/hooks/useOrganization";
+import { addEventToGoogleCalendar } from "@/lib/google-calendar-utils";
 
 /**
  * Extrait le nom de la ville depuis une adresse complète
@@ -195,7 +197,23 @@ export default function EventDetailsPage() {
                 <h1 className="text-4xl font-bold text-center">
                   {event.title}
                 </h1>
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-wrap justify-center">
+                  <Button
+                    variant="outline"
+                    className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                    onClick={() =>
+                      addEventToGoogleCalendar({
+                        title: event.title,
+                        description: event.description,
+                        location: event.location,
+                        startDate: event.startDate,
+                        endDate: event.endDate,
+                      })
+                    }
+                  >
+                    <CalendarPlus className="h-4 w-4 mr-2" />
+                    Ajouter à Google Agenda
+                  </Button>
                   {canModifyEvent && (
                     <Button
                       className="bg-green-700 hover:bg-green-800 text-white"

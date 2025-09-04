@@ -35,46 +35,21 @@ export async function verifyToken(
  */
 export async function getCurrentUser() {
   try {
-    console.log("[getCurrentUser] Début de la récupération de l'utilisateur");
-
     const cookieStore = cookies();
     const token = (await cookieStore).get("token")?.value;
 
-    console.log("[getCurrentUser] Token récupéré:", {
-      hasToken: !!token,
-      tokenLength: token?.length || 0,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : "aucun",
-    });
-
     if (!token) {
-      console.log("[getCurrentUser] Aucun token trouvé dans les cookies");
       return null;
     }
 
-    console.log("[getCurrentUser] Vérification du token JWT...");
     const payload = await verifyToken(token);
 
-    console.log("[getCurrentUser] Résultat de la vérification du token:", {
-      hasPayload: !!payload,
-      userUid: payload?.userUid,
-    });
-
     if (!payload?.userUid) {
-      console.log("[getCurrentUser] Token invalide ou expiré");
       return null;
     }
 
-    console.log(
-      "[getCurrentUser] Recherche de l'utilisateur dans la base de données..."
-    );
     const user = await prisma.user.findUnique({
       where: { uid: payload.userUid },
-    });
-
-    console.log("[getCurrentUser] Résultat de la recherche utilisateur:", {
-      userFound: !!user,
-      uid: user?.uid,
-      email: user?.email,
     });
 
     return user;
