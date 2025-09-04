@@ -3,7 +3,15 @@
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Building2, Shield, Trash2, Camera, Loader2 } from "lucide-react";
+import {
+  User,
+  Building2,
+  Shield,
+  Trash2,
+  Camera,
+  Loader2,
+  Settings,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 
@@ -196,6 +204,20 @@ export function ProfileSidebar({
               </span>
               <span className="text-xs text-muted-foreground truncate w-full">
                 Voir et gérer mes organisations
+              </span>
+            </div>
+          </Button>
+
+          <Button
+            variant={activeSection === "preferences" ? "secondary" : "ghost"}
+            className="w-full justify-start gap-3 h-auto p-3 text-left"
+            onClick={() => onSectionChange("preferences")}
+          >
+            <Settings className="h-4 w-4 flex-shrink-0" />
+            <div className="flex flex-col items-start min-w-0 flex-1">
+              <span className="font-medium truncate w-full">Préférences</span>
+              <span className="text-xs text-muted-foreground truncate w-full">
+                Personnaliser l'interface
               </span>
             </div>
           </Button>

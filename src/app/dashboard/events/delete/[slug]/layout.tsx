@@ -14,7 +14,7 @@ export async function generateMetadata({
   const eventName = await getEventNameBySlug(params.slug);
 
   return {
-    title: `Supprimer ${
+    title: `Supprimer l'événement: ${
       eventName
         ? eventName.charAt(0).toLowerCase() + eventName.slice(1)
         : "l'événement"

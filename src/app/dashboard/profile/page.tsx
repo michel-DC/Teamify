@@ -19,6 +19,7 @@ import {
   SecuritySection,
   DeleteAccountSection,
 } from "./components";
+import { PreferencesSection } from "./components/preferences-section";
 
 import { UserProfile, Organization } from "./types";
 
@@ -167,6 +168,8 @@ export default function ProfilePage() {
             onOrganizationUpdate={fetchUserOrganizations}
           />
         );
+      case "preferences":
+        return <PreferencesSection />;
       case "security":
         return <SecuritySection />;
       case "delete":
