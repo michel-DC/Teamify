@@ -113,7 +113,6 @@ export default function EditEventPage() {
       </header>
 
       <div className="flex-1">
-        <Toaster position="top-center" richColors />
         <EditMenu
           eventSlug={params.slug as string}
           eventTitle={eventData.title}

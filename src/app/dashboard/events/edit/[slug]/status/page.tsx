@@ -57,7 +57,6 @@ export default function EventStatusEditPage() {
       </header>
 
       <div className="flex-1">
-        <Toaster position="top-center" richColors />
         <StatusEditForm />
       </div>
     </div>

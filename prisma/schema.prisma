@@ -29,6 +29,7 @@ model User {
   organizationInvites OrganizationInvite[] @relation("InvitedBy")
   organizationMembers OrganizationMember[]
   userByRole          UserByRole?
+  notifications       Notification[]
 }
 
 model Organization {
@@ -52,6 +53,7 @@ model Organization {
   organizationInvites     OrganizationInvite[]
   organizationMembers     OrganizationMember[]
   organizationPermissions OrganizationPermissions?
+  notifications           Notification[]
 }
 
 model Event {
@@ -82,6 +84,7 @@ model Event {
   invitations           Invitation[]
   preparationTodos      PreparationTodo[]
   preparationTodoGroups PreparationTodoGroup[]
+  notifications         Notification[]
 }
 
 model Invitation {
@@ -190,6 +193,24 @@ model OrganizationPermissions {
   organization                      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
 
+model Notification {
+  id                    Int                @id @default(autoincrement())
+  publicId              String             @unique @default(cuid())
+  notificationName      String
+  notificationDescription String
+  notificationDate      DateTime           @default(now())
+  isRead                Boolean            @default(false)
+  notificationType      NotificationType   @default(INFO)
+  eventPublicId         String?
+  organizationPublicId  String?
+  userUid               String
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  user                  User               @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  event                 Event?             @relation(fields: [eventPublicId], references: [publicId], onDelete: Cascade)
+  organization          Organization?      @relation(fields: [organizationPublicId], references: [publicId], onDelete: Cascade)
+}
+
 enum InvitationStatus {
   PENDING
   ACCEPTED
@@ -235,4 +256,14 @@ enum EventCategory {
   CONCERT
   SPECTACLE
   AUTRE
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  INVITATION
+  REMINDER
+  UPDATE
 }

@@ -57,7 +57,6 @@ export default function EventEditFormPage() {
       </header>
 
       <div className="flex-1">
-        <Toaster position="top-center" richColors />
         <EventEditForm />
       </div>
     </div>

@@ -56,7 +56,6 @@ export const ForgotPassword = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-background px-4 sm:px-6">
-      <Toaster position="top-center" richColors />
       <button
         onClick={toggleTheme}
         className="fixed top-4 right-4 p-2 rounded-full bg-card hover:bg-accent transition-colors duration-200"

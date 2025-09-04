@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { LoadingScreen } from "@/components/ui/Loader";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrganization } from "@/hooks/useOrganization";
+import { TokenValidationProvider } from "@/components/TokenValidationProvider";
 
 interface ClientGateProps {
   children: ReactNode;
@@ -136,5 +137,13 @@ export default function ClientGate({ children }: ClientGateProps) {
     return <LoadingScreen text="Chargement de votre espace..." />;
   }
 
-  return <>{children}</>;
+  return (
+    <TokenValidationProvider
+      checkInterval={5 * 60 * 1000} // Vérification toutes les 5 minutes
+      redirectDelay={2000} // 2 secondes avant redirection
+      customMessage="Votre session a expiré. Vous allez être redirigé vers la page de connexion."
+    >
+      {children}
+    </TokenValidationProvider>
+  );
 }

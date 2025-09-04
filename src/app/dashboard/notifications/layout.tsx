@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Teamify · Vos organisations",
-  description: "Page de gestion des organisations sur Teamify",
+  title: "Teamify · Vos notifications",
+  description: "Page de gestion des notifications sur Teamify",
 };
 
-export default function OrganizationsLayout({
+export default function NotificationsLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

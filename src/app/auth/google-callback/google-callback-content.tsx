@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 /**
  * Composant de contenu pour le callback Google
@@ -97,12 +98,12 @@ export function GoogleCallbackContent() {
               Erreur d'authentification
             </h2>
             <p className="text-muted-foreground mb-6">{error}</p>
-            <button
+            <Button
               onClick={() => router.push("/auth/login")}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors"
+              className="w-full"
             >
               Retour à la connexion
-            </button>
+            </Button>
           </div>
         </div>
       </div>

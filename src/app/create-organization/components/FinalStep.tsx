@@ -5,6 +5,7 @@ import { StepProps } from "@/types/steps";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function FinalStep({ formData }: StepProps) {
   const router = useRouter();
@@ -93,14 +94,14 @@ export default function FinalStep({ formData }: StepProps) {
           />
         )}
       </ul>
-      <button
+      <Button
         onClick={handleSubmit}
         disabled={loading}
         className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
         aria-busy={loading}
       >
         {loading ? "Création en cours..." : "Créer l'organisation"}
-      </button>
+      </Button>
     </div>
   );
 }

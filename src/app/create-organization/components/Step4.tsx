@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { StepProps } from "@/types/steps";
+import { Button } from "react-day-picker";
 
 export default function Step4({
   next,
@@ -139,19 +140,19 @@ export default function Step4({
       )}
 
       <div className="flex justify-between gap-4">
-        <button
+        <Button
           onClick={handlePrev}
           className="px-4 py-2 text-sm font-medium text-foreground bg-secondary rounded-md hover:bg-secondary/80 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
         >
           Précedent
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleNext}
           disabled={!formData.location}
           className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
         >
           Suivant
-        </button>
+        </Button>
       </div>
     </div>
   );

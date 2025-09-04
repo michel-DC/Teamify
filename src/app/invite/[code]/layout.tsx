@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import InviteClientGate from "../ClientGate";
 
 export const metadata: Metadata = {
   title: "Teamify · Rejoindre une organisation",
@@ -11,5 +12,5 @@ export default function InviteLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <>{children}</>;
+  return <InviteClientGate>{children}</InviteClientGate>;
 }

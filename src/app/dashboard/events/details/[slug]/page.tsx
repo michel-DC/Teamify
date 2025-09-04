@@ -198,22 +198,6 @@ export default function EventDetailsPage() {
                   {event.title}
                 </h1>
                 <div className="flex gap-4 flex-wrap justify-center">
-                  <Button
-                    variant="outline"
-                    className="border-blue-500 text-blue-600 hover:bg-blue-50"
-                    onClick={() =>
-                      addEventToGoogleCalendar({
-                        title: event.title,
-                        description: event.description,
-                        location: event.location,
-                        startDate: event.startDate,
-                        endDate: event.endDate,
-                      })
-                    }
-                  >
-                    <CalendarPlus className="h-4 w-4 mr-2" />
-                    Ajouter à Google Agenda
-                  </Button>
                   {canModifyEvent && (
                     <Button
                       className="bg-green-700 hover:bg-green-800 text-white"
@@ -234,6 +218,22 @@ export default function EventDetailsPage() {
                       Supprimer l&apos;évènement
                     </Button>
                   )}
+                  <Button
+                    variant="outline"
+                    className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                    onClick={() =>
+                      addEventToGoogleCalendar({
+                        title: event.title,
+                        description: event.description,
+                        location: event.location,
+                        startDate: event.startDate,
+                        endDate: event.endDate,
+                      })
+                    }
+                  >
+                    <CalendarPlus className="h-4 w-4 mr-2" />
+                    Ajouter à Google Agenda
+                  </Button>
                 </div>
               </div>
             </div>
