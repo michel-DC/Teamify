@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { OrganizationType } from "@prisma/client";
 import { uploadImage } from "@/lib/upload-utils";
+import { createNotification } from "@/lib/notification-service";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -97,6 +98,22 @@ export async function POST(req: Request) {
 
       return createdOrg;
     });
+
+    // Créer une notification pour le créateur de l'organisation
+    try {
+      await createNotification({
+        notificationName: "Organisation créée",
+        notificationDescription: `Vous avez créé l'organisation "${name}" avec succès.`,
+        notificationType: "SUCCESS",
+        userUid: user.uid,
+        organizationPublicId: organization.publicId,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Erreur lors de la création de la notification:",
+        notificationError
+      );
+    }
 
     return NextResponse.json(
       { message: "Organisation créée", organization },
