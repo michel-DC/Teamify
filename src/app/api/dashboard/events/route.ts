@@ -7,10 +7,6 @@ import { uploadImage } from "@/lib/upload-utils";
 import { writeFile } from "fs";
 import { join } from "path";
 import { calculateEventStatus } from "@/lib/event-status-utils";
-import {
-  createNotification,
-  createNotificationForOrganizationMembers,
-} from "@/lib/notification-service";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -183,45 +179,6 @@ export async function POST(req: Request) {
 
       return newEvent;
     });
-
-    // Récupérer l'organisation pour les notifications
-    const organization = await prisma.organization.findUnique({
-      where: { id: orgId },
-      select: { publicId: true, name: true },
-    });
-
-    // Créer une notification pour le créateur de l'événement
-    try {
-      await createNotification({
-        notificationName: "Événement créé",
-        notificationDescription: `Vous avez créé l'événement "${title}" avec succès.`,
-        notificationType: "SUCCESS",
-        userUid: user.uid,
-        eventPublicId: event.publicId,
-        organizationPublicId: organization?.publicId,
-      });
-    } catch (notificationError) {
-      console.error(
-        "Erreur lors de la création de la notification pour le créateur:",
-        notificationError
-      );
-    }
-
-    // Créer une notification pour tous les membres de l'organisation (sauf le créateur)
-    try {
-      await createNotificationForOrganizationMembers(orgId, {
-        notificationName: "Nouvel événement",
-        notificationDescription: `Un nouvel événement "${title}" a été créé dans l'organisation ${organization?.name}.`,
-        notificationType: "INFO",
-        eventPublicId: event.publicId,
-        organizationPublicId: organization?.publicId,
-      });
-    } catch (notificationError) {
-      console.error(
-        "Erreur lors de la création des notifications pour l'organisation:",
-        notificationError
-      );
-    }
 
     return NextResponse.json(
       {

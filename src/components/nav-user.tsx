@@ -29,7 +29,6 @@ import {
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
-import { useNotifications } from "@/hooks/useNotifications";
 
 interface UserData {
   name: string;
@@ -60,7 +59,6 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { theme, setTheme } = useTheme();
-  const { unreadCount } = useNotifications();
   const [userData, setUserData] = useState<UserData>({
     name: user.name,
     email: user.email,
@@ -211,21 +209,9 @@ export function NavUser({
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <div className="relative">
-                  <Bell />
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  )}
-                </div>
-                <a href="/dashboard/notifications" className="">
+                <Bell />
+                <a href="#" className="">
                   Notifications
-                  {unreadCount > 0 && (
-                    <span className="ml-auto text-xs text-muted-foreground">
-                      {unreadCount} non lue{unreadCount > 1 ? "s" : ""}
-                    </span>
-                  )}
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem>

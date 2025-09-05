@@ -4,10 +4,6 @@ import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 import { EventCategory, EventStatus } from "@prisma/client";
 import { uploadImage } from "@/lib/upload-utils";
 import { calculateEventStatus } from "@/lib/event-status-utils";
-import {
-  createNotification,
-  createNotificationForOrganizationMembers,
-} from "@/lib/notification-service";
 
 export async function GET(
   request: Request,
@@ -236,7 +232,6 @@ export async function PATCH(
         organization: {
           select: {
             id: true,
-            publicId: true,
             name: true,
           },
         },
@@ -248,39 +243,6 @@ export async function PATCH(
       title: updatedEvent.title,
       status: updatedEvent.status,
     });
-
-    // Créer une notification pour le modificateur de l'événement
-    try {
-      await createNotification({
-        notificationName: "Événement modifié",
-        notificationDescription: `Vous avez modifié l'événement "${updatedEvent.title}" avec succès.`,
-        notificationType: "SUCCESS",
-        userUid: user.uid,
-        eventPublicId: updatedEvent.publicId,
-        organizationPublicId: updatedEvent.organization.publicId || undefined,
-      });
-    } catch (notificationError) {
-      console.error(
-        "Erreur lors de la création de la notification pour le modificateur:",
-        notificationError
-      );
-    }
-
-    // Créer une notification pour tous les membres de l'organisation (sauf le modificateur)
-    try {
-      await createNotificationForOrganizationMembers(updatedEvent.orgId, {
-        notificationName: "Événement modifié",
-        notificationDescription: `L'événement "${updatedEvent.title}" a été modifié dans l'organisation ${updatedEvent.organization.name}.`,
-        notificationType: "UPDATE",
-        eventPublicId: updatedEvent.publicId,
-        organizationPublicId: updatedEvent.organization.publicId || undefined,
-      });
-    } catch (notificationError) {
-      console.error(
-        "Erreur lors de la création des notifications pour l'organisation:",
-        notificationError
-      );
-    }
 
     return NextResponse.json({ event: updatedEvent }, { status: 200 });
   } catch (error) {
@@ -353,7 +315,6 @@ export async function PUT(
         organization: {
           select: {
             id: true,
-            publicId: true,
             name: true,
           },
         },
