@@ -52,12 +52,18 @@ export function TeamSwitcher({
         const response = await fetch(
           `/api/organizations/by-public-id/${activeOrganization.publicId}/profile-image`
         );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
         setProfileImage(data.profileImage);
         setOrganizationName(data.name || activeOrganization.name);
       } catch (error) {
         console.error("Error fetching organization data:", error);
-        setProfileImage(null);
+        // En cas d'erreur, utiliser les données de l'organisation active directement
+        setProfileImage(activeOrganization.profileImage);
         setOrganizationName(activeOrganization.name);
       }
     };
@@ -104,6 +110,16 @@ export function TeamSwitcher({
                       src={profileImage}
                       alt={displayName}
                       className="rounded-full w-full h-full"
+                      errorComponent={
+                        <div className="w-full h-full flex items-center justify-center bg-muted rounded-full">
+                          <GalleryVerticalEnd className="size-3 text-muted-foreground" />
+                        </div>
+                      }
+                      loadingComponent={
+                        <div className="w-full h-full flex items-center justify-center bg-muted rounded-full animate-pulse">
+                          <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
+                        </div>
+                      }
                     />
                   </div>
                 ) : (
@@ -140,6 +156,16 @@ export function TeamSwitcher({
                         src={org.profileImage}
                         alt={org.name}
                         className="rounded-full w-full h-full"
+                        errorComponent={
+                          <div className="w-full h-full flex items-center justify-center bg-muted rounded-full">
+                            <GalleryVerticalEnd className="size-4 text-muted-foreground" />
+                          </div>
+                        }
+                        loadingComponent={
+                          <div className="w-full h-full flex items-center justify-center bg-muted rounded-full animate-pulse">
+                            <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
+                          </div>
+                        }
                       />
                     </div>
                   ) : (

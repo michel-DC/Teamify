@@ -2,7 +2,7 @@ import { RegisterForm } from "@/components/auth/register-form";
 import React, { Suspense } from "react";
 
 export const metadata = {
-  title: "Teamify · Inscription",
+  title: "Teamify - Inscription",
   description: "Page d'inscription de teamify",
 };
 
