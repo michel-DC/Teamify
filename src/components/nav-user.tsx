@@ -65,6 +65,7 @@ export function NavUser({
     avatar: user.avatar,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
 
   /**
    * Récupère les données utilisateur depuis l'API
@@ -108,6 +109,35 @@ export function NavUser({
 
     fetchUserData();
   }, [user.name, user.email, user.avatar]);
+
+  /**
+   * Récupère le nombre de notifications non lues
+   */
+  useEffect(() => {
+    const fetchUnreadNotificationsCount = async () => {
+      try {
+        const response = await fetch("/api/notifications", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUnreadNotificationsCount(data.unreadCount || 0);
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération du nombre de notifications:",
+          error
+        );
+      }
+    };
+
+    fetchUnreadNotificationsCount();
+  }, []);
 
   const handleThemeChange = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -209,8 +239,17 @@ export function NavUser({
                 </a>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Bell />
-                <a href="#" className="">
+                <div className="relative">
+                  <Bell />
+                  {unreadNotificationsCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {unreadNotificationsCount > 99
+                        ? "99+"
+                        : unreadNotificationsCount}
+                    </span>
+                  )}
+                </div>
+                <a href="/dashboard/notifications" className="">
                   Notifications
                 </a>
               </DropdownMenuItem>

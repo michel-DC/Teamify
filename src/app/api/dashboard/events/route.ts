@@ -7,6 +7,7 @@ import { uploadImage } from "@/lib/upload-utils";
 import { writeFile } from "fs";
 import { join } from "path";
 import { calculateEventStatus } from "@/lib/event-status-utils";
+import { createNotificationForOrganizationMembers } from "@/lib/notification-service";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -179,6 +180,22 @@ export async function POST(req: Request) {
 
       return newEvent;
     });
+
+    // Créer des notifications pour tous les membres de l'organisation
+    try {
+      await createNotificationForOrganizationMembers(orgId, {
+        notificationName: "Nouvel événement créé",
+        notificationDescription: `Un nouvel événement "${title}" a été créé dans l'organisation`,
+        notificationType: "INFO",
+        eventPublicId: event.publicId,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Erreur lors de la création des notifications:",
+        notificationError
+      );
+      // Ne pas faire échouer la création de l'événement si les notifications échouent
+    }
 
     return NextResponse.json(
       {
