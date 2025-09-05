@@ -23,6 +23,32 @@ export interface OrganizationInvitationData {
   inviterName: string;
 }
 
+export interface NotificationEmailData {
+  notificationName: string;
+  notificationDescription: string;
+  notificationType:
+    | "INFO"
+    | "SUCCESS"
+    | "WARNING"
+    | "ERROR"
+    | "INVITATION"
+    | "REMINDER"
+    | "UPDATE";
+  eventTitle?: string;
+  eventPublicId?: string;
+  eventCode?: string;
+  organizationName?: string;
+  organizationPublicId?: string;
+  notificationDate: string;
+}
+
+export interface WelcomeEmailData {
+  userName: string;
+  hasOrganization: boolean;
+  organizationName?: string;
+  organizationPublicId?: string;
+}
+
 export interface EmailServiceResponse {
   success: boolean;
   data?: any;

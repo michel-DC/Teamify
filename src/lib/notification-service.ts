@@ -2,6 +2,7 @@
 
 import { prisma } from "./prisma";
 import { NotificationType } from "@prisma/client";
+import { NotificationEmailService } from "../../emails/services/notification.service";
 
 /**
  * Interface pour les données de notification
@@ -30,6 +31,17 @@ export async function createNotification(data: NotificationData) {
         userUid: data.userUid,
       },
     });
+
+    // Envoyer un email de notification en arrière-plan
+    try {
+      await sendNotificationEmail(notification);
+    } catch (emailError) {
+      console.error(
+        "Erreur lors de l'envoi de l'email de notification:",
+        emailError
+      );
+      // Ne pas faire échouer la création de la notification si l'email échoue
+    }
 
     return notification;
   } catch (error) {
@@ -208,5 +220,73 @@ export async function deleteNotification(
   } catch (error) {
     console.error("Erreur lors de la suppression de la notification:", error);
     throw error;
+  }
+}
+
+/**
+ * Envoie un email de notification
+ */
+async function sendNotificationEmail(notification: any) {
+  try {
+    // Récupérer les informations de l'utilisateur
+    const user = await prisma.user.findUnique({
+      where: { uid: notification.userUid },
+      select: { email: true, firstname: true, lastname: true },
+    });
+
+    if (!user || !user.email) {
+      console.warn(
+        "Utilisateur non trouvé ou email manquant pour la notification:",
+        notification.id
+      );
+      return;
+    }
+
+    // Récupérer les informations contextuelles
+    let eventTitle: string | undefined;
+    let organizationName: string | undefined;
+
+    if (notification.eventPublicId) {
+      const event = await prisma.event.findUnique({
+        where: { publicId: notification.eventPublicId },
+        select: { title: true },
+      });
+      eventTitle = event?.title;
+    }
+
+    if (notification.organizationPublicId) {
+      const organization = await prisma.organization.findUnique({
+        where: { publicId: notification.organizationPublicId },
+        select: { name: true },
+      });
+      organizationName = organization?.name;
+    }
+
+    // Préparer les données pour l'email
+    const emailData = {
+      notificationName: notification.notificationName,
+      notificationDescription: notification.notificationDescription,
+      notificationType: notification.notificationType,
+      eventTitle,
+      eventPublicId: notification.eventPublicId,
+      organizationName,
+      organizationPublicId: notification.organizationPublicId,
+      notificationDate: notification.createdAt.toISOString(),
+    };
+
+    // Envoyer l'email en arrière-plan
+    const recipientName =
+      `${user.firstname || ""} ${user.lastname || ""}`.trim() || "Utilisateur";
+
+    NotificationEmailService.sendNotificationEmailAsync(
+      user.email,
+      recipientName,
+      emailData
+    );
+  } catch (error) {
+    console.error(
+      "Erreur lors de la préparation de l'email de notification:",
+      error
+    );
   }
 }

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { OrganizationType } from "@prisma/client";
 import { createNotification } from "@/lib/notification-service";
+import { WelcomeEmailService } from "../../../../../emails/services/welcome.service";
 import { uploadImage } from "@/lib/upload-utils";
 
 export async function POST(req: Request) {
@@ -115,6 +116,36 @@ export async function POST(req: Request) {
         notificationError
       );
       // Ne pas faire échouer la création de l'organisation si la notification échoue
+    }
+
+    // Envoyer un email de bienvenue si c'est la première organisation de l'utilisateur
+    try {
+      if (user.organizationCount === 1) {
+        const welcomeData = {
+          userName:
+            `${user.firstname || ""} ${user.lastname || ""}`.trim() ||
+            "Utilisateur",
+          hasOrganization: true,
+          organizationName: organization.name,
+          organizationPublicId: organization.publicId || undefined,
+        };
+
+        const recipientName =
+          `${user.firstname || ""} ${user.lastname || ""}`.trim() ||
+          "Utilisateur";
+
+        WelcomeEmailService.sendWelcomeEmailAsync(
+          user.email,
+          recipientName,
+          welcomeData
+        );
+      }
+    } catch (welcomeEmailError) {
+      console.error(
+        "Erreur lors de l'envoi de l'email de bienvenue:",
+        welcomeEmailError
+      );
+      // Ne pas faire échouer la création de l'organisation si l'email échoue
     }
 
     return NextResponse.json(
