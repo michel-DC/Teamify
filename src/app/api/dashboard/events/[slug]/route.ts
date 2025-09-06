@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
-import { EventCategory, EventStatus } from "@prisma/client";
-import { uploadImage } from "@/lib/upload-utils";
+import { EventCategory } from "@prisma/client";
 import { calculateEventStatus } from "@/lib/event-status-utils";
 import { createNotificationForOrganizationMembers } from "@/lib/notification-service";
 

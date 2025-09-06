@@ -136,7 +136,7 @@ export default function EventTodoPage() {
                 <BreadcrumbLink
                   href={`/dashboard/events/details/${event.eventCode}`}
                 >
-                  {event.title}
+                  Détails de l'événement
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />

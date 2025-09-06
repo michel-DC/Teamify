@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { WelcomeEmailService } from "../../../../../emails/services/welcome.service";
+import { createNotificationForOrganizationOwnersAndAdmins } from "@/lib/notification-service";
 
 const prisma = new PrismaClient();
 
@@ -94,6 +95,32 @@ export async function POST(req: Request) {
                 },
               }),
             ]);
+
+            // Créer des notifications pour les OWNER et ADMIN
+            try {
+              await createNotificationForOrganizationOwnersAndAdmins(
+                invitation.organizationId,
+                {
+                  notificationName: "Nouveau membre rejoint l'organisation",
+                  notificationDescription: `${
+                    newUser.firstname || newUser.email
+                  } a rejoint l'organisation "${
+                    invitation.organization.name
+                  }" via une invitation.`,
+                  notificationType: "INFO",
+                }
+              );
+
+              console.log(
+                `Notifications créées pour les OWNER/ADMIN de l'organisation ${invitation.organizationId} - nouveau membre via inscription: ${newUser.uid}`
+              );
+            } catch (notificationError) {
+              console.error(
+                "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
+                notificationError
+              );
+              // Ne pas faire échouer l'inscription si les notifications échouent
+            }
 
             console.log(
               `Utilisateur ${newUser.uid} ajouté à l'organisation ${invitation.organizationId}`

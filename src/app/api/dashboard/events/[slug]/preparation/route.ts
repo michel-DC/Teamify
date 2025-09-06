@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
+import {
+  createNotificationForOrganizationMembers,
+  createNotification,
+} from "@/lib/notification-service";
 
 export async function GET(
   request: Request,
@@ -146,8 +150,40 @@ export async function POST(
           eventId: event.id,
           groupId: body.data.groupId,
           order: body.data.order || 0,
+          assignedTo: body.data.assignedTo || null,
         },
       });
+
+      // Créer une notification si la tâche est assignée dès sa création
+      if (body.data.assignedTo) {
+        try {
+          // Récupérer les informations de l'organisation
+          const organization = await prisma.organization.findUnique({
+            where: { id: event.orgId },
+            select: { publicId: true },
+          });
+
+          // Créer la notification pour l'utilisateur assigné
+          await createNotification({
+            notificationName: "Nouvelle tâche assignée",
+            notificationDescription: `Vous avez été assigné(e) à la tâche "${body.data.title}" pour l'événement "${event.title}".`,
+            notificationType: "INFO",
+            eventPublicId: event.publicId,
+            organizationPublicId: organization?.publicId || undefined,
+            userUid: body.data.assignedTo,
+          });
+
+          console.log(
+            `Notification créée pour l'assignation de la nouvelle tâche ${todo.id} à l'utilisateur ${body.data.assignedTo}`
+          );
+        } catch (notificationError) {
+          console.error(
+            "Erreur lors de la création de la notification d'assignation:",
+            notificationError
+          );
+          // Ne pas faire échouer la création de la tâche si la notification échoue
+        }
+      }
 
       return NextResponse.json({ todo }, { status: 201 });
     }
@@ -251,6 +287,17 @@ export async function PATCH(
     }
 
     if (body.type === "todo_edit") {
+      // Récupérer la tâche actuelle pour vérifier si l'assignation a changé
+      const currentTodo = await prisma.preparationTodo.findUnique({
+        where: {
+          id: body.data.todoId,
+        },
+        select: {
+          assignedTo: true,
+          title: true,
+        },
+      });
+
       const todo = await prisma.preparationTodo.update({
         where: {
           id: body.data.todoId,
@@ -262,6 +309,40 @@ export async function PATCH(
           assignedTo: body.data.assignedTo || null,
         },
       });
+
+      // Créer une notification si une tâche est assignée à un utilisateur
+      if (
+        body.data.assignedTo &&
+        body.data.assignedTo !== currentTodo?.assignedTo
+      ) {
+        try {
+          // Récupérer les informations de l'organisation
+          const organization = await prisma.organization.findUnique({
+            where: { id: event.orgId },
+            select: { publicId: true },
+          });
+
+          // Créer la notification pour l'utilisateur assigné
+          await createNotification({
+            notificationName: "Nouvelle tâche assignée",
+            notificationDescription: `Vous avez été assigné(e) à la tâche "${body.data.title}" pour l'événement "${event.title}".`,
+            notificationType: "INFO",
+            eventPublicId: event.publicId,
+            organizationPublicId: organization?.publicId || undefined,
+            userUid: body.data.assignedTo,
+          });
+
+          console.log(
+            `Notification créée pour l'assignation de la tâche ${body.data.todoId} à l'utilisateur ${body.data.assignedTo}`
+          );
+        } catch (notificationError) {
+          console.error(
+            "Erreur lors de la création de la notification d'assignation:",
+            notificationError
+          );
+          // Ne pas faire échouer la mise à jour de la tâche si la notification échoue
+        }
+      }
 
       return NextResponse.json({ todo }, { status: 200 });
     }
