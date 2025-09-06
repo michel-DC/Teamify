@@ -38,7 +38,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 
 export type PreparationTodoGroup = {
   id: number;
@@ -89,9 +90,13 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
         email: string;
         firstname: string;
         lastname: string;
+        profileImage?: string;
       };
     }>
   >([]);
+  const [profileImages, setProfileImages] = useState<{
+    [userUid: string]: string;
+  }>({});
   const [organizationId, setOrganizationId] = useState<number | null>(null);
 
   const colors = [
@@ -135,12 +140,37 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
         const membersData = await membersResponse.json();
         if (membersData.members) {
           setOrganizationMembers(membersData.members);
+          // Récupération des photos de profil des membres
+          await fetchProfileImages(membersData.members);
         }
       }
     } catch (error) {
       console.error("Erreur lors du chargement des membres:", error);
     }
   }, [eventCode]);
+
+  // Récupération des photos de profil des utilisateurs
+  const fetchProfileImages = useCallback(async (members: any[]) => {
+    try {
+      const userUids = members.map((member) => member.userUid).join(",");
+      const response = await fetch(
+        `/api/user/get-all-profiles-images?userUids=${userUids}`
+      );
+      const data = await response.json();
+
+      if (data.profileImages) {
+        const imagesMap: { [userUid: string]: string } = {};
+        data.profileImages.forEach((user: any) => {
+          if (user.profileImage) {
+            imagesMap[user.uid] = user.profileImage;
+          }
+        });
+        setProfileImages(imagesMap);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des photos de profil:", error);
+    }
+  }, []);
 
   const openEditModal = (todo: PreparationTodo) => {
     setEditingTodoData(todo);
@@ -332,6 +362,22 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
     return "??";
   };
 
+  // Récupération de la photo de profil d'un utilisateur
+  const getUserProfileImage = (assignedTo: string) => {
+    // Recherche d'abord par userUid (nouveau format)
+    let member = organizationMembers.find((m) => m.userUid === assignedTo);
+
+    // Si pas trouvé, recherche par id (ancien format pour compatibilité)
+    if (!member) {
+      member = organizationMembers.find((m) => m.id === assignedTo);
+    }
+
+    if (member && member.userUid && profileImages[member.userUid]) {
+      return profileImages[member.userUid];
+    }
+    return null;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -472,9 +518,20 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                     {todo.assignedTo && (
                       <div className="flex items-center gap-2 mt-2">
                         <Avatar className="h-6 w-6">
-                          <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                            {getAssignedMemberInitials(todo.assignedTo)}
-                          </AvatarFallback>
+                          <AutoSignedImage
+                            src={getUserProfileImage(todo.assignedTo)}
+                            alt={getAssignedMemberName(todo.assignedTo)}
+                            className="h-6 w-6 rounded-full object-cover"
+                            fallbackSrc={undefined}
+                            loadingComponent={
+                              <div className="h-6 w-6 rounded-full bg-muted animate-pulse" />
+                            }
+                            errorComponent={
+                              <AvatarFallback className="text-xs bg-primary text-primary-foreground h-6 w-6">
+                                {getAssignedMemberInitials(todo.assignedTo)}
+                              </AvatarFallback>
+                            }
+                          />
                         </Avatar>
                         <span className="text-xs text-muted-foreground">
                           {getAssignedMemberName(todo.assignedTo)}
@@ -614,15 +671,32 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                     <SelectItem key={member.userUid} value={member.userUid}>
                       <div className="flex items-center gap-2">
                         <Avatar className="h-6 w-6">
-                          <AvatarFallback className="text-xs bg-primary text-primary-foreground">
-                            {member.user &&
-                            member.user.firstname &&
-                            member.user.lastname
-                              ? `${member.user.firstname[0]}${member.user.lastname[0]}`.toUpperCase()
-                              : member.user && member.user.email
-                              ? member.user.email.substring(0, 2).toUpperCase()
-                              : "??"}
-                          </AvatarFallback>
+                          <AutoSignedImage
+                            src={profileImages[member.userUid] || null}
+                            alt={
+                              member.user
+                                ? `${member.user.firstname} ${member.user.lastname}`.trim()
+                                : member.userUid
+                            }
+                            className="h-6 w-6 rounded-full object-cover"
+                            fallbackSrc={undefined}
+                            loadingComponent={
+                              <div className="h-6 w-6 rounded-full bg-muted animate-pulse" />
+                            }
+                            errorComponent={
+                              <AvatarFallback className="text-xs bg-primary text-primary-foreground h-6 w-6">
+                                {member.user &&
+                                member.user.firstname &&
+                                member.user.lastname
+                                  ? `${member.user.firstname[0]}${member.user.lastname[0]}`.toUpperCase()
+                                  : member.user && member.user.email
+                                  ? member.user.email
+                                      .substring(0, 2)
+                                      .toUpperCase()
+                                  : "??"}
+                              </AvatarFallback>
+                            }
+                          />
                         </Avatar>
                         <span>
                           {member.user

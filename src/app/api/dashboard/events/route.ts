@@ -194,7 +194,6 @@ export async function POST(req: Request) {
         "Erreur lors de la création des notifications:",
         notificationError
       );
-      // Ne pas faire échouer la création de l'événement si les notifications échouent
     }
 
     return NextResponse.json(
