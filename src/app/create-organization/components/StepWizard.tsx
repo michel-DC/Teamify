@@ -15,6 +15,7 @@ import { toast, Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
 import { redirect } from "next/navigation";
 import { useTheme } from "@/components/theme-provider";
+import { Button } from "@/components/ui/button";
 
 export default function StepWizard() {
   const [step, setStep] = useState(1);
@@ -64,7 +65,6 @@ export default function StepWizard() {
       case 1:
         return (
           <div>
-            <Toaster position="top-center" richColors />
             <Welcome next={next} />
           </div>
         );
@@ -131,7 +131,7 @@ export default function StepWizard() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <button
+      <Button
         onClick={toggleTheme}
         className="fixed top-4 right-4 p-2 rounded-full bg-card hover:bg-accent transition-colors duration-200"
         aria-label="Toggle theme"
@@ -141,7 +141,7 @@ export default function StepWizard() {
         ) : (
           <Sun className="w-5 h-5 text-foreground" />
         )}
-      </button>
+      </Button>
 
       <div className="max-w-2xl w-full p-6 bg-card rounded-lg border border-border shadow-sm space-y-6 overflow-hidden">
         <div className="text-muted-foreground text-sm">Étape {step} sur 8</div>

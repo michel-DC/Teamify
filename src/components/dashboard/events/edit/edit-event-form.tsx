@@ -170,7 +170,6 @@ export default function EditEventForm({ eventId }: EditEventFormProps) {
 
   return (
     <>
-      <Toaster position="top-center" richColors />
       <Card className="max-w-4xl mx-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

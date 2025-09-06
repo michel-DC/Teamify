@@ -1,6 +1,7 @@
 "use client";
 
 import { StepProps } from "@/types/steps";
+import { Button } from "@/components/ui/button";
 
 export default function Step6({
   next,
@@ -29,19 +30,19 @@ export default function Step6({
         rows={4}
       />
       <div className="flex justify-between gap-4">
-        <button
+        <Button
           onClick={handlePrev}
           className="px-4 py-2 text-sm font-medium text-foreground bg-secondary rounded-md hover:bg-secondary/80 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
         >
           Précédent
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={handleNext}
           disabled={!formData.mission}
           className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
         >
           Suivant
-        </button>
+        </Button>
       </div>
     </div>
   );

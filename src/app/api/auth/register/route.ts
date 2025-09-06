@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { WelcomeEmailService } from "../../../../../emails/services/welcome.service";
 
 const prisma = new PrismaClient();
 
@@ -106,6 +107,50 @@ export async function POST(req: Request) {
         );
         // On ne fait pas échouer l'inscription si l'invitation échoue
       }
+    }
+
+    // Envoyer un email de bienvenue
+    try {
+      const hasOrganization = !!inviteCode;
+      let organizationName: string | undefined;
+      let organizationPublicId: string | undefined;
+
+      // Si l'utilisateur a une organisation, récupérer ses informations
+      if (hasOrganization) {
+        const userOrganizations = await prisma.organizationMember.findMany({
+          where: { userUid: newUser.uid },
+          include: { organization: true },
+        });
+
+        if (userOrganizations.length > 0) {
+          const firstOrg = userOrganizations[0].organization;
+          organizationName = firstOrg.name;
+          organizationPublicId = firstOrg.publicId || undefined;
+        }
+      }
+
+      const welcomeData = {
+        userName:
+          `${firstname || ""} ${lastname || ""}`.trim() || "Utilisateur",
+        hasOrganization,
+        organizationName,
+        organizationPublicId,
+      };
+
+      const recipientName =
+        `${firstname || ""} ${lastname || ""}`.trim() || "Utilisateur";
+
+      WelcomeEmailService.sendWelcomeEmailAsync(
+        newUser.email,
+        recipientName,
+        welcomeData
+      );
+    } catch (welcomeEmailError) {
+      console.error(
+        "Erreur lors de l'envoi de l'email de bienvenue:",
+        welcomeEmailError
+      );
+      // Ne pas faire échouer la création du compte si l'email échoue
     }
 
     return NextResponse.json({

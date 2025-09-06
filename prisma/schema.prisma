@@ -9,57 +9,58 @@ datasource db {
 }
 
 model User {
-  uid               String         @id @default(cuid())
-  email             String         @unique
-  password          String
-  firstname         String?
-  lastname          String?
-  profileImage      String?        
-  googleId          String?        @unique
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  organizations     Organization[]
-  event             Event[]
-  organizationCount Int            @default(0)
-  userByRole        UserByRole?
+  email               String               @unique
+  password            String
+  firstname           String?
+  lastname            String?
+  bio                 String?
+  phone               String?
+  location            Json?
+  website             String?
+  dateOfBirth         DateTime?
+  createdAt           DateTime             @default(now())
+  organizationCount   Int                  @default(0)
+  uid                 String               @id @default(cuid())
+  updatedAt           DateTime             @updatedAt
+  profileImage        String?
+  googleId            String?              @unique
+  event               Event[]
+  organizations       Organization[]
   organizationInvites OrganizationInvite[] @relation("InvitedBy")
   organizationMembers OrganizationMember[]
+  userByRole          UserByRole?
+  notifications       Notification[]
 }
 
 model Organization {
-  id           Int             @id @default(autoincrement())
-  publicId     String?         @unique @default(cuid())
-  name         String
-  bio          String?
-  organizationType         OrganizationType
-  location               Json?
-  mission                String
-  memberCount            Int
-  eventCount             Int                    @default(0)
-  profileImage String?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  ownerUid     String
-  owner        User            @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
-  events       Event[]
-  members      Json?           @default("[]") 
-  organizationInvites OrganizationInvite[]
-  organizationMembers OrganizationMember[]
+  id                      Int                      @id @default(autoincrement())
+  name                    String
+  bio                     String?
+  profileImage            String?
+  memberCount             Int
+  mission                 String
+  createdAt               DateTime                 @default(now())
+  ownerUid                String
+  updatedAt               DateTime                 @updatedAt
+  location                Json?
+  organizationType        OrganizationType
+  members                 Json?                    @default("[]")
+  publicId                String?                  @unique @default(cuid())
+  eventCount              Int                      @default(0)
+  events                  Event[]
+  isDeleted               Boolean                  @default(false)
+  owner                   User                     @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
+  organizationInvites     OrganizationInvite[]
+  organizationMembers     OrganizationMember[]
   organizationPermissions OrganizationPermissions?
+  notifications           Notification[]
 }
 
 model Event {
   id                    Int                    @id @default(autoincrement())
-  publicId              String                 @unique @default(cuid())
-  eventCode             String                 @unique
-  ownerUid              String
-  owner                 User                   @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
   title                 String
   description           String?
-  startDate             DateTime?
-  endDate               DateTime?
   location              String
-  locationCoords        Json?
   imageUrl              String?
   capacity              Int
   status                EventStatus            @default(A_VENIR)
@@ -70,26 +71,34 @@ model Event {
   category              EventCategory          @default(REUNION)
   isPublic              Boolean                @default(true)
   isCancelled           Boolean                @default(false)
-  organization          Organization           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  endDate               DateTime?
+  startDate             DateTime?
   preparationPercentage Int                    @default(0)
+  publicId              String                 @unique @default(cuid())
+  eventCode             String                 @unique
+  ownerUid              String
+  locationCoords        Json?
+  eventByCode           EventByCode            @relation(fields: [eventCode], references: [eventCode], onDelete: Cascade)
+  organization          Organization           @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  owner                 User                   @relation(fields: [ownerUid], references: [uid], onDelete: Cascade)
+  invitations           Invitation[]
   preparationTodos      PreparationTodo[]
   preparationTodoGroups PreparationTodoGroup[]
-  invitations           Invitation[]
-  eventByCode           EventByCode?           @relation(fields: [eventCode], references: [eventCode], onDelete: Cascade)
+  notifications         Notification[]
 }
 
 model Invitation {
-  id          Int              @id @default(autoincrement())
-  invitationId String?         @unique @default(cuid())
-  eventCode   String
-  receiverName String
+  id            Int              @id @default(autoincrement())
+  status        InvitationStatus @default(PENDING)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  eventCode     String
   receiverEmail String
-  status      InvitationStatus @default(PENDING)
-  sentAt      DateTime         @default(now())
-  respondedAt DateTime?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  event       Event            @relation(fields: [eventCode], references: [eventCode], onDelete: Cascade)
+  receiverName  String
+  respondedAt   DateTime?
+  sentAt        DateTime         @default(now())
+  invitationId  String?          @unique @default(cuid())
+  event         Event            @relation(fields: [eventCode], references: [eventCode], onDelete: Cascade)
 
   @@unique([eventCode, receiverEmail])
 }
@@ -99,92 +108,107 @@ model PreparationTodoGroup {
   name      String
   color     String            @default("#3b82f6")
   order     Int               @default(0)
-  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId   Int
-  todos     PreparationTodo[]
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
+  todos     PreparationTodo[]
+  event     Event             @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model PreparationTodo {
   id          Int                   @id @default(autoincrement())
   title       String
-  description String?
   done        Boolean               @default(false)
-  event       Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
   eventId     Int
-  order       Int                   @default(0)
-  group       PreparationTodoGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId     Int?
-  assignedTo  String?
   createdAt   DateTime              @default(now())
+  groupId     Int?
+  order       Int                   @default(0)
   updatedAt   DateTime              @updatedAt
+  assignedTo  String?
+  description String?
+  event       Event                 @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  group       PreparationTodoGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
 }
 
 model EventByCode {
   id        Int      @id @default(autoincrement())
   eventCode String   @unique
   publicId  String
-  ownerUid  String
   title     String
   createdAt DateTime @default(now())
+  ownerUid  String
   updatedAt DateTime @updatedAt
   event     Event?
 }
 
 model UserByRole {
-  userUid       String  @id
   userFirstName String?
   userRole      Json?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  user          User    @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  userUid       String   @id
+  user          User     @relation(fields: [userUid], references: [uid], onDelete: Cascade)
 }
 
 model OrganizationInvite {
-  id             Int      @id @default(autoincrement())
-  inviteCode     String   @unique @default(cuid()) 
+  id             Int             @id @default(autoincrement())
+  inviteCode     String          @unique @default(cuid())
   email          String
   receiverName   String
-  status         OrgInviteStatus @default(PENDING) 
+  status         OrgInviteStatus @default(PENDING)
   invitedByUid   String
   organizationId Int
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  invitedBy      User         @relation("InvitedBy", fields: [invitedByUid], references: [uid], onDelete: Cascade)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  invitedBy      User            @relation("InvitedBy", fields: [invitedByUid], references: [uid], onDelete: Cascade)
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   @@unique([organizationId, email])
 }
 
 model OrganizationMember {
-  id             Int      @id @default(autoincrement())
+  id             Int              @id @default(autoincrement())
   userUid        String
   organizationId Int
+  createdAt      DateTime         @default(now())
   role           OrganizationRole @default(MEMBER)
-  createdAt      DateTime @default(now())
-
-  user          User          @relation(fields: [userUid], references: [uid], onDelete: Cascade)
-  organization  Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userUid], references: [uid], onDelete: Cascade)
 
   @@unique([organizationId, userUid])
 }
 
 model OrganizationPermissions {
-  id                              Int      @id @default(autoincrement())
-  organizationId                  Int      @unique
-  adminsCanModifyEvents           Boolean  @default(true)
-  adminsCanDeleteEvents           Boolean  @default(true)
-  adminsCanInviteEventParticipants Boolean @default(true)
-  adminsCanInviteMembers          Boolean  @default(true)
-  adminsCanModifyOrg              Boolean  @default(false)
-  membersCanInviteEventParticipants Boolean @default(false)
-  membersCanInviteMembers         Boolean  @default(false)
-  createdAt                       DateTime @default(now())
-  updatedAt                       DateTime @updatedAt
+  id                                Int          @id @default(autoincrement())
+  organizationId                    Int          @unique
+  adminsCanModifyEvents             Boolean      @default(true)
+  adminsCanDeleteEvents             Boolean      @default(true)
+  adminsCanInviteEventParticipants  Boolean      @default(true)
+  adminsCanInviteMembers            Boolean      @default(true)
+  adminsCanModifyOrg                Boolean      @default(false)
+  membersCanInviteEventParticipants Boolean      @default(false)
+  membersCanInviteMembers           Boolean      @default(false)
+  createdAt                         DateTime     @default(now())
+  updatedAt                         DateTime     @updatedAt
+  organization                      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
 
-  organization                    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+model Notification {
+  id                    Int                @id @default(autoincrement())
+  publicId              String             @unique @default(cuid())
+  notificationName      String
+  notificationDescription String
+  notificationDate      DateTime           @default(now())
+  isRead                Boolean            @default(false)
+  notificationType      NotificationType   @default(INFO)
+  eventPublicId         String?
+  organizationPublicId  String?
+  userUid               String
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  user                  User               @relation(fields: [userUid], references: [uid], onDelete: Cascade)
+  event                 Event?             @relation(fields: [eventPublicId], references: [publicId], onDelete: Cascade)
+  organization          Organization?      @relation(fields: [organizationPublicId], references: [publicId], onDelete: Cascade)
 }
 
 enum InvitationStatus {
@@ -232,4 +256,14 @@ enum EventCategory {
   CONCERT
   SPECTACLE
   AUTRE
+}
+
+enum NotificationType {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  INVITATION
+  REMINDER
+  UPDATE
 }

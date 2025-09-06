@@ -6,11 +6,22 @@ import { getCurrentUser } from "@/lib/auth";
  */
 export async function GET() {
   try {
+    console.log("[auth/me] Début de la vérification d'authentification");
+
     const user = await getCurrentUser();
 
+    console.log("[auth/me] Résultat de getCurrentUser:", {
+      userFound: !!user,
+      uid: user?.uid,
+      email: user?.email,
+    });
+
     if (!user) {
+      console.log("[auth/me] Aucun utilisateur trouvé - non authentifié");
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
+
+    console.log("[auth/me] Utilisateur authentifié avec succès");
 
     // Retourner les informations de l'utilisateur (sans le mot de passe)
     return NextResponse.json({
@@ -20,6 +31,11 @@ export async function GET() {
         firstname: user.firstname,
         lastname: user.lastname,
         profileImage: user.profileImage,
+        bio: user.bio,
+        phone: user.phone,
+        location: user.location,
+        website: user.website,
+        dateOfBirth: user.dateOfBirth,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 import { EventCategory, EventStatus } from "@prisma/client";
 import { uploadImage } from "@/lib/upload-utils";
+import { calculateEventStatus } from "@/lib/event-status-utils";
+import { createNotificationForOrganizationMembers } from "@/lib/notification-service";
 
 export async function GET(
   request: Request,
@@ -178,6 +180,20 @@ export async function PATCH(
       updateData.endDate = new Date(formData.get("endDate") as string);
     }
 
+    // Recalcul automatique du statut si les dates ont été modifiées
+    if (updateData.startDate || updateData.endDate) {
+      const startDate = updateData.startDate || event.startDate;
+      const endDate = updateData.endDate || event.endDate;
+
+      if (startDate && endDate) {
+        updateData.status = calculateEventStatus(startDate, endDate);
+        console.log(
+          "[PATCH] Statut recalculé automatiquement:",
+          updateData.status
+        );
+      }
+    }
+
     // Traitement des nombres
     if (formData.get("capacity") !== null) {
       updateData.capacity = parseInt(formData.get("capacity") as string) || 0;
@@ -187,13 +203,7 @@ export async function PATCH(
       updateData.budget = budgetValue ? parseFloat(budgetValue) : null;
     }
 
-    // Traitement des enums
-    if (
-      formData.get("status") &&
-      Object.values(EventStatus).includes(formData.get("status") as EventStatus)
-    ) {
-      updateData.status = formData.get("status") as EventStatus;
-    }
+    // Traitement des enums (sauf le statut qui est maintenant calculé automatiquement)
     if (
       formData.get("category") &&
       Object.values(EventCategory).includes(
@@ -234,6 +244,22 @@ export async function PATCH(
       title: updatedEvent.title,
       status: updatedEvent.status,
     });
+
+    // Créer des notifications pour tous les membres de l'organisation
+    try {
+      await createNotificationForOrganizationMembers(event.orgId, {
+        notificationName: "Événement modifié",
+        notificationDescription: `L'événement "${updatedEvent.title}" a été modifié`,
+        notificationType: "UPDATE",
+        eventPublicId: updatedEvent.publicId,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Erreur lors de la création des notifications:",
+        notificationError
+      );
+      // Ne pas faire échouer la modification de l'événement si les notifications échouent
+    }
 
     return NextResponse.json({ event: updatedEvent }, { status: 200 });
   } catch (error) {
@@ -311,6 +337,20 @@ export async function PUT(
         },
       },
     });
+
+    // Recalcul automatique du statut si les dates ont été modifiées
+    if (updatedEvent.startDate || updatedEvent.endDate) {
+      const startDate = updatedEvent.startDate || event.startDate;
+      const endDate = updatedEvent.endDate || event.endDate;
+
+      if (startDate && endDate) {
+        updatedEvent.status = calculateEventStatus(startDate, endDate);
+        console.log(
+          "[PUT] Statut recalculé automatiquement:",
+          updatedEvent.status
+        );
+      }
+    }
 
     return NextResponse.json({ event: updatedEvent }, { status: 200 });
   } catch (error) {

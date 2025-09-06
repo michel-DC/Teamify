@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
 
     // Récupérer toutes les organisations dont l'utilisateur est propriétaire
     const ownedOrganizations = await prisma.organization.findMany({
-      where: { ownerUid: user.uid },
+      where: {
+        ownerUid: user.uid,
+        isDeleted: false,
+      },
       include: {
         events: {
           include: {
@@ -33,6 +36,7 @@ export async function GET(request: NextRequest) {
     // Récupérer toutes les organisations dont l'utilisateur est membre
     const memberOrganizations = await prisma.organization.findMany({
       where: {
+        isDeleted: false,
         organizationMembers: {
           some: {
             userUid: user.uid,

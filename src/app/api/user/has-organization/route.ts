@@ -19,6 +19,7 @@ export async function GET() {
     const ownedOrganizationsCount = await prisma.organization.count({
       where: {
         ownerUid: user.uid,
+        isDeleted: false,
       },
     });
 
@@ -28,6 +29,9 @@ export async function GET() {
     const memberOrganizationsCount = await prisma.organizationMember.count({
       where: {
         userUid: user.uid,
+        organization: {
+          isDeleted: false,
+        },
       },
     });
 

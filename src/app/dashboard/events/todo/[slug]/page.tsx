@@ -149,8 +149,6 @@ export default function EventTodoPage() {
       </header>
 
       <div className="flex flex-1 flex-col gap-6 p-6 pt-0">
-        <Toaster position="top-center" richColors />
-
         {/* En-tête de la page */}
         <div className="flex justify-between items-start">
           <div>

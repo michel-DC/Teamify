@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { RefreshCw, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
 interface AutoSignedImageProps {
   src: string | null;
@@ -128,13 +129,13 @@ export function AutoSignedImage({
           <ImageIcon className="h-8 w-8" />
           <span className="text-sm">Image non disponible</span>
           {showRefreshButton && (
-            <button
+            <Button
               onClick={handleManualRefresh}
               className="flex items-center gap-1 text-xs text-primary hover:underline"
             >
               <RefreshCw className="h-3 w-3" />
               Réessayer
-            </button>
+            </Button>
           )}
         </div>
       </div>
