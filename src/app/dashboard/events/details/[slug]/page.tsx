@@ -167,11 +167,11 @@ export default function EventDetailsPage() {
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink href="/dashboard/events">
-                  Évènements
+                  Événements
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>Détails de l&apos;évènement</BreadcrumbItem>
+              <BreadcrumbItem>Détails de l&apos;événement</BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage>{event.title}</BreadcrumbPage>
@@ -205,7 +205,7 @@ export default function EventDetailsPage() {
                         router.push(`/dashboard/events/edit/${params.slug}`)
                       }
                     >
-                      Modifier l&apos;évènement
+                      Modifier l&apos;événement
                     </Button>
                   )}
                   {canDeleteEvent && (
@@ -215,7 +215,7 @@ export default function EventDetailsPage() {
                         router.push(`/dashboard/events/delete/${params.slug}`)
                       }
                     >
-                      Supprimer l&apos;évènement
+                      Supprimer l&apos;événement
                     </Button>
                   )}
                   <Button
@@ -251,7 +251,7 @@ export default function EventDetailsPage() {
                       : "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Budget de l&apos;évènement
+                    Budget de l&apos;événement
                   </p>
                 </CardContent>
               </Card>
@@ -268,7 +268,7 @@ export default function EventDetailsPage() {
                     {event.category || "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Type d&apos;évènement
+                    Type d&apos;événement
                   </p>
                 </CardContent>
               </Card>

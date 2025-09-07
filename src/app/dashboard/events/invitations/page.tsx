@@ -28,7 +28,7 @@ export default function InvitationsPage() {
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbLink href="/dashboard/events">
-                  Évènements
+                  Événements
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
