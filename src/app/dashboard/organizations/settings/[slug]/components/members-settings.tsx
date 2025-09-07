@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Users, Search, Crown, Shield, User } from "lucide-react";
+import { useProfileImages } from "@/hooks/use-profile-images";
 
 interface OrganizationMember {
   id: number;
@@ -74,6 +75,15 @@ export function MembersSettings({
   const [roleChangeLoading, setRoleChangeLoading] = useState<string | null>(
     null
   );
+
+  // Extraction des UIDs des membres pour récupérer leurs images de profil
+  const memberUids = useMemo(() => {
+    return members.map((member) => member.userUid);
+  }, [members]);
+
+  // Récupération des images de profil des membres
+  const { profileImages, loading: imagesLoading } =
+    useProfileImages(memberUids);
 
   /**
    * Récupération des membres de l'organisation
@@ -269,7 +279,10 @@ export function MembersSettings({
                         <TableCell>
                           <div className="flex items-center gap-3">
                             <Avatar className="h-8 w-8">
-                              <AvatarImage src="" />
+                              <AvatarImage
+                                src={profileImages[member.userUid] || ""}
+                                alt={`Photo de profil de ${fullName}`}
+                              />
                               <AvatarFallback>{initials}</AvatarFallback>
                             </Avatar>
                             <div>
