@@ -88,7 +88,7 @@ export default function EditEventPage() {
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink href="/dashboard/events">
-                  Évènements
+                  Événements
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
@@ -96,11 +96,11 @@ export default function EditEventPage() {
                 <BreadcrumbLink
                   href={`/dashboard/events/details/${params.slug}`}
                 >
-                  Détails de l&apos;évènement
+                  Détails de l&apos;événement
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>Modifier l&apos;évènement</BreadcrumbItem>
+              <BreadcrumbItem>Modifier l&apos;événement</BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage>

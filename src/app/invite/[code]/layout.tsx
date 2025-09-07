@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import InviteClientGate from "../ClientGate";
+import InviteClientGate from "../client-gate";
 
 export const metadata: Metadata = {
   title: "Teamify - Rejoindre une organisation",

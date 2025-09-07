@@ -101,6 +101,59 @@ export async function createNotificationForOrganizationMembers(
 }
 
 /**
+ * Crée des notifications pour les OWNER et ADMIN d'une organisation
+ */
+export async function createNotificationForOrganizationOwnersAndAdmins(
+  organizationId: number,
+  notificationData: Omit<NotificationData, "userUid">
+) {
+  try {
+    // Récupérer l'organisation avec son publicId
+    const organization = await prisma.organization.findUnique({
+      where: { id: organizationId },
+      select: { ownerUid: true, publicId: true },
+    });
+
+    if (!organization) {
+      throw new Error("Organisation non trouvée");
+    }
+
+    // Récupérer les OWNER et ADMIN de l'organisation
+    const admins = await prisma.organizationMember.findMany({
+      where: {
+        organizationId,
+        role: { in: ["OWNER", "ADMIN"] },
+      },
+      select: { userUid: true },
+    });
+
+    // Créer un ensemble unique d'utilisateurs (OWNER + ADMIN)
+    const userIds = new Set<string>();
+    admins.forEach((admin) => userIds.add(admin.userUid));
+    userIds.add(organization.ownerUid); // S'assurer que le propriétaire est inclus
+
+    // Créer les notifications pour chaque OWNER/ADMIN
+    const notifications = await Promise.all(
+      Array.from(userIds).map((userUid) =>
+        createNotification({
+          ...notificationData,
+          userUid,
+          organizationPublicId: organization.publicId || undefined,
+        })
+      )
+    );
+
+    return notifications;
+  } catch (error) {
+    console.error(
+      "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
+      error
+    );
+    throw error;
+  }
+}
+
+/**
  * Récupère les notifications d'un utilisateur
  */
 export async function getUserNotifications(userUid: string, limit = 50) {

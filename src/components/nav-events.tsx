@@ -32,7 +32,7 @@ export function NavEvents({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Mes derniers évènements</SidebarGroupLabel>
+      <SidebarGroupLabel>Mes derniers événements</SidebarGroupLabel>
       <SidebarMenu>
         {events.map((item) => (
           <SidebarMenuItem key={item.name}>

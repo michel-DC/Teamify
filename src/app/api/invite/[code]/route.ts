@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { createNotificationForOrganizationOwnersAndAdmins } from "@/lib/notification-service";
 
 /**
  * Route pour traiter une invitation d'organisation via le code d'invitation
@@ -104,6 +105,30 @@ export async function GET(
         },
       }),
     ]);
+
+    // Créer des notifications pour les OWNER et ADMIN
+    try {
+      await createNotificationForOrganizationOwnersAndAdmins(
+        invitation.organizationId,
+        {
+          notificationName: "Nouveau membre rejoint l'organisation",
+          notificationDescription: `${
+            user.firstname || user.email
+          } a rejoint l'organisation "${invitation.organization.name}".`,
+          notificationType: "INFO",
+        }
+      );
+
+      console.log(
+        `Notifications créées pour les OWNER/ADMIN de l'organisation ${invitation.organizationId} - nouveau membre: ${userUid}`
+      );
+    } catch (notificationError) {
+      console.error(
+        "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
+        notificationError
+      );
+      // Ne pas faire échouer le processus de rejoindre l'organisation si les notifications échouent
+    }
 
     // Redirection vers le dashboard de l'organisation
     const dashboardUrl = `/dashboard/organizations`;

@@ -22,7 +22,7 @@ export function SiteHeader() {
               target="_blank"
               className="dark:text-background"
             >
-              Créer un nouvel évènement
+              Créer un nouvel événement
             </a>
           </Button>
         </div>

@@ -17,8 +17,9 @@ import {
 } from "lucide-react";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import { useProfileImages } from "@/hooks/use-profile-images";
 
 interface TeamMember {
   id: string;
@@ -26,6 +27,7 @@ interface TeamMember {
   email: string;
   role: string;
   avatar?: string;
+  userUid?: string; // Ajout de l'UID pour récupérer l'image de profil
   status: "online" | "offline" | "away";
   lastActive: string;
   eventsOrganized: number;
@@ -37,6 +39,16 @@ export function TeamOverview() {
   const [loading, setLoading] = useState(true);
   const { activeOrganization } = useActiveOrganization();
   const { open, isMobile } = useSidebar();
+
+  // Extraction des UIDs des membres pour récupérer leurs images de profil
+  const memberUids = useMemo(() => {
+    return members
+      .map((member) => member.userUid)
+      .filter((uid): uid is string => Boolean(uid));
+  }, [members]);
+
+  // Récupération des images de profil des membres
+  const { profileImages } = useProfileImages(memberUids);
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -57,11 +69,14 @@ export function TeamOverview() {
               (member: any, index: number) => ({
                 id: member.id || `member-${index}`,
                 name:
-                  member.user?.name ||
+                  `${member.user?.firstname || ""} ${
+                    member.user?.lastname || ""
+                  }`.trim() ||
                   member.user?.email?.split("@")[0] ||
                   "Membre",
                 email: member.user?.email || "email@example.com",
                 role: member.role || "MEMBER",
+                userUid: member.userUid, // Ajout de l'UID pour récupérer l'image de profil
                 status:
                   index % 3 === 0
                     ? "online"
@@ -257,7 +272,14 @@ export function TeamOverview() {
               >
                 <div className="relative flex-shrink-0">
                   <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
-                    <AvatarImage src={member.avatar} />
+                    <AvatarImage
+                      src={
+                        member.userUid
+                          ? profileImages[member.userUid] || ""
+                          : member.avatar || ""
+                      }
+                      alt={`Photo de profil de ${member.name}`}
+                    />
                     <AvatarFallback className="text-xs sm:text-sm">
                       {member.name
                         .split(" ")

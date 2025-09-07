@@ -133,7 +133,7 @@ export const RegisterForm = () => {
               <p className="text-sm text-muted-foreground">
                 {inviteCode
                   ? "Inscrivez-vous pour rejoindre l'organisation"
-                  : "Inscrivez-vous pour accéder à votre espace et créer votre évènement"}
+                  : "Inscrivez-vous pour accéder à votre espace et créer votre événement"}
               </p>
             </div>
 
