@@ -24,7 +24,7 @@ interface CreateConversationDialogProps {
 }
 
 /**
- * Dialog pour créer une nouvelle conversation
+ * Dialog pour créer une nouvelle conversation responsive
  */
 export const CreateConversationDialog = ({
   isOpen,
@@ -163,10 +163,12 @@ export const CreateConversationDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg mx-4">
         <DialogHeader>
-          <DialogTitle>Nouvelle conversation</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg md:text-xl">
+            Nouvelle conversation
+          </DialogTitle>
+          <DialogDescription className="text-sm md:text-base">
             Entrez l'email de la personne que vous souhaitez contacter
           </DialogDescription>
         </DialogHeader>
@@ -174,7 +176,9 @@ export const CreateConversationDialog = ({
         <div className="space-y-4">
           {/* Champ email */}
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-sm font-medium">
+              Email
+            </Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -212,14 +216,14 @@ export const CreateConversationDialog = ({
           {foundUser && (
             <div className="p-3 border rounded-lg bg-muted/50">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <User className="h-5 w-5 text-primary" />
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm md:text-base truncate">
                     {foundUser.firstname} {foundUser.lastname}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs md:text-sm text-muted-foreground truncate">
                     {foundUser.email}
                   </p>
                 </div>
@@ -230,18 +234,24 @@ export const CreateConversationDialog = ({
           {/* Affichage des erreurs */}
           {error && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription className="text-sm">{error}</AlertDescription>
             </Alert>
           )}
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isLoading}
+            className="w-full sm:w-auto"
+          >
             Annuler
           </Button>
           <Button
             onClick={createConversationWithUser}
             disabled={!foundUser || isLoading}
+            className="w-full sm:w-auto"
           >
             {isLoading ? (
               <>

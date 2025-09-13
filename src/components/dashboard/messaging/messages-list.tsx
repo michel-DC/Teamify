@@ -31,10 +31,33 @@ export const MessageList = ({
         "[data-radix-scroll-area-viewport]"
       );
       if (scrollElement) {
-        scrollElement.scrollTop = scrollElement.scrollHeight;
+        // Attendre un tick pour s'assurer que le DOM est mis à jour
+        setTimeout(() => {
+          scrollElement.scrollTop = scrollElement.scrollHeight;
+        }, 0);
       }
     }
   }, [messages]);
+
+  /**
+   * Faire défiler vers le bas quand de nouveaux messages arrivent
+   */
+  useEffect(() => {
+    if (messages.length > 0) {
+      const timer = setTimeout(() => {
+        if (scrollAreaRef.current) {
+          const scrollElement = scrollAreaRef.current.querySelector(
+            "[data-radix-scroll-area-viewport]"
+          );
+          if (scrollElement) {
+            scrollElement.scrollTop = scrollElement.scrollHeight;
+          }
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [messages.length]);
 
   // Suppression des fonctions d'affichage des utilisateurs
 
@@ -74,7 +97,7 @@ export const MessageList = ({
   }
 
   return (
-    <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
+    <ScrollArea ref={scrollAreaRef} className="h-full p-4">
       <div className="space-y-2">
         {messages.map((message) => {
           const isCurrentUser = message.senderId === currentUserId;
@@ -87,16 +110,16 @@ export const MessageList = ({
               }`}
             >
               {/* Contenu du message */}
-              <div className={`flex flex-col max-w-[70%]`}>
+              <div className={`flex flex-col w-64 md:w-80`}>
                 {/* Bulle de message */}
                 <div
-                  className={`rounded-lg px-3 py-2 ${
+                  className={`rounded-lg px-3 py-2 min-h-[40px] flex items-center ${
                     isCurrentUser
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">
+                  <p className="text-sm whitespace-pre-wrap break-words w-full">
                     {message.content}
                   </p>
                 </div>
@@ -113,6 +136,8 @@ export const MessageList = ({
             </div>
           );
         })}
+        {/* Espace en bas pour s'assurer que le dernier message est visible */}
+        <div className="h-4" />
       </div>
     </ScrollArea>
   );

@@ -7,7 +7,7 @@ interface EmptyConversationStateProps {
 }
 
 /**
- * État vide quand aucune conversation n'est sélectionnée
+ * État vide quand aucune conversation n'est sélectionnée - Responsive
  */
 export const EmptyConversationState = ({
   onCreateConversation,

@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 /**
- * API de test simple pour les conversations
+ * API de test simple pour les conversations (SÉCURISÉE)
  */
 export async function GET(req: NextRequest) {
   try {
     console.log("[API] Test conversations - Début");
+
+    // Vérification de l'authentification
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+
+    console.log(`[API] Test pour l'utilisateur: ${user.email}`);
 
     // Test simple de connexion à la base
     const userCount = await prisma.user.count();
@@ -16,8 +25,15 @@ export async function GET(req: NextRequest) {
     const conversationCount = await prisma.conversation.count();
     console.log(`[API] Nombre de conversations: ${conversationCount}`);
 
-    // Récupérer toutes les conversations (sans filtres complexes)
+    // Récupérer SEULEMENT les conversations de l'utilisateur connecté
     const conversations = await prisma.conversation.findMany({
+      where: {
+        members: {
+          some: {
+            userId: user.uid,
+          },
+        },
+      },
       take: 10, // Limiter à 10 pour le test
       include: {
         members: {
@@ -38,12 +54,15 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    console.log(`[API] Conversations récupérées: ${conversations.length}`);
+    console.log(
+      `[API] Conversations récupérées pour l'utilisateur: ${conversations.length}`
+    );
 
     return NextResponse.json({
       success: true,
       userCount,
       conversationCount,
+      userConversations: conversations.length,
       conversations: conversations.map((conv) => ({
         id: conv.id,
         type: conv.type,

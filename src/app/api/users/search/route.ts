@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 /**
- * Rechercher un utilisateur par email
+ * Rechercher un utilisateur par email (SÉCURISÉE)
  */
 export async function GET(request: NextRequest) {
   try {
+    // Vérification de l'authentification
+    const currentUser = await getCurrentUser();
+    if (!currentUser) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const email = searchParams.get("email");
 
@@ -13,7 +20,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Email requis" }, { status: 400 });
     }
 
-    console.log(`[API] Recherche utilisateur par email: ${email}`);
+    console.log(
+      `[API] Recherche utilisateur par email: ${email} (par ${currentUser.email})`
+    );
 
     // Rechercher l'utilisateur par email
     const user = await prisma.user.findUnique({

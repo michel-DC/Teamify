@@ -1,16 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/auth";
 
 /**
- * API de démonstration pour les conversations (sans authentification)
+ * API de démonstration pour les conversations (SÉCURISÉE)
  */
 export async function GET(req: NextRequest) {
   try {
     console.log("[API] Démo conversations - Début");
 
-    // Créer une conversation de démonstration si elle n'existe pas
+    // Vérification de l'authentification
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    }
+
+    console.log(`[API] Démo pour l'utilisateur: ${user.email}`);
+
+    // Créer une conversation de démonstration personnalisée pour l'utilisateur
+    const demoTitle = `Conversation de démonstration - ${
+      user.firstname || user.email
+    }`;
+
     let demoConversation = await prisma.conversation.findFirst({
-      where: { title: "Conversation de démonstration" },
+      where: {
+        title: demoTitle,
+        members: {
+          some: {
+            userId: user.uid,
+          },
+        },
+      },
       include: {
         members: {
           include: {
@@ -39,26 +59,19 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Si pas de conversation de démo, en créer une
+    // Si pas de conversation de démo pour cet utilisateur, en créer une
     if (!demoConversation) {
-      console.log("[API] Création d'une conversation de démonstration");
-
-      // Récupérer le premier utilisateur
-      const firstUser = await prisma.user.findFirst();
-      if (!firstUser) {
-        return NextResponse.json(
-          { error: "Aucun utilisateur trouvé en base" },
-          { status: 404 }
-        );
-      }
+      console.log(
+        `[API] Création d'une conversation de démonstration pour ${user.email}`
+      );
 
       demoConversation = await prisma.conversation.create({
         data: {
           type: "GROUP",
-          title: "Conversation de démonstration",
+          title: demoTitle,
           members: {
             create: {
-              userId: firstUser.uid,
+              userId: user.uid,
               role: "ADMIN",
             },
           },
@@ -96,17 +109,19 @@ export async function GET(req: NextRequest) {
         data: [
           {
             conversationId: demoConversation.id,
-            senderId: firstUser.uid,
-            content: "Bienvenue dans la conversation de démonstration !",
+            senderId: user.uid,
+            content: `Bienvenue ${
+              user.firstname || "dans"
+            } la conversation de démonstration !`,
           },
           {
             conversationId: demoConversation.id,
-            senderId: firstUser.uid,
+            senderId: user.uid,
             content: "Ceci est un test du système de messagerie Socket.IO.",
           },
           {
             conversationId: demoConversation.id,
-            senderId: firstUser.uid,
+            senderId: user.uid,
             content: "Les messages en temps réel fonctionnent parfaitement !",
           },
         ],
@@ -176,7 +191,7 @@ export async function GET(req: NextRequest) {
     };
 
     console.log(
-      `[API] Conversation de démo récupérée: ${formattedConversation.id}`
+      `[API] Conversation de démo récupérée pour ${user.email}: ${formattedConversation.id}`
     );
 
     return NextResponse.json({

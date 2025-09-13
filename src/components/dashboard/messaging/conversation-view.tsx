@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSocket } from "@/hooks/useSocket";
 import { useMessages } from "@/hooks/useMessages";
-import { MessageList } from "./MessageList";
+import { MessageList } from "./message-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,28 +13,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MessageCircle,
-  Phone,
-  Video,
-  MoreVertical,
-  Info,
-  Send,
-} from "lucide-react";
+import { ArrowLeft, MoreVertical, Send, X } from "lucide-react";
 
 interface ConversationViewProps {
   conversationId: string;
   conversation: any;
   user: any;
+  onBackToConversations?: () => void;
 }
 
 /**
- * Vue d'une conversation avec zone de messages et saisie
+ * Vue d'une conversation responsive avec zone de messages et saisie
  */
 export const ConversationView = ({
   conversationId,
   conversation,
   user,
+  onBackToConversations,
 }: ConversationViewProps) => {
   const [newMessage, setNewMessage] = useState("");
 
@@ -56,9 +51,8 @@ export const ConversationView = ({
     joinConversation,
     leaveConversation,
   } = useSocket({
-    currentUserId: user?.uid, // Passer l'ID utilisateur pour les messages optimistes
+    currentUserId: user?.uid,
     onMessage: (message) => {
-      // Ajouter le message à la liste
       addMessage(message);
     },
     onError: (error) => {
@@ -72,7 +66,6 @@ export const ConversationView = ({
       joinConversation(conversationId);
     }
 
-    // Nettoyage : quitter la conversation précédente
     return () => {
       if (conversationId && isConnected) {
         leaveConversation(conversationId);
@@ -160,49 +153,48 @@ export const ConversationView = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col">
-      {/* En-tête de la conversation */}
-      <div className="p-4 border-b bg-background">
+    <div className="flex-1 flex flex-col h-full relative">
+      {/* En-tête de la conversation - Responsive */}
+      <div className="p-3 md:p-4 border-b bg-background flex-shrink-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            {/* Bouton retour sur mobile */}
+            {onBackToConversations && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onBackToConversations}
+                className="md:hidden flex-shrink-0"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            )}
+
+            <Avatar className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0">
               <AvatarImage src={getConversationAvatar(conversation)} />
               <AvatarFallback>
                 {getConversationInitials(conversation)}
               </AvatarFallback>
             </Avatar>
-            <div>
-              <h2 className="font-semibold">
+
+            <div className="min-w-0 flex-1">
+              <h2 className="font-semibold text-sm md:text-base truncate">
                 {getConversationDisplayName(conversation)}
               </h2>
-              <p className="text-sm text-muted-foreground">
-                {conversation.members.length} membre(s)
-                {socketError && (
-                  <span className="text-red-500 ml-2">
-                    • Erreur: {socketError}
-                  </span>
-                )}
-              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">
-              <Phone className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Video className="h-4 w-4" />
-            </Button>
+          <div className="flex items-center gap-1 flex-shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
-                  <Info className="h-4 w-4 mr-2" />
-                  Détails
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onBackToConversations}>
+                  <X className="h-4 w-4 mr-2" />
+                  Fermer la conversation
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -210,16 +202,18 @@ export const ConversationView = ({
         </div>
       </div>
 
-      {/* Zone des messages */}
-      <MessageList
-        messages={messages}
-        currentUserId={user?.uid}
-        isLoading={messagesLoading}
-      />
+      {/* Zone des messages - Scrollable */}
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <MessageList
+          messages={messages}
+          currentUserId={user?.uid}
+          isLoading={messagesLoading}
+        />
+      </div>
 
-      {/* Zone de saisie */}
-      <div className="p-4 border-t bg-background">
-        <div className="flex items-center gap-2">
+      {/* Zone de saisie - Responsive */}
+      <div className="p-3 md:p-4 border-t bg-background flex-shrink-0">
+        <div className="flex items-end gap-2 w-full">
           <Input
             placeholder="Tapez votre message..."
             value={newMessage}
@@ -230,11 +224,13 @@ export const ConversationView = ({
               }
             }}
             disabled={!isConnected}
+            className="flex-1 min-h-[40px] max-h-32 w-full resize-none"
           />
           <Button
             onClick={handleSendMessage}
             disabled={!newMessage.trim() || !isConnected}
             size="sm"
+            className="flex-shrink-0 h-10 w-10 p-0 hidden md:flex"
           >
             <Send className="h-4 w-4" />
           </Button>
