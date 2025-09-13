@@ -14,7 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Mail, User } from "lucide-react";
+import { Loader2, Mail, User, Search } from "lucide-react";
+import { toast } from "sonner";
 
 interface CreateConversationDialogProps {
   isOpen: boolean;
@@ -82,6 +83,33 @@ export const CreateConversationDialog = ({
   };
 
   /**
+   * Vérifier si une conversation privée existe déjà avec cet utilisateur
+   */
+  const checkExistingPrivateConversation = async (userId: string) => {
+    try {
+      const response = await fetch(
+        `/api/conversations/check-private?userId=${userId}`,
+        {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.exists;
+      }
+      return false;
+    } catch (error) {
+      console.error("Erreur vérification conversation existante:", error);
+      return false;
+    }
+  };
+
+  /**
    * Créer la conversation avec l'utilisateur trouvé
    */
   const createConversationWithUser = async () => {
@@ -91,9 +119,20 @@ export const CreateConversationDialog = ({
     setError(null);
 
     try {
+      // Vérifier si une conversation privée existe déjà
+      const conversationExists = await checkExistingPrivateConversation(
+        foundUser.uid
+      );
+
+      if (conversationExists) {
+        toast.error("Une conversation privée existe déjà avec cette personne");
+        setIsLoading(false);
+        return;
+      }
+
       const newConversation = await createConversation({
         type: "PRIVATE",
-        title: `Conversation avec ${foundUser.firstname} ${foundUser.lastname}`,
+        title: undefined, // Ne pas définir de titre, laisser le système d'affichage gérer
         memberIds: [foundUser.uid],
       });
 
@@ -102,6 +141,7 @@ export const CreateConversationDialog = ({
         // Reset form
         setEmail("");
         setFoundUser(null);
+        toast.success("Conversation créée avec succès");
       }
     } catch (error) {
       console.error("Erreur création conversation:", error);
@@ -123,7 +163,7 @@ export const CreateConversationDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Nouvelle conversation</DialogTitle>
           <DialogDescription>
@@ -157,11 +197,12 @@ export const CreateConversationDialog = ({
                 onClick={searchUserByEmail}
                 disabled={isLoading || !email.trim()}
                 size="sm"
+                className="px-4 py-2 mt-2 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "Rechercher"
+                  <Search className="h-4 w-4" />
                 )}
               </Button>
             </div>

@@ -86,12 +86,6 @@ export const SocketIODemo = () => {
         conversationId: selectedConversationId,
         content: `Message de test envoyé à ${new Date().toLocaleTimeString()}`,
       });
-
-      if (success) {
-        console.log("Message de test envoyé");
-      } else {
-        console.error("Échec envoi message de test");
-      }
     }
   };
 

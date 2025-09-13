@@ -134,7 +134,6 @@ export function logPersistedDataStatus() {
 export function testDataPersistence() {
   console.group("🧪 Test de la persistance des données");
 
-  console.log("État avant vidage:");
   logPersistedDataStatus();
 
   // Simulation du vidage
@@ -167,10 +166,7 @@ export function testDataPersistence() {
       document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
     });
 
-    console.log("État après vidage:");
     logPersistedDataStatus();
-
-    console.log("✅ Test terminé avec succès");
   } catch (error) {
     console.error("❌ Erreur lors du test:", error);
   }

@@ -65,8 +65,6 @@ export const useTokenValidation = (options: TokenValidationOptions = {}) => {
       const isValid = response.ok;
 
       if (!isValid) {
-        console.log("[useTokenValidation] Token expiré ou invalide");
-
         // Nettoyer le localStorage
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("hasOrganization");

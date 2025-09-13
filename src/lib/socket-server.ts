@@ -8,7 +8,6 @@ import { initializeSocketIO } from "./socket";
 export function setupSocketIOServer(httpServer: NetServer) {
   try {
     const io = initializeSocketIO(httpServer);
-    console.log("✅ Socket.IO server initialized successfully");
     return io;
   } catch (error) {
     console.error("❌ Failed to initialize Socket.IO server:", error);

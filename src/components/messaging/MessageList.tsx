@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Message } from "@/hooks/useMessages";
 import { format } from "date-fns";
@@ -37,32 +36,7 @@ export const MessageList = ({
     }
   }, [messages]);
 
-  /**
-   * Obtenir les initiales d'un utilisateur
-   */
-  const getUserInitials = (user: {
-    firstname?: string | null;
-    lastname?: string | null;
-  }) => {
-    const first = user.firstname?.charAt(0) || "";
-    const last = user.lastname?.charAt(0) || "";
-    return (first + last).toUpperCase() || "?";
-  };
-
-  /**
-   * Obtenir le nom d'affichage d'un utilisateur
-   */
-  const getUserDisplayName = (user: {
-    firstname?: string | null;
-    lastname?: string | null;
-  }) => {
-    if (user.firstname && user.lastname) {
-      return `${user.firstname} ${user.lastname}`;
-    }
-    if (user.firstname) return user.firstname;
-    if (user.lastname) return user.lastname;
-    return "Utilisateur";
-  };
+  // Suppression des fonctions d'affichage des utilisateurs
 
   /**
    * Formater l'heure d'un message
@@ -101,43 +75,19 @@ export const MessageList = ({
 
   return (
     <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-      <div className="space-y-4">
+      <div className="space-y-2">
         {messages.map((message) => {
           const isCurrentUser = message.senderId === currentUserId;
-          const isConsecutive =
-            messages[messages.indexOf(message) - 1]?.senderId ===
-            message.senderId;
 
           return (
             <div
               key={message.id}
-              className={`flex gap-3 ${
-                isCurrentUser ? "flex-row-reverse" : "flex-row"
+              className={`flex ${
+                isCurrentUser ? "justify-end" : "justify-start"
               }`}
             >
-              {/* Avatar (seulement si pas consécutif) */}
-              {!isConsecutive && (
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarImage src={message.sender.profileImage || ""} />
-                  <AvatarFallback className="text-xs">
-                    {getUserInitials(message.sender)}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-
               {/* Contenu du message */}
-              <div
-                className={`flex flex-col max-w-[70%] ${
-                  isCurrentUser ? "items-end" : "items-start"
-                }`}
-              >
-                {/* Nom d'utilisateur (seulement si pas consécutif) */}
-                {!isConsecutive && (
-                  <p className="text-xs text-muted-foreground mb-1 px-2">
-                    {getUserDisplayName(message.sender)}
-                  </p>
-                )}
-
+              <div className={`flex flex-col max-w-[70%]`}>
                 {/* Bulle de message */}
                 <div
                   className={`rounded-lg px-3 py-2 ${
@@ -152,13 +102,14 @@ export const MessageList = ({
                 </div>
 
                 {/* Heure du message */}
-                <p className="text-xs text-muted-foreground mt-1 px-2">
+                <p
+                  className={`text-xs text-muted-foreground mt-1 ${
+                    isCurrentUser ? "text-right" : "text-left"
+                  }`}
+                >
                   {formatMessageTime(message.createdAt)}
                 </p>
               </div>
-
-              {/* Espace pour l'avatar consécutif */}
-              {isConsecutive && <div className="w-8" />}
             </div>
           );
         })}

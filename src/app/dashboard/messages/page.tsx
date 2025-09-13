@@ -35,9 +35,6 @@ export default function MessagesPage() {
 
   // Hook Socket.IO pour la messagerie temps réel
   const { isConnected, isConnecting } = useSocket({
-    onMessage: (message) => {
-      console.log("Nouveau message reçu:", message);
-    },
     onError: (error) => {
       console.error("Erreur Socket.IO:", error);
     },

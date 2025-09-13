@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Teamify - Vos événements",
-  description: "Explorez et gérez vos événements sur Teamify",
+  title: "Teamify - Messagerie",
+  description: "Page de messagerie sur Teamify",
 };
 
-export default function EventsLayout({
+const MessagesLayout = ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
   return <>{children}</>;
-}
+};
+
+export default MessagesLayout;

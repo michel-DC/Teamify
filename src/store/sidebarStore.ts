@@ -121,7 +121,7 @@ const initialData: SidebarData = {
     {
       title: "Messagerie",
       url: "/messages",
-      icon: "Command",
+      icon: "MessageCircle",
       isActive: true,
       items: [
         {

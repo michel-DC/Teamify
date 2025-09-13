@@ -129,7 +129,6 @@ export function initializeSocketIO(httpServer?: NetServer) {
    */
   io.on("connection", async (socket: Socket) => {
     const userId = socket.data.userId;
-    console.log(`[Socket.IO] Utilisateur connecté: ${userId}`);
 
     try {
       // Rejoindre la room utilisateur
@@ -145,10 +144,6 @@ export function initializeSocketIO(httpServer?: NetServer) {
       for (const conv of conversations) {
         await socket.join(`conversation:${conv.conversationId}`);
       }
-
-      console.log(
-        `[Socket.IO] Utilisateur ${userId} a rejoint ${conversations.length} conversations`
-      );
 
       /**
        * Événement: Envoi d'un message
@@ -224,10 +219,6 @@ export function initializeSocketIO(httpServer?: NetServer) {
             createdAt: message.createdAt,
             sender: message.sender,
           });
-
-          console.log(
-            `[Socket.IO] Message envoyé par ${userId} dans ${conversationId}`
-          );
         } catch (error) {
           console.error(
             "[Socket.IO] Erreur lors de l'envoi du message:",
@@ -290,10 +281,6 @@ export function initializeSocketIO(httpServer?: NetServer) {
               timestamp: new Date(),
             });
           }
-
-          console.log(
-            `[Socket.IO] Message ${messageId} marqué comme lu par ${userId}`
-          );
         } catch (error) {
           console.error(
             "[Socket.IO] Erreur lors de la lecture du message:",
@@ -333,10 +320,6 @@ export function initializeSocketIO(httpServer?: NetServer) {
 
           await socket.join(`conversation:${conversationId}`);
           socket.emit("conversation:joined", { conversationId });
-
-          console.log(
-            `[Socket.IO] Utilisateur ${userId} a rejoint la conversation ${conversationId}`
-          );
         } catch (error) {
           console.error("[Socket.IO] Erreur lors de la jointure:", error);
           socket.emit("error", {
@@ -353,9 +336,6 @@ export function initializeSocketIO(httpServer?: NetServer) {
         try {
           const { conversationId } = data;
           await socket.leave(`conversation:${conversationId}`);
-          console.log(
-            `[Socket.IO] Utilisateur ${userId} a quitté la conversation ${conversationId}`
-          );
         } catch (error) {
           console.error("[Socket.IO] Erreur lors de la sortie:", error);
         }
@@ -364,9 +344,7 @@ export function initializeSocketIO(httpServer?: NetServer) {
       /**
        * Gestion de la déconnexion
        */
-      socket.on("disconnect", (reason) => {
-        console.log(`[Socket.IO] Utilisateur ${userId} déconnecté: ${reason}`);
-      });
+      socket.on("disconnect", (reason) => {});
     } catch (error) {
       console.error("[Socket.IO] Erreur lors de la connexion:", error);
       socket.emit("error", {

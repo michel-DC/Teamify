@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSocket } from "@/hooks/useSocket";
 import { useMessages } from "@/hooks/useMessages";
 import { MessageList } from "./MessageList";
@@ -53,9 +53,11 @@ export const ConversationView = ({
     sendMessage,
     isConnecting,
     error: socketError,
+    joinConversation,
+    leaveConversation,
   } = useSocket({
+    currentUserId: user?.uid, // Passer l'ID utilisateur pour les messages optimistes
     onMessage: (message) => {
-      console.log("📨 Nouveau message reçu dans ConversationView:", message);
       // Ajouter le message à la liste
       addMessage(message);
     },
@@ -63,6 +65,20 @@ export const ConversationView = ({
       console.error("❌ Erreur Socket.IO dans ConversationView:", error);
     },
   });
+
+  // Rejoindre la conversation quand elle change
+  useEffect(() => {
+    if (conversationId && isConnected) {
+      joinConversation(conversationId);
+    }
+
+    // Nettoyage : quitter la conversation précédente
+    return () => {
+      if (conversationId && isConnected) {
+        leaveConversation(conversationId);
+      }
+    };
+  }, [conversationId, isConnected, joinConversation, leaveConversation]);
 
   /**
    * Obtenir le nom d'affichage d'une conversation
@@ -125,20 +141,11 @@ export const ConversationView = ({
    * Envoyer un message
    */
   const handleSendMessage = () => {
-    console.log("📤 Tentative d'envoi de message:", {
-      newMessage: newMessage.trim(),
-      isConnected,
-      conversationId,
-      socketError,
-    });
-
     if (!newMessage.trim()) {
-      console.log("❌ Message vide");
       return;
     }
 
     if (!isConnected) {
-      console.log("❌ Socket non connecté");
       return;
     }
 
@@ -146,8 +153,6 @@ export const ConversationView = ({
       conversationId,
       content: newMessage.trim(),
     });
-
-    console.log("📤 Résultat de l'envoi:", success);
 
     if (success) {
       setNewMessage("");

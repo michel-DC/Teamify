@@ -80,10 +80,37 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
   }, [conversationId]);
 
   /**
-   * Ajouter un nouveau message à la liste
+   * Ajouter un nouveau message à la liste avec gestion des messages optimistes
    */
   const addMessage = useCallback((message: Message) => {
-    setMessages((prev) => [...prev, message]);
+    setMessages((prev) => {
+      // Si c'est un message optimiste (ID commence par "temp_"), le remplacer
+      if (message.id.startsWith("temp_")) {
+        return [...prev, message];
+      }
+
+      // Si c'est un message du serveur, vérifier s'il y a un message optimiste à remplacer
+      const hasOptimisticMessage = prev.some(
+        (msg) =>
+          msg.id.startsWith("temp_") &&
+          msg.conversationId === message.conversationId &&
+          msg.content === message.content
+      );
+
+      if (hasOptimisticMessage) {
+        // Remplacer le message optimiste par le vrai message
+        return prev.map((msg) =>
+          msg.id.startsWith("temp_") &&
+          msg.conversationId === message.conversationId &&
+          msg.content === message.content
+            ? message
+            : msg
+        );
+      }
+
+      // Sinon, ajouter le message normalement
+      return [...prev, message];
+    });
   }, []);
 
   /**

@@ -106,53 +106,6 @@ export async function POST(
     // Vérifier l'authentification
     const user = await getCurrentUser();
     if (!user) {
-      // Pour les tokens de démo, créer un utilisateur fictif
-      if (request.headers.get("cookie")?.includes("demo_jwt_token")) {
-        console.log("[conversations/messages] Utilisation du mode démo");
-
-        if (!content || !content.trim()) {
-          return NextResponse.json(
-            { error: "Le contenu du message est requis" },
-            { status: 400 }
-          );
-        }
-
-        // Créer le message en base avec l'utilisateur de démo
-        const message = await prisma.message.create({
-          data: {
-            conversationId,
-            senderId: "demo_user",
-            content: content.trim(),
-            attachments: attachments || null,
-          },
-          include: {
-            sender: {
-              select: {
-                uid: true,
-                firstname: true,
-                lastname: true,
-                profileImage: true,
-              },
-            },
-          },
-        });
-
-        console.log(
-          `[conversations/messages] Message de démo créé:`,
-          message.id
-        );
-
-        return NextResponse.json({
-          id: message.id,
-          conversationId: message.conversationId,
-          senderId: message.senderId,
-          content: message.content,
-          attachments: message.attachments,
-          createdAt: message.createdAt,
-          sender: message.sender,
-        });
-      }
-
       console.log("[conversations/messages] Utilisateur non authentifié");
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }

@@ -76,6 +76,7 @@ export interface MessageReadData {
  */
 interface UseSocketOptions {
   autoConnect?: boolean;
+  currentUserId?: string; // ID de l'utilisateur actuel pour les messages optimistes
   onMessage?: (message: MessageData) => void;
   onMessageRead?: (data: MessageReadData) => void;
   onError?: (error: { message: string; code?: string }) => void;
@@ -88,13 +89,14 @@ interface UseSocketOptions {
 export const useSocket = (options: UseSocketOptions = {}) => {
   const {
     autoConnect = true,
+    currentUserId,
     onMessage,
     onMessageRead,
     onError,
     onConversationJoined,
   } = options;
 
-  const { checkAuth, user, isAuthenticated: authIsAuthenticated } = useAuth();
+  const { checkAuth } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const socketRef = useRef<Socket<
@@ -140,70 +142,57 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     setError(null);
 
     try {
-      // Créer la connexion Socket.IO
-      const socket = io(
+      const socketUrl =
         process.env.NODE_ENV === "production"
           ? process.env.NEXT_PUBLIC_SOCKET_URL ||
-              window.location.origin.replace("3000", "3001")
-          : "http://localhost:3001",
-        {
-          auth: {
-            token,
-          },
-          transports: ["websocket", "polling"],
-          autoConnect: true,
-          reconnection: true,
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-        }
-      );
+            window.location.origin.replace("3000", "3001")
+          : "http://localhost:3001";
 
-      // Gestion des événements de connexion
+      const socket = io(socketUrl, {
+        withCredentials: true,
+        transports: ["websocket", "polling"],
+        autoConnect: true,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
+
       socket.on("connect", () => {
-        console.log("[useSocket] Connecté au serveur Socket.IO");
         setIsConnected(true);
         setIsConnecting(false);
         setError(null);
       });
 
       socket.on("disconnect", (reason) => {
-        console.log("[useSocket] Déconnecté du serveur Socket.IO:", reason);
         setIsConnected(false);
         setIsConnecting(false);
       });
 
       socket.on("connect_error", (error) => {
-        console.error("[useSocket] Erreur de connexion:", error);
         setError(error.message);
         setIsConnecting(false);
         setIsConnected(false);
       });
 
-      // Gestion des événements métier
       socket.on("message:new", (data) => {
-        console.log("[useSocket] Nouveau message reçu:", data);
         onMessageRef.current?.(data);
       });
 
       socket.on("message:read", (data) => {
-        console.log("[useSocket] Message marqué comme lu:", data);
         onMessageReadRef.current?.(data);
       });
 
       socket.on("conversation:joined", (data) => {
-        console.log("[useSocket] Conversation rejointe:", data);
         onConversationJoinedRef.current?.(data);
       });
 
       socket.on("error", (errorData) => {
-        console.error("[useSocket] Erreur serveur:", errorData);
         setError(errorData.message);
         onErrorRef.current?.(errorData);
       });
 
       socketRef.current = socket;
     } catch (error) {
-      console.error("[useSocket] Erreur lors de l'initialisation:", error);
       setError("Erreur lors de l'initialisation de la connexion");
       setIsConnecting(false);
     }
@@ -222,24 +211,40 @@ export const useSocket = (options: UseSocketOptions = {}) => {
   }, []);
 
   /**
-   * Envoie un message
+   * Envoie un message avec mise à jour optimiste
    */
   const sendMessage = useCallback(
     (data: { conversationId: string; content: string; attachments?: any }) => {
       if (!socketRef.current?.connected) {
-        console.error("[useSocket] Socket non connecté");
         return false;
       }
 
       try {
+        const userId = currentUserId || "current_user";
+
+        const tempMessage: MessageData = {
+          id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          conversationId: data.conversationId,
+          senderId: userId,
+          content: data.content,
+          attachments: data.attachments,
+          createdAt: new Date(),
+          sender: {
+            uid: userId,
+            firstname: "Vous",
+            lastname: "",
+            profileImage: null,
+          },
+        };
+
+        onMessageRef.current?.(tempMessage);
         socketRef.current.emit("message:send", data);
         return true;
       } catch (error) {
-        console.error("[useSocket] Erreur lors de l'envoi du message:", error);
         return false;
       }
     },
-    []
+    [currentUserId]
   );
 
   /**
@@ -247,7 +252,6 @@ export const useSocket = (options: UseSocketOptions = {}) => {
    */
   const markMessageAsRead = useCallback((messageId: string) => {
     if (!socketRef.current?.connected) {
-      console.error("[useSocket] Socket non connecté");
       return false;
     }
 
@@ -255,7 +259,6 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       socketRef.current.emit("message:read", { messageId });
       return true;
     } catch (error) {
-      console.error("[useSocket] Erreur lors de la lecture du message:", error);
       return false;
     }
   }, []);
@@ -265,7 +268,6 @@ export const useSocket = (options: UseSocketOptions = {}) => {
    */
   const joinConversation = useCallback((conversationId: string) => {
     if (!socketRef.current?.connected) {
-      console.error("[useSocket] Socket non connecté");
       return false;
     }
 
@@ -273,7 +275,6 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       socketRef.current.emit("join:conversation", { conversationId });
       return true;
     } catch (error) {
-      console.error("[useSocket] Erreur lors de la jointure:", error);
       return false;
     }
   }, []);
@@ -283,7 +284,6 @@ export const useSocket = (options: UseSocketOptions = {}) => {
    */
   const leaveConversation = useCallback((conversationId: string) => {
     if (!socketRef.current?.connected) {
-      console.error("[useSocket] Socket non connecté");
       return false;
     }
 
@@ -291,7 +291,6 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       socketRef.current.emit("leave:conversation", { conversationId });
       return true;
     } catch (error) {
-      console.error("[useSocket] Erreur lors de la sortie:", error);
       return false;
     }
   }, []);
@@ -304,33 +303,15 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       const authResult = await checkAuth();
       setIsAuthenticated(authResult.isAuthenticated);
 
-      // Récupérer le token depuis les cookies
       if (authResult.isAuthenticated) {
-        // Récupérer le token JWT depuis les cookies
-        const cookies = document.cookie.split(";");
-        const tokenCookie = cookies.find((cookie) =>
-          cookie.trim().startsWith("token=")
-        );
-
-        if (tokenCookie) {
-          const tokenValue = tokenCookie.split("=")[1];
-          setToken(tokenValue);
-          console.log(
-            "[useSocket] Token JWT récupéré pour l'utilisateur:",
-            user?.email
-          );
-        } else {
-          // Fallback pour la démo
-          setToken("demo_token");
-          console.log("[useSocket] Utilisation du token de démo");
-        }
+        setToken("authenticated");
       } else {
         setToken(null);
       }
     };
 
     verifyAuth();
-  }, [checkAuth, user]);
+  }, [checkAuth]);
 
   /**
    * Gestion de la connexion automatique
@@ -340,7 +321,6 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       connect();
     }
 
-    // Nettoyage lors du démontage du composant
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();

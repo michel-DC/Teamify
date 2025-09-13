@@ -36,6 +36,7 @@ app
         origin: dev ? "http://localhost:3000" : process.env.NEXT_PUBLIC_APP_URL,
         methods: ["GET", "POST"],
         credentials: true,
+        allowedHeaders: ["Cookie", "Authorization"],
       },
       transports: ["websocket", "polling"],
       allowEIO3: true,
@@ -46,29 +47,30 @@ app
     // Middleware d'authentification
     io.use(async (socket, next) => {
       try {
-        const token = socket.handshake.auth.token;
+        console.log("[Socket.IO] 🔍 Vérification de l'authentification...");
 
-        if (!token) {
-          console.log("[Socket.IO] ❌ Aucun token fourni");
-          return next(new Error("Token requis"));
+        // Récupérer les cookies de la requête
+        const cookies = socket.handshake.headers.cookie;
+        console.log("[Socket.IO] Cookies reçus:", cookies);
+
+        if (!cookies) {
+          console.log("[Socket.IO] ❌ Aucun cookie fourni");
+          return next(new Error("Cookies requis"));
         }
 
-        // Si c'est le token de démo, l'accepter
-        if (token === "demo_token") {
-          socket.data.userId = "demo_user";
-          socket.data.userUid = "demo_user";
-          console.log("[Socket.IO] ✅ Authentification démo réussie");
-          return next();
-        }
-
-        // Pour les vrais tokens JWT, vérifier avec l'API d'authentification
+        // Vérifier l'authentification via l'API avec les cookies
         try {
           const response = await fetch("http://localhost:3000/api/auth/me", {
             method: "GET",
             headers: {
-              Cookie: `token=${token}`,
+              Cookie: cookies,
               "Content-Type": "application/json",
             },
+          });
+
+          console.log("[Socket.IO] Réponse API auth:", {
+            status: response.status,
+            ok: response.ok,
           });
 
           if (response.ok) {
@@ -76,13 +78,13 @@ app
             socket.data.userId = data.user.uid;
             socket.data.userUid = data.user.uid;
             console.log(
-              "[Socket.IO] ✅ Authentification JWT réussie pour:",
+              "[Socket.IO] ✅ Authentification réussie pour:",
               data.user.email
             );
             next();
           } else {
-            console.log("[Socket.IO] ❌ Token JWT invalide");
-            next(new Error("Token invalide"));
+            console.log("[Socket.IO] ❌ Authentification échouée");
+            next(new Error("Authentification échouée"));
           }
         } catch (apiError) {
           console.log(
@@ -124,11 +126,8 @@ app
 
           // Sauvegarder le message en base via l'API
           try {
-            // Pour les tokens de démo, utiliser un token JWT valide
-            const token =
-              socket.handshake.auth.token === "demo_token"
-                ? "demo_jwt_token"
-                : socket.handshake.auth.token;
+            // Utiliser les cookies de la requête Socket.IO
+            const cookies = socket.handshake.headers.cookie;
 
             const response = await fetch(
               `http://localhost:3000/api/conversations/${data.conversationId}/messages`,
@@ -136,7 +135,7 @@ app
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  Cookie: `token=${token}`,
+                  Cookie: cookies,
                 },
                 body: JSON.stringify({
                   content: data.content,
@@ -152,12 +151,14 @@ app
                 messageData.id
               );
 
-              // Diffuser à la conversation
+              // Diffuser à la conversation (sauf à l'expéditeur qui a déjà le message optimiste)
               io.to(`conversation:${data.conversationId}`).emit(
                 "message:new",
                 messageData
               );
-              console.log(`[Socket.IO] ✅ Message diffusé`);
+              console.log(
+                `[Socket.IO] ✅ Message diffusé à la conversation: ${data.conversationId}`
+              );
             } else {
               console.error(
                 `[Socket.IO] ❌ Erreur sauvegarde:`,
@@ -179,12 +180,15 @@ app
       socket.on("join:conversation", (data) => {
         try {
           console.log(
-            `[Socket.IO] 🏠 Rejoint conversation: ${data.conversationId}`
+            `[Socket.IO] 🏠 Utilisateur ${userId} rejoint conversation: ${data.conversationId}`
           );
           socket.join(`conversation:${data.conversationId}`);
           socket.emit("conversation:joined", {
             conversationId: data.conversationId,
           });
+          console.log(
+            `[Socket.IO] ✅ Utilisateur ${userId} dans la room: conversation:${data.conversationId}`
+          );
         } catch (error) {
           console.error(`[Socket.IO] ❌ Erreur join:`, error);
         }
