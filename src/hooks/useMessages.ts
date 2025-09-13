@@ -133,6 +133,45 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
   }, []);
 
   /**
+   * Supprimer un message via l'API
+   */
+  const deleteMessage = useCallback(
+    async (messageId: string) => {
+      if (!conversationId) {
+        return false;
+      }
+
+      try {
+        const response = await fetch(
+          `/api/conversations/${conversationId}/messages/${messageId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+        }
+
+        // Supprimer le message de la liste locale
+        removeMessage(messageId);
+        return true;
+      } catch (err) {
+        console.error(
+          "[useMessages] Erreur lors de la suppression du message:",
+          err
+        );
+        setError(err instanceof Error ? err.message : "Erreur inconnue");
+        return false;
+      }
+    },
+    [conversationId, removeMessage]
+  );
+
+  /**
    * Effet pour récupérer les messages automatiquement
    */
   useEffect(() => {
@@ -149,5 +188,6 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
     addMessage,
     updateMessage,
     removeMessage,
+    deleteMessage,
   };
 };

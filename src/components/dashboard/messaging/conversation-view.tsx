@@ -38,6 +38,7 @@ export const ConversationView = ({
     messages,
     isLoading: messagesLoading,
     addMessage,
+    deleteMessage,
   } = useMessages({
     conversationId,
     autoFetch: true,
@@ -208,6 +209,7 @@ export const ConversationView = ({
           messages={messages}
           currentUserId={user?.uid}
           isLoading={messagesLoading}
+          onDeleteMessage={deleteMessage}
         />
       </div>
 

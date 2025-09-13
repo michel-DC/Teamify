@@ -1,15 +1,25 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Message } from "@/hooks/useMessages";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { MoreVertical, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface MessageListProps {
   messages: Message[];
   currentUserId?: string;
   isLoading?: boolean;
+  onDeleteMessage?: (messageId: string) => void;
 }
 
 /**
@@ -19,6 +29,7 @@ export const MessageList = ({
   messages,
   currentUserId,
   isLoading = false,
+  onDeleteMessage,
 }: MessageListProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +77,21 @@ export const MessageList = ({
     return format(new Date(date), "HH:mm", { locale: fr });
   };
 
+  /**
+   * Gérer la suppression d'un message
+   */
+  const handleDeleteMessage = async (messageId: string) => {
+    if (!onDeleteMessage) return;
+
+    try {
+      await onDeleteMessage(messageId);
+      toast.success("Message supprimé avec succès");
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+      toast.error("Erreur lors de la suppression du message");
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center p-4">
@@ -103,12 +129,12 @@ export const MessageList = ({
           return (
             <div
               key={message.id}
-              className={`flex ${
+              className={`flex group relative ${
                 isCurrentUser ? "justify-end" : "justify-start"
               }`}
             >
               {/* Contenu du message */}
-              <div className={`flex flex-col w-64 md:w-80`}>
+              <div className={`flex flex-col w-64 md:w-80 relative`}>
                 {/* Bulle de message */}
                 <div
                   className={`rounded-lg px-3 py-2 text-sm min-h-[40px] flex items-center ${
@@ -130,6 +156,31 @@ export const MessageList = ({
                 >
                   {formatMessageTime(message.createdAt)}
                 </p>
+
+                {/* Menu d'options pour les messages de l'utilisateur - Positionné au-dessus */}
+                {isCurrentUser && onDeleteMessage && (
+                  <div className="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 bg-background border shadow-sm hover:bg-muted/50"
+                        >
+                          <MoreVertical className="h-3 w-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteMessage(message.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          Supprimer le message
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
               </div>
             </div>
           );
