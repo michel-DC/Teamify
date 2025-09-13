@@ -214,26 +214,29 @@ export const ConversationView = ({
       {/* Zone de saisie - Responsive */}
       <div className="p-3 md:p-4 border-t bg-background flex-shrink-0">
         <div className="flex items-end gap-2 w-full">
-          <Input
-            placeholder="Tapez votre message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                handleSendMessage();
-              }
-            }}
-            disabled={!isConnected}
-            className="flex-1 min-h-[40px] max-h-32 w-full resize-none"
-          />
-          <Button
-            onClick={handleSendMessage}
-            disabled={!newMessage.trim() || !isConnected}
-            size="sm"
-            className="flex-shrink-0 h-10 w-10 p-0 hidden md:flex"
-          >
-            <Send className="h-4 w-4" />
-          </Button>
+          <div className="relative flex-1">
+            <Input
+              placeholder="Tapez votre message..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === "Enter") {
+                  handleSendMessage();
+                }
+              }}
+              disabled={!isConnected}
+              className="flex-1 min-h-[40px] max-h-32 w-full resize-none pr-10"
+            />
+            <button
+              type="button"
+              onClick={handleSendMessage}
+              disabled={!newMessage.trim() || !isConnected}
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-primary disabled:opacity-50"
+              tabIndex={-1}
+            >
+              <Send className="h-5 w-5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -125,7 +125,7 @@ const initialData: SidebarData = {
       isActive: true,
       items: [
         {
-          title: "Tous les messages",
+          title: "Messages privés",
           url: "/dashboard/messages",
         },
         {

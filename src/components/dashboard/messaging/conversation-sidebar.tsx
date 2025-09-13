@@ -116,11 +116,11 @@ export const ConversationSidebar = ({
   return (
     <>
       {/* Header de la sidebar */}
-      <div className="p-4 border-b bg-background">
+      <div className="p-2 border-b bg-background mt-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
-            <h2 className="text-lg font-semibold">Conversations</h2>
+            <h2 className="text-lg font-semibold">Vos conversations</h2>
           </div>
           {/* Bouton fermer sur mobile */}
           <Button
@@ -194,16 +194,16 @@ export const ConversationSidebar = ({
                   key={conversation.id}
                   onClick={() => onConversationSelect(conversation.id)}
                   className={`
-                    p-3 rounded-lg cursor-pointer transition-colors
+                    p-2 rounded-lg cursor-pointer transition-colors border
                     ${
                       selectedConversationId === conversation.id
-                        ? "bg-muted/50 border border-border"
-                        : "hover:bg-muted"
+                        ? "bg-muted/50 border-2 border-accent"
+                        : "border-border hover:bg-muted"
                     }
                   `}
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 flex-shrink-0">
+                    <Avatar className="h-8 w-8 flex-shrink-0">
                       <AvatarImage src={getConversationAvatar(conversation)} />
                       <AvatarFallback>
                         {getConversationInitials(conversation)}

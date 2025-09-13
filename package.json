@@ -8,11 +8,11 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:socket": "node server-simple.js",
+    "dev:socket": "node server.js",
     "dev:full": "concurrently \"pnpm dev\" \"pnpm dev:socket\"",
     "build": "prisma generate --no-engine && next build",
     "start": "next start",
-    "start:socket": "NODE_ENV=production node server-simple.js",
+    "start:socket": "NODE_ENV=production node server.js",
     "start:full": "concurrently \"pnpm start\" \"pnpm start:socket\"",
     "lint": "next lint",
     "db:seed": "tsx prisma/seed.ts",
