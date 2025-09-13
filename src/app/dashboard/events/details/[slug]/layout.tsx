@@ -14,11 +14,11 @@ export async function generateMetadata({
   const eventName = await getEventNameBySlug(params.slug);
 
   return {
-    title: `Détails de l'événement: ${
+    title: `Détails de l'événement${
       eventName
-        ? eventName.charAt(0).toLowerCase() + eventName.slice(1)
-        : "l'événement"
-    }`,
+        ? ` : ${eventName.charAt(0).toLowerCase() + eventName.slice(1)}`
+        : ""
+    } - Teamify`,
     description: "Page de détails d'un événement sur Teamify",
   };
 }

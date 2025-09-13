@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Teamify - Créer un nouvel événement",
+  title: "Créer un nouvel événement - Teamify",
   description: "Page de création d'un nouvel événement sur Teamify",
 };
 

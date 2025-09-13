@@ -13,7 +13,7 @@ export async function generateMetadata({
   const { slug } = await params;
 
   return {
-    title: `Modifier le statut: ${slug}`,
+    title: `Modifier le statut de l'événement - Teamify`,
     description: "Modification du statut d'un événement sur Teamify",
   };
 }
