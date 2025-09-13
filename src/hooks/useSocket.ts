@@ -94,7 +94,7 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     onConversationJoined,
   } = options;
 
-  const { checkAuth } = useAuth();
+  const { checkAuth, user, isAuthenticated: authIsAuthenticated } = useAuth();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const socketRef = useRef<Socket<
@@ -104,6 +104,29 @@ export const useSocket = (options: UseSocketOptions = {}) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Utiliser des refs pour les callbacks pour éviter les re-renders
+  const onMessageRef = useRef(onMessage);
+  const onMessageReadRef = useRef(onMessageRead);
+  const onErrorRef = useRef(onError);
+  const onConversationJoinedRef = useRef(onConversationJoined);
+
+  // Mettre à jour les refs quand les callbacks changent
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
+
+  useEffect(() => {
+    onMessageReadRef.current = onMessageRead;
+  }, [onMessageRead]);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
+  useEffect(() => {
+    onConversationJoinedRef.current = onConversationJoined;
+  }, [onConversationJoined]);
 
   /**
    * Initialise la connexion Socket.IO
@@ -129,6 +152,9 @@ export const useSocket = (options: UseSocketOptions = {}) => {
           },
           transports: ["websocket", "polling"],
           autoConnect: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
         }
       );
 
@@ -156,23 +182,23 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       // Gestion des événements métier
       socket.on("message:new", (data) => {
         console.log("[useSocket] Nouveau message reçu:", data);
-        onMessage?.(data);
+        onMessageRef.current?.(data);
       });
 
       socket.on("message:read", (data) => {
         console.log("[useSocket] Message marqué comme lu:", data);
-        onMessageRead?.(data);
+        onMessageReadRef.current?.(data);
       });
 
       socket.on("conversation:joined", (data) => {
         console.log("[useSocket] Conversation rejointe:", data);
-        onConversationJoined?.(data);
+        onConversationJoinedRef.current?.(data);
       });
 
       socket.on("error", (errorData) => {
         console.error("[useSocket] Erreur serveur:", errorData);
         setError(errorData.message);
-        onError?.(errorData);
+        onErrorRef.current?.(errorData);
       });
 
       socketRef.current = socket;
@@ -181,14 +207,7 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       setError("Erreur lors de l'initialisation de la connexion");
       setIsConnecting(false);
     }
-  }, [
-    token,
-    isAuthenticated,
-    onMessage,
-    onMessageRead,
-    onError,
-    onConversationJoined,
-  ]);
+  }, [token, isAuthenticated]);
 
   /**
    * Déconnecte le socket
@@ -287,13 +306,31 @@ export const useSocket = (options: UseSocketOptions = {}) => {
 
       // Récupérer le token depuis les cookies
       if (authResult.isAuthenticated) {
-        // Le token sera récupéré automatiquement par Socket.IO via les cookies
-        setToken("authenticated");
+        // Récupérer le token JWT depuis les cookies
+        const cookies = document.cookie.split(";");
+        const tokenCookie = cookies.find((cookie) =>
+          cookie.trim().startsWith("token=")
+        );
+
+        if (tokenCookie) {
+          const tokenValue = tokenCookie.split("=")[1];
+          setToken(tokenValue);
+          console.log(
+            "[useSocket] Token JWT récupéré pour l'utilisateur:",
+            user?.email
+          );
+        } else {
+          // Fallback pour la démo
+          setToken("demo_token");
+          console.log("[useSocket] Utilisation du token de démo");
+        }
+      } else {
+        setToken(null);
       }
     };
 
     verifyAuth();
-  }, [checkAuth]);
+  }, [checkAuth, user]);
 
   /**
    * Gestion de la connexion automatique
@@ -303,19 +340,16 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       connect();
     }
 
+    // Nettoyage lors du démontage du composant
     return () => {
-      disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        setIsConnected(false);
+        setIsConnecting(false);
+      }
     };
-  }, [autoConnect, isAuthenticated, token, connect, disconnect]);
-
-  /**
-   * Nettoyage lors du démontage du composant
-   */
-  useEffect(() => {
-    return () => {
-      disconnect();
-    };
-  }, [disconnect]);
+  }, [autoConnect, isAuthenticated, token, connect]);
 
   return {
     socket: socketRef.current,

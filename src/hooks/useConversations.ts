@@ -73,6 +73,7 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
         params.append("organizationId", organizationId.toString());
       }
 
+      // Utiliser l'API des conversations
       const response = await fetch(`/api/conversations?${params}`, {
         method: "GET",
         credentials: "include",
@@ -125,8 +126,8 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
 
         const newConversation = await response.json();
 
-        // Ajouter la nouvelle conversation à la liste
-        setConversations((prev) => [newConversation, ...prev]);
+        // Rafraîchir la liste des conversations pour s'assurer d'avoir les données complètes
+        await fetchConversations();
 
         return newConversation;
       } catch (error) {

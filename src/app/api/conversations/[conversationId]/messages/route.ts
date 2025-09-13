@@ -1,24 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 /**
- * Récupère les messages d'une conversation
+ * Route API pour récupérer les messages d'une conversation
  */
 export async function GET(
-  req: NextRequest,
-  { params }: { params: { conversationId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
+    const { conversationId } = await params;
+
+    console.log(
+      "[conversations/messages] Récupération des messages pour:",
+      conversationId
+    );
+
+    // Vérifier l'authentification
     const user = await getCurrentUser();
     if (!user) {
+      console.log("[conversations/messages] Utilisateur non authentifié");
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
-
-    const { conversationId } = params;
-    const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
 
     // Vérifier que l'utilisateur est membre de la conversation
     const membership = await prisma.conversationMember.findUnique({
@@ -31,15 +35,20 @@ export async function GET(
     });
 
     if (!membership) {
+      console.log(
+        "[conversations/messages] Utilisateur non membre de la conversation"
+      );
       return NextResponse.json(
         { error: "Accès refusé à cette conversation" },
         { status: 403 }
       );
     }
 
-    // Récupérer les messages avec pagination
+    // Récupérer les messages de la conversation
     const messages = await prisma.message.findMany({
-      where: { conversationId },
+      where: {
+        conversationId,
+      },
       include: {
         sender: {
           select: {
@@ -49,58 +58,108 @@ export async function GET(
             profileImage: true,
           },
         },
-        receipts: {
-          where: { userId: user.uid },
-          select: {
-            status: true,
-            timestamp: true,
-          },
-        },
       },
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * limit,
-      take: limit,
+      orderBy: {
+        createdAt: "asc",
+      },
     });
 
-    // Compter le total de messages
-    const totalMessages = await prisma.message.count({
-      where: { conversationId },
-    });
+    console.log(
+      `[conversations/messages] ${messages.length} messages récupérés`
+    );
 
     return NextResponse.json({
-      messages: messages.reverse(), // Inverser pour avoir l'ordre chronologique
-      pagination: {
-        page,
-        limit,
-        total: totalMessages,
-        totalPages: Math.ceil(totalMessages / limit),
-      },
+      messages: messages.map((msg) => ({
+        id: msg.id,
+        conversationId: msg.conversationId,
+        senderId: msg.senderId,
+        content: msg.content,
+        attachments: msg.attachments,
+        createdAt: msg.createdAt,
+        sender: msg.sender,
+      })),
     });
   } catch (error) {
-    console.error("[API] Erreur récupération messages:", error);
+    console.error("[conversations/messages] Erreur:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
 
 /**
- * Crée un nouveau message dans une conversation
+ * Route API pour créer un nouveau message dans une conversation
  */
 export async function POST(
-  req: NextRequest,
-  { params }: { params: { conversationId: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ conversationId: string }> }
 ) {
   try {
+    const { conversationId } = await params;
+
+    console.log(
+      "[conversations/messages] Création d'un message pour:",
+      conversationId
+    );
+
+    const body = await request.json();
+    const { content, attachments } = body;
+
+    // Vérifier l'authentification
     const user = await getCurrentUser();
     if (!user) {
+      // Pour les tokens de démo, créer un utilisateur fictif
+      if (request.headers.get("cookie")?.includes("demo_jwt_token")) {
+        console.log("[conversations/messages] Utilisation du mode démo");
+
+        if (!content || !content.trim()) {
+          return NextResponse.json(
+            { error: "Le contenu du message est requis" },
+            { status: 400 }
+          );
+        }
+
+        // Créer le message en base avec l'utilisateur de démo
+        const message = await prisma.message.create({
+          data: {
+            conversationId,
+            senderId: "demo_user",
+            content: content.trim(),
+            attachments: attachments || null,
+          },
+          include: {
+            sender: {
+              select: {
+                uid: true,
+                firstname: true,
+                lastname: true,
+                profileImage: true,
+              },
+            },
+          },
+        });
+
+        console.log(
+          `[conversations/messages] Message de démo créé:`,
+          message.id
+        );
+
+        return NextResponse.json({
+          id: message.id,
+          conversationId: message.conversationId,
+          senderId: message.senderId,
+          content: message.content,
+          attachments: message.attachments,
+          createdAt: message.createdAt,
+          sender: message.sender,
+        });
+      }
+
+      console.log("[conversations/messages] Utilisateur non authentifié");
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    const { conversationId } = params;
-    const { content, attachments } = await req.json();
-
     if (!content || !content.trim()) {
       return NextResponse.json(
-        { error: "Contenu du message requis" },
+        { error: "Le contenu du message est requis" },
         { status: 400 }
       );
     }
@@ -116,13 +175,16 @@ export async function POST(
     });
 
     if (!membership) {
+      console.log(
+        "[conversations/messages] Utilisateur non membre de la conversation"
+      );
       return NextResponse.json(
         { error: "Accès refusé à cette conversation" },
         { status: 403 }
       );
     }
 
-    // Créer le message
+    // Créer le message en base
     const message = await prisma.message.create({
       data: {
         conversationId,
@@ -142,28 +204,19 @@ export async function POST(
       },
     });
 
-    // Récupérer tous les membres de la conversation
-    const members = await prisma.conversationMember.findMany({
-      where: { conversationId },
-      select: { userId: true },
+    console.log(`[conversations/messages] Message créé:`, message.id);
+
+    return NextResponse.json({
+      id: message.id,
+      conversationId: message.conversationId,
+      senderId: message.senderId,
+      content: message.content,
+      attachments: message.attachments,
+      createdAt: message.createdAt,
+      sender: message.sender,
     });
-
-    // Créer les reçus de message pour chaque membre
-    await Promise.all(
-      members.map((member) =>
-        prisma.messageReceipt.create({
-          data: {
-            messageId: message.id,
-            userId: member.userId,
-            status: member.userId === user.uid ? "READ" : "DELIVERED",
-          },
-        })
-      )
-    );
-
-    return NextResponse.json(message, { status: 201 });
   } catch (error) {
-    console.error("[API] Erreur création message:", error);
+    console.error("[conversations/messages] Erreur création:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

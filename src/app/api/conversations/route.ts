@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
       whereClause.organizationId = parseInt(organizationId);
     }
 
-    // Récupérer les conversations avec les informations nécessaires
+    // Récupérer les conversations avec les informations nécessaires (version simplifiée)
     const conversations = await prisma.conversation.findMany({
       where: whereClause,
       include: {
@@ -56,23 +56,9 @@ export async function GET(req: NextRequest) {
             },
           },
         },
-        _count: {
-          select: {
-            messages: {
-              where: {
-                receipts: {
-                  some: {
-                    userId: user.uid,
-                    status: "DELIVERED",
-                  },
-                },
-              },
-            },
-          },
-        },
       },
       orderBy: {
-        updatedAt: "desc",
+        createdAt: "desc",
       },
     });
 
@@ -98,7 +84,7 @@ export async function GET(req: NextRequest) {
             sender: conv.messages[0].sender,
           }
         : null,
-      unreadCount: conv._count.messages,
+      unreadCount: 0, // Simplifié pour l'instant
     }));
 
     return NextResponse.json({
