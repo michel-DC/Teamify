@@ -20,6 +20,7 @@ interface MessageListProps {
   currentUserId?: string;
   isLoading?: boolean;
   onDeleteMessage?: (messageId: string) => void;
+  isGroupConversation?: boolean; // Nouvelle prop pour identifier les conversations de groupe
 }
 
 /**
@@ -30,6 +31,7 @@ export const MessageList = ({
   currentUserId,
   isLoading = false,
   onDeleteMessage,
+  isGroupConversation = false,
 }: MessageListProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +77,18 @@ export const MessageList = ({
    */
   const formatMessageTime = (date: Date) => {
     return format(new Date(date), "HH:mm", { locale: fr });
+  };
+
+  /**
+   * Obtenir le nom d'affichage de l'expéditeur
+   */
+  const getSenderDisplayName = (message: Message) => {
+    if (!message.sender) return "Utilisateur";
+
+    const { firstname, lastname } = message.sender;
+    const fullName = `${firstname || ""} ${lastname || ""}`.trim();
+
+    return fullName || "Utilisateur";
   };
 
   /**
@@ -135,6 +149,13 @@ export const MessageList = ({
             >
               {/* Contenu du message */}
               <div className={`flex flex-col w-64 md:w-80 relative`}>
+                {/* Nom de l'expéditeur pour les conversations de groupe */}
+                {isGroupConversation && !isCurrentUser && (
+                  <p className="text-xs text-muted-foreground mb-1 px-1">
+                    {getSenderDisplayName(message)}
+                  </p>
+                )}
+
                 {/* Bulle de message */}
                 <div
                   className={`rounded-lg px-3 py-2 text-sm min-h-[40px] flex items-center ${

@@ -213,6 +213,7 @@ export const GroupConversationView = ({
           currentUserId={user?.uid}
           isLoading={messagesLoading}
           onDeleteMessage={deleteMessage}
+          isGroupConversation={true}
         />
       </div>
 

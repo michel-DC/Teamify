@@ -237,6 +237,7 @@ export const ConversationView = ({
           currentUserId={user?.uid}
           isLoading={messagesLoading}
           onDeleteMessage={deleteMessage}
+          isGroupConversation={conversation?.type === "GROUP"}
         />
       </div>
 
