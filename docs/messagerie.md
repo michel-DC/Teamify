@@ -1,10 +1,23 @@
-# Système de Messagerie en Temps Réel - Teamify
+# Documentation Complète du Système de Messagerie - Teamify
+
+## Table des Matières
+
+1. [Vue d'ensemble](#vue-densemble)
+2. [Système de Messagerie de Groupe](#système-de-messagerie-de-groupe)
+3. [Architecture du Système](#architecture-du-système)
+4. [Système de Messagerie en Temps Réel](#système-de-messagerie-en-temps-réel)
+5. [Identification des Expéditeurs](#identification-des-expéditeurs)
+6. [Modèle de Données](#modèle-de-données)
+7. [Composants React](#composants-react)
+8. [API REST](#api-rest)
+9. [Sécurité et Performance](#sécurité-et-performance)
+10. [Évolutions Futures](#évolutions-futures)
+
+---
 
 ## Vue d'ensemble
 
 Le système de messagerie de Teamify est une solution complète de communication en temps réel basée sur Socket.IO, intégrée dans une architecture Next.js moderne. Cette fonctionnalité permet aux utilisateurs de communiquer instantanément au sein d'organisations, de groupes d'événements, ou en conversations privées, offrant une expérience utilisateur fluide et réactive.
-
-## Architecture Générale
 
 ### Technologies Utilisées
 
@@ -15,6 +28,231 @@ Le système de messagerie de Teamify est une solution complète de communication
 - **TypeScript** : Typage statique pour la robustesse du code
 - **Tailwind CSS** : Framework CSS pour l'interface utilisateur
 
+---
+
+## Système de Messagerie de Groupe
+
+### Fonctionnalités
+
+#### 🚀 Création Automatique
+
+- **Création automatique** : Une conversation de groupe est créée automatiquement lors de la création d'une organisation
+- **Ajout automatique des membres** : Les nouveaux membres rejoignant l'organisation sont automatiquement ajoutés à la conversation de groupe
+- **Synchronisation** : Les membres sont synchronisés automatiquement entre l'organisation et la conversation de groupe
+
+#### 💬 Messagerie Temps Réel
+
+- **Messages instantanés** : Communication en temps réel via Socket.IO
+- **Interface responsive** : Optimisée pour mobile et desktop
+- **Gestion des états** : Indicateurs de connexion et de statut
+
+#### 👥 Gestion des Membres
+
+- **Liste des membres** : Affichage de tous les participants avec leurs rôles
+- **Rôles** : Distinction entre administrateurs et membres
+- **Informations détaillées** : Nom, avatar, date d'adhésion
+
+#### 🎨 Interface Utilisateur
+
+- **Design cohérent** : Même esthétique que la messagerie privée
+- **Composants modulaires** : Architecture réutilisable et maintenable
+- **Accessibilité** : Interface accessible et intuitive
+
+### Composants Principaux
+
+#### `GroupConversationSidebar`
+
+- Affiche la liste des conversations de groupe
+- Informations sur l'organisation active
+- Recherche et filtrage des conversations
+
+#### `GroupConversationView`
+
+- Interface principale de conversation
+- Zone de saisie de messages
+- Gestion des messages en temps réel
+
+#### `GroupMembersList`
+
+- Liste des membres de la conversation
+- Informations sur les rôles et statuts
+- Interface modale pour les détails
+
+#### `OrganizationInfo`
+
+- Informations sur l'organisation active
+- Nombre de membres et type d'organisation
+
+### Hooks Personnalisés
+
+#### `useGroupConversations`
+
+- Gestion des conversations de groupe
+- Synchronisation automatique des membres
+- Mise à jour du titre de conversation
+
+### APIs
+
+#### `/api/organizations/[organizationId]/group-conversation`
+
+- **GET** : Récupère ou crée la conversation de groupe
+- **PATCH** : Met à jour le titre de la conversation
+
+#### `/api/organizations/[organizationId]/group-conversation/sync-members`
+
+- **POST** : Synchronise les membres de l'organisation avec la conversation
+
+---
+
+## Architecture du Système
+
+### Diagramme d'Architecture
+
+```mermaid
+graph TB
+    subgraph "Frontend"
+        A[Page Messages Groups] --> B[GroupConversationSidebar]
+        A --> C[GroupConversationView]
+        A --> D[EmptyGroupConversationState]
+        A --> E[GroupConnectionStatus]
+
+        B --> F[OrganizationInfo]
+        C --> G[GroupMembersList]
+        C --> H[WelcomeMessage]
+        C --> I[MessageList]
+
+        J[useGroupConversations Hook] --> A
+        K[useSocket Hook] --> A
+        L[useAuth Hook] --> A
+    end
+
+    subgraph "Backend APIs"
+        M[/api/organizations/create] --> N[Création Conversation Groupe]
+        O[/api/invite/[code]] --> P[Ajout Membre Conversation]
+        Q[/api/organizations/[id]/group-conversation] --> R[Gestion Conversation]
+        S[/api/organizations/[id]/group-conversation/sync-members] --> T[Synchronisation Membres]
+    end
+
+    subgraph "Base de Données"
+        U[(Conversation)] --> V[type: GROUP]
+        U --> W[organizationId]
+        U --> X[title]
+
+        Y[(ConversationMember)] --> Z[conversationId]
+        Y --> AA[userId]
+        Y --> BB[role: ADMIN/MEMBER]
+
+        CC[(Organization)] --> DD[members]
+        CC --> EE[organizationMembers]
+    end
+
+    subgraph "Temps Réel"
+        FF[Socket.IO Server] --> GG[Gestion Messages]
+        FF --> HH[Gestion Connexions]
+        FF --> II[Gestion Rooms]
+    end
+
+    A --> M
+    A --> O
+    A --> Q
+    A --> S
+    A --> FF
+
+    N --> U
+    P --> Y
+    R --> U
+    T --> Y
+
+    FF --> A
+```
+
+### Flux de Données
+
+#### 1. Création d'Organisation
+
+```mermaid
+sequenceDiagram
+    participant U as Utilisateur
+    participant A as API Create Org
+    participant DB as Base de Données
+    participant S as Socket.IO
+
+    U->>A: Créer Organisation
+    A->>DB: Créer Organisation
+    A->>DB: Créer Conversation Groupe
+    A->>DB: Ajouter Propriétaire comme Admin
+    A->>S: Notifier Création
+    A->>U: Organisation Créée
+```
+
+#### 2. Ajout de Membre
+
+```mermaid
+sequenceDiagram
+    participant U as Utilisateur
+    participant A as API Invite
+    participant DB as Base de Données
+    participant S as Socket.IO
+
+    U->>A: Accepter Invitation
+    A->>DB: Ajouter à Organisation
+    A->>DB: Ajouter à Conversation Groupe
+    A->>S: Notifier Nouveau Membre
+    A->>U: Membre Ajouté
+```
+
+#### 3. Envoi de Message
+
+```mermaid
+sequenceDiagram
+    participant U as Utilisateur
+    participant F as Frontend
+    participant S as Socket.IO
+    participant DB as Base de Données
+
+    U->>F: Saisir Message
+    F->>S: Envoyer Message
+    S->>DB: Sauvegarder Message
+    S->>F: Diffuser Message
+    F->>U: Afficher Message
+```
+
+### Composants et Responsabilités
+
+#### Frontend Components
+
+| Composant                  | Responsabilité            | Props                                            |
+| -------------------------- | ------------------------- | ------------------------------------------------ |
+| `MessagesGroupsPage`       | Page principale           | -                                                |
+| `GroupConversationSidebar` | Liste des conversations   | `selectedConversationId`, `onConversationSelect` |
+| `GroupConversationView`    | Interface de conversation | `conversationId`, `conversation`, `user`         |
+| `GroupMembersList`         | Liste des membres         | `members`, `currentUserId`                       |
+| `OrganizationInfo`         | Infos organisation        | -                                                |
+| `GroupConnectionStatus`    | Statut connexion          | `isConnected`, `isConnecting`                    |
+| `WelcomeMessage`           | Message de bienvenue      | `conversationId`                                 |
+
+#### Backend APIs
+
+| Endpoint                                                  | Méthode   | Responsabilité                               |
+| --------------------------------------------------------- | --------- | -------------------------------------------- |
+| `/api/organizations/create`                               | POST      | Créer organisation + conversation groupe     |
+| `/api/invite/[code]`                                      | GET/POST  | Accepter invitation + ajouter à conversation |
+| `/api/organizations/[id]/group-conversation`              | GET/PATCH | Gérer conversation groupe                    |
+| `/api/organizations/[id]/group-conversation/sync-members` | POST      | Synchroniser membres                         |
+
+#### Hooks Personnalisés
+
+| Hook                    | Responsabilité               | Retour                                |
+| ----------------------- | ---------------------------- | ------------------------------------- |
+| `useGroupConversations` | Gestion conversations groupe | `conversations`, `isLoading`, `error` |
+| `useSocket`             | Communication temps réel     | `sendMessage`, `isConnected`          |
+| `useAuth`               | Authentification             | `user`, `checkAuth`                   |
+| `useActiveOrganization` | Organisation active          | `activeOrganization`                  |
+
+---
+
+## Système de Messagerie en Temps Réel
+
 ### Architecture en Couches
 
 Le système de messagerie suit une architecture en couches bien définie :
@@ -24,6 +262,172 @@ Le système de messagerie suit une architecture en couches bien définie :
 3. **Couche API** : Endpoints REST pour les opérations CRUD
 4. **Couche Temps Réel** : Serveur Socket.IO pour la communication instantanée
 5. **Couche Données** : Base de données PostgreSQL avec Prisma ORM
+
+### Serveur Socket.IO
+
+#### Configuration et Initialisation
+
+```typescript
+export function initializeSocketIO(httpServer?: NetServer) {
+  const io = new SocketIOServer(httpServer, {
+    cors: {
+      origin:
+        process.env.NODE_ENV === "production"
+          ? process.env.NEXT_PUBLIC_APP_URL
+          : "http://localhost:3000",
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+    transports: ["websocket", "polling"],
+  });
+
+  // Middleware d'authentification
+  io.use(async (socket, next) => {
+    // Vérification du token JWT
+    // Validation de l'utilisateur en base
+  });
+
+  return io;
+}
+```
+
+#### Authentification et Sécurité
+
+Le système implémente une authentification robuste au niveau Socket.IO :
+
+1. **Vérification du Token JWT** : Chaque connexion doit fournir un token valide
+2. **Validation Utilisateur** : Vérification de l'existence de l'utilisateur en base
+3. **Gestion des Erreurs** : Rejet des connexions non autorisées
+
+#### Gestion des Connexions
+
+Lorsqu'un utilisateur se connecte :
+
+1. **Rejoindre la Room Utilisateur** : `socket.join(\`user:${userId}\`)`
+2. **Chargement des Conversations** : Récupération de toutes les conversations de l'utilisateur
+3. **Rejoindre les Rooms de Conversation** : `socket.join(\`conversation:${conversationId}\`)`
+
+#### Événements Socket.IO
+
+##### Événements Client vers Serveur
+
+- **`message:send`** : Envoi d'un nouveau message
+- **`conversation:join`** : Rejoindre une conversation
+- **`conversation:leave`** : Quitter une conversation
+- **`message:read`** : Marquer un message comme lu
+
+##### Événements Serveur vers Client
+
+- **`message:new`** : Nouveau message reçu
+- **`message:read`** : Confirmation de lecture d'un message
+- **`conversation:joined`** : Confirmation de participation à une conversation
+- **`error`** : Gestion des erreurs
+
+---
+
+## Identification des Expéditeurs
+
+### Problème Résolu
+
+Dans les conversations de groupe, il était impossible d'identifier qui avait envoyé chaque message, car seul le contenu du message était affiché.
+
+### Solution Implémentée
+
+#### 1. Modification du Composant MessageList
+
+**Fichier :** `src/components/dashboard/messaging/message-list.tsx`
+
+- **Nouvelle prop :** `isGroupConversation?: boolean`
+- **Fonction ajoutée :** `getSenderDisplayName()` pour formater le nom de l'expéditeur
+- **Affichage conditionnel :** Le nom de l'expéditeur s'affiche uniquement pour les conversations de groupe et pour les messages des autres utilisateurs
+
+#### 2. Mise à Jour des Composants Utilisateurs
+
+**GroupConversationView :**
+
+```typescript
+<MessageList
+  messages={messages}
+  currentUserId={user?.uid}
+  isLoading={messagesLoading}
+  onDeleteMessage={deleteMessage}
+  isGroupConversation={true} // Toujours true pour les conversations de groupe
+/>
+```
+
+**ConversationView :**
+
+```typescript
+<MessageList
+  messages={messages}
+  currentUserId={user?.uid}
+  isLoading={messagesLoading}
+  onDeleteMessage={deleteMessage}
+  isGroupConversation={conversation?.type === "GROUP"} // Détection automatique
+/>
+```
+
+### Flux de Données
+
+```mermaid
+graph TB
+    A[API Messages] --> B[Message Interface]
+    B --> C[MessageList Component]
+    C --> D{isGroupConversation?}
+    D -->|true| E[Afficher nom expéditeur]
+    D -->|false| F[Ne pas afficher nom]
+    E --> G[Message avec nom]
+    F --> H[Message sans nom]
+```
+
+### Structure des Données
+
+#### Interface Message (déjà existante)
+
+```typescript
+interface Message {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  content: string;
+  attachments?: any;
+  createdAt: Date;
+  sender: {
+    uid: string;
+    firstname: string | null;
+    lastname: string | null;
+    profileImage: string | null;
+  };
+}
+```
+
+#### Fonction de Formatage
+
+```typescript
+const getSenderDisplayName = (message: Message) => {
+  if (!message.sender) return "Utilisateur";
+
+  const { firstname, lastname } = message.sender;
+  const fullName = `${firstname || ""} ${lastname || ""}`.trim();
+
+  return fullName || "Utilisateur";
+};
+```
+
+### Comportement
+
+#### Conversations de Groupe
+
+- ✅ Affiche le nom de l'expéditeur pour les messages des autres utilisateurs
+- ✅ N'affiche pas le nom pour ses propres messages (évite la redondance)
+- ✅ Utilise le nom complet (prénom + nom) ou "Utilisateur" par défaut
+
+#### Conversations Privées
+
+- ✅ N'affiche pas le nom de l'expéditeur (pas nécessaire avec seulement 2 personnes)
+- ✅ Maintient l'affichage existant
+
+---
 
 ## Modèle de Données
 
@@ -108,71 +512,26 @@ Le système utilise plusieurs enums pour maintenir la cohérence des données :
 - **MemberRole** : MEMBER, ADMIN
 - **ReceiptStatus** : DELIVERED, READ
 
-## Serveur Socket.IO
+---
 
-### Configuration et Initialisation
+## Composants React
 
-Le serveur Socket.IO est configuré dans `src/lib/socket.ts` avec une architecture robuste :
+### Architecture des Composants
 
-```typescript
-export function initializeSocketIO(httpServer?: NetServer) {
-  const io = new SocketIOServer(httpServer, {
-    cors: {
-      origin:
-        process.env.NODE_ENV === "production"
-          ? process.env.NEXT_PUBLIC_APP_URL
-          : "http://localhost:3000",
-      methods: ["GET", "POST"],
-      credentials: true,
-    },
-    transports: ["websocket", "polling"],
-  });
+Le système de messagerie utilise une architecture de composants modulaire :
 
-  // Middleware d'authentification
-  io.use(async (socket, next) => {
-    // Vérification du token JWT
-    // Validation de l'utilisateur en base
-  });
-
-  return io;
-}
+```
+messaging/
+├── chat-interface.tsx          # Interface principale
+├── conversation-sidebar.tsx    # Liste des conversations
+├── conversation-view.tsx       # Vue d'une conversation
+├── message-list.tsx           # Liste des messages
+└── create-conversation-dialog.tsx # Dialog de création
 ```
 
-### Authentification et Sécurité
+### Hooks Personnalisés
 
-Le système implémente une authentification robuste au niveau Socket.IO :
-
-1. **Vérification du Token JWT** : Chaque connexion doit fournir un token valide
-2. **Validation Utilisateur** : Vérification de l'existence de l'utilisateur en base
-3. **Gestion des Erreurs** : Rejet des connexions non autorisées
-
-### Gestion des Connexions
-
-Lorsqu'un utilisateur se connecte :
-
-1. **Rejoindre la Room Utilisateur** : `socket.join(\`user:${userId}\`)`
-2. **Chargement des Conversations** : Récupération de toutes les conversations de l'utilisateur
-3. **Rejoindre les Rooms de Conversation** : `socket.join(\`conversation:${conversationId}\`)`
-
-### Événements Socket.IO
-
-#### Événements Client vers Serveur
-
-- **`message:send`** : Envoi d'un nouveau message
-- **`conversation:join`** : Rejoindre une conversation
-- **`conversation:leave`** : Quitter une conversation
-- **`message:read`** : Marquer un message comme lu
-
-#### Événements Serveur vers Client
-
-- **`message:new`** : Nouveau message reçu
-- **`message:read`** : Confirmation de lecture d'un message
-- **`conversation:joined`** : Confirmation de participation à une conversation
-- **`error`** : Gestion des erreurs
-
-## Hooks Personnalisés
-
-### useSocket Hook
+#### useSocket Hook
 
 Le hook `useSocket` centralise toute la logique de communication Socket.IO :
 
@@ -223,7 +582,7 @@ export const useSocket = (options: UseSocketOptions = {}) => {
 };
 ```
 
-### useMessages Hook
+#### useMessages Hook
 
 Gère l'état local des messages avec optimisations :
 
@@ -253,7 +612,7 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
 };
 ```
 
-### useConversations Hook
+#### useConversations Hook
 
 Gère les conversations avec toutes les opérations CRUD :
 
@@ -297,227 +656,7 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
 };
 ```
 
-## Composants React
-
-### Architecture des Composants
-
-Le système de messagerie utilise une architecture de composants modulaire :
-
-```
-messaging/
-├── chat-interface.tsx          # Interface principale
-├── conversation-sidebar.tsx    # Liste des conversations
-├── conversation-view.tsx       # Vue d'une conversation
-├── message-list.tsx           # Liste des messages
-└── create-conversation-dialog.tsx # Dialog de création
-```
-
-### ChatInterface - Composant Principal
-
-Le composant `ChatInterface` orchestre toute l'interface de messagerie :
-
-```typescript
-export const ChatInterface = ({
-  conversations = [],
-  onConversationSelect,
-  selectedConversationId,
-}: ChatInterfaceProps) => {
-  // Hooks pour la gestion d'état
-  const { checkAuth } = useAuth();
-  const { isConnected, sendMessage, joinConversation, leaveConversation } =
-    useSocket({
-      onMessage: (message) => {
-        setMessages((prev) => [...prev, message]);
-        // Marquer automatiquement comme lu
-        if (message.conversationId === selectedConversationId) {
-          markMessageAsRead(message.id);
-        }
-      },
-    });
-
-  // Gestion des messages
-  const [messages, setMessages] = useState<MessageData[]>([]);
-  const [newMessage, setNewMessage] = useState("");
-
-  return (
-    <div className="flex h-[600px] border rounded-lg overflow-hidden">
-      {/* Liste des conversations */}
-      <ConversationSidebar />
-
-      {/* Zone de chat */}
-      <ConversationView />
-    </div>
-  );
-};
-```
-
-### ConversationView - Vue de Conversation
-
-Gère l'affichage et l'interaction avec une conversation spécifique :
-
-```typescript
-export const ConversationView = ({
-  conversationId,
-  conversation,
-  user,
-  onBackToConversations,
-}: ConversationViewProps) => {
-  // Hooks pour les messages et Socket.IO
-  const { messages, addMessage } = useMessages({
-    conversationId,
-    autoFetch: true,
-  });
-  const { isConnected, sendMessage, joinConversation, leaveConversation } =
-    useSocket({
-      currentUserId: user?.uid,
-      onMessage: (message) => addMessage(message),
-    });
-
-  // Rejoindre la conversation automatiquement
-  useEffect(() => {
-    if (conversationId && isConnected) {
-      joinConversation(conversationId);
-    }
-    return () => {
-      if (conversationId && isConnected) {
-        leaveConversation(conversationId);
-      }
-    };
-  }, [conversationId, isConnected]);
-
-  return (
-    <div className="flex flex-col h-full">
-      {/* En-tête de conversation */}
-      <ConversationHeader />
-
-      {/* Liste des messages */}
-      <MessageList messages={messages} currentUserId={user?.uid} />
-
-      {/* Zone de saisie */}
-      <MessageInput />
-    </div>
-  );
-};
-```
-
-### MessageList - Affichage des Messages
-
-Composant optimisé pour l'affichage des messages avec scroll automatique et fonctionnalités de suppression :
-
-```typescript
-export const MessageList = ({
-  messages,
-  currentUserId,
-  isLoading,
-  onDeleteMessage,
-}: MessageListProps) => {
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-
-  // Scroll automatique vers le bas
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector(
-        "[data-radix-scroll-area-viewport]"
-      );
-      if (scrollElement) {
-        setTimeout(() => {
-          scrollElement.scrollTop = scrollElement.scrollHeight;
-        }, 0);
-      }
-    }
-  }, [messages]);
-
-  // Gestion de la suppression d'un message
-  const handleDeleteMessage = async (messageId: string) => {
-    if (!onDeleteMessage) return;
-
-    try {
-      const success = await onDeleteMessage(messageId);
-      if (success) {
-        toast.success("Message supprimé avec succès");
-      } else {
-        toast.error("Erreur lors de la suppression du message");
-      }
-    } catch (error) {
-      console.error("Erreur lors de la suppression:", error);
-      toast.error("Erreur lors de la suppression du message");
-    }
-  };
-
-  return (
-    <ScrollArea ref={scrollAreaRef} className="h-full">
-      <div className="p-3 md:p-4 space-y-3">
-        {messages.map((message) => {
-          const isCurrentUser = message.senderId === currentUserId;
-
-          return (
-            <div
-              key={message.id}
-              className={`flex group ${
-                isCurrentUser ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div className={`flex flex-col w-64 md:w-80 relative`}>
-                {/* Bulle de message */}
-                <div
-                  className={`rounded-lg px-3 py-2 text-sm min-h-[40px] flex items-center ${
-                    isCurrentUser
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap break-words w-full">
-                    {message.content}
-                  </p>
-                </div>
-
-                {/* Heure et menu d'options */}
-                <div
-                  className={`flex items-center justify-between mt-1 ${
-                    isCurrentUser ? "flex-row-reverse" : "flex-row"
-                  }`}
-                >
-                  <p
-                    className={`text-xs text-muted-foreground ${
-                      isCurrentUser ? "text-right" : "text-left"
-                    }`}
-                  >
-                    {formatMessageTime(message.createdAt)}
-                  </p>
-
-                  {/* Menu d'options pour les messages de l'utilisateur */}
-                  {isCurrentUser && onDeleteMessage && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                        >
-                          <MoreVertical className="h-3 w-3" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => handleDeleteMessage(message.id)}
-                          className="text-destructive focus:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Supprimer
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </ScrollArea>
-  );
-};
-```
+---
 
 ## API REST
 
@@ -813,55 +952,48 @@ export async function DELETE(
 }
 ```
 
-## Flux de Communication
+---
 
-### Envoi d'un Message
+## Sécurité et Performance
 
-1. **Saisie Utilisateur** : L'utilisateur tape un message dans l'interface
-2. **Validation Frontend** : Vérification du contenu et de la connexion Socket.IO
-3. **Envoi Socket.IO** : Émission de l'événement `message:send`
-4. **Traitement Serveur** :
-   - Vérification de l'authentification
-   - Validation de l'appartenance à la conversation
-   - Sauvegarde en base de données
-5. **Diffusion** : Envoi du message à tous les membres de la conversation
-6. **Mise à jour UI** : Affichage du message dans l'interface
+### Sécurité
 
-### Réception d'un Message
+#### Vérifications d'Accès
 
-1. **Réception Socket.IO** : Écoute de l'événement `message:new`
-2. **Mise à jour État** : Ajout du message à la liste locale
-3. **Affichage** : Rendu du message dans l'interface
-4. **Scroll Automatique** : Défilement vers le nouveau message
-5. **Marquage Lu** : Marquage automatique si c'est la conversation active
+- ✅ Utilisateur authentifié
+- ✅ Membre de l'organisation
+- ✅ Permissions de conversation
+- ✅ Validation des données
 
-### Suppression d'un Message
+#### Authentification
 
-1. **Action Utilisateur** : L'utilisateur clique sur le menu d'options d'un de ses messages
-2. **Confirmation** : Sélection de l'option "Supprimer" dans le menu déroulant
-3. **Validation Frontend** : Vérification que l'utilisateur est l'expéditeur du message
-4. **Appel API** : Envoi de la requête DELETE vers l'endpoint de suppression
-5. **Traitement Serveur** :
-   - Vérification de l'authentification
-   - Validation de l'appartenance à la conversation
-   - Vérification que l'utilisateur est l'expéditeur du message
-   - Suppression du message en base de données
-6. **Mise à jour UI** : Suppression du message de la liste locale
-7. **Feedback** : Affichage d'une notification de succès ou d'erreur
+- **JWT Tokens** : Authentification basée sur des tokens JWT
+- **Validation Serveur** : Vérification systématique des tokens
+- **Sessions** : Gestion des sessions utilisateur
 
-### Gestion des Connexions
+#### Autorisation
 
-1. **Connexion** : L'utilisateur se connecte au serveur Socket.IO
-2. **Authentification** : Vérification du token JWT
-3. **Rejoindre Rooms** :
-   - Room utilisateur : `user:${userId}`
-   - Rooms conversations : `conversation:${conversationId}`
-4. **Synchronisation** : Chargement des conversations et messages
-5. **Déconnexion** : Nettoyage des rooms et de l'état
+- **Vérification d'Appartenance** : Contrôle d'accès aux conversations
+- **Validation des Données** : Sanitisation des entrées utilisateur
+- **Rate Limiting** : Protection contre les abus
 
-## Optimisations et Performances
+#### Chiffrement
 
-### Messages Optimistes
+- **HTTPS/WSS** : Communication chiffrée
+- **Validation CORS** : Configuration sécurisée des origines
+- **Sanitisation** : Nettoyage des données utilisateur
+
+### Performance
+
+#### Stratégies d'Optimisation
+
+- ✅ Chargement paresseux
+- ✅ Mise en cache des données
+- ✅ Synchronisation optimisée
+- ✅ Pagination des messages
+- ✅ Compression des données
+
+#### Messages Optimistes
 
 Le système implémente des messages optimistes pour améliorer l'expérience utilisateur :
 
@@ -896,13 +1028,13 @@ const addMessage = useCallback((message: Message) => {
 }, []);
 ```
 
-### Gestion de l'État
+#### Gestion de l'État
 
 - **État Local** : Gestion optimisée avec `useState` et `useCallback`
 - **Mémoisation** : Utilisation de `useMemo` pour les calculs coûteux
 - **Cleanup** : Nettoyage automatique des listeners et connexions
 
-### Scroll Automatique
+#### Scroll Automatique
 
 ```typescript
 useEffect(() => {
@@ -919,16 +1051,16 @@ useEffect(() => {
 }, [messages]);
 ```
 
-## Gestion des Erreurs
+### Gestion des Erreurs
 
-### Types d'Erreurs
+#### Types d'Erreurs
 
 1. **Erreurs de Connexion** : Problèmes de réseau ou serveur
 2. **Erreurs d'Authentification** : Token invalide ou expiré
 3. **Erreurs de Validation** : Données invalides
 4. **Erreurs d'Accès** : Permissions insuffisantes
 
-### Stratégies de Gestion
+#### Stratégies de Gestion
 
 ```typescript
 // Gestion des erreurs Socket.IO
@@ -950,102 +1082,58 @@ try {
 }
 ```
 
-## Sécurité
+### Monitoring
 
-### Authentification
+- ✅ Métriques de performance
+- ✅ Surveillance connectivité
+- ✅ Logs d'audit
+- ✅ Alertes automatiques
 
-- **JWT Tokens** : Authentification basée sur des tokens JWT
-- **Validation Serveur** : Vérification systématique des tokens
-- **Sessions** : Gestion des sessions utilisateur
-
-### Autorisation
-
-- **Vérification d'Appartenance** : Contrôle d'accès aux conversations
-- **Validation des Données** : Sanitisation des entrées utilisateur
-- **Rate Limiting** : Protection contre les abus
-
-### Chiffrement
-
-- **HTTPS/WSS** : Communication chiffrée
-- **Validation CORS** : Configuration sécurisée des origines
-- **Sanitisation** : Nettoyage des données utilisateur
-
-## Tests et Débogage
-
-### Scripts de Test
-
-Le projet inclut des scripts de test pour valider le fonctionnement :
-
-```javascript
-// scripts/test/test-realtime-messaging.js
-async function testRealtimeMessaging() {
-  // Test de connexion Socket.IO
-  // Test d'envoi de messages
-  // Test de réception de messages
-  // Test de gestion des erreurs
-}
-```
-
-### Logging
-
-```typescript
-console.log(`[Socket.IO] 🔌 Utilisateur connecté: ${userId} (${socket.id})`);
-console.log(`[Socket.IO] 📨 Message reçu:`, data);
-console.log(`[conversations/messages] ${messages.length} messages récupérés`);
-```
-
-## Déploiement et Configuration
-
-### Variables d'Environnement
-
-```env
-# Socket.IO
-NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# Base de données
-DATABASE_URL="postgresql://..."
-
-# JWT
-JWT_SECRET="..."
-```
-
-### Configuration Production
-
-```typescript
-const io = new SocketIOServer(httpServer, {
-  cors: {
-    origin:
-      process.env.NODE_ENV === "production"
-        ? process.env.NEXT_PUBLIC_APP_URL
-        : "http://localhost:3000",
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-  transports: ["websocket", "polling"],
-});
-```
+---
 
 ## Évolutions Futures
 
 ### Fonctionnalités Prévues
 
-1. **Notifications Push** : Intégration avec les notifications navigateur
-2. **Messages Éphémères** : Messages qui s'effacent automatiquement
-3. **Réactions** : Système de réactions aux messages
-4. **Threads** : Conversations en fil de discussion
-5. **Recherche** : Recherche dans les messages
-6. **Mentions** : Système de mentions d'utilisateurs
-7. **Fichiers** : Upload et partage de fichiers
-8. **Messages Vocaux** : Enregistrement et envoi de messages vocaux
+#### Messagerie de Groupe
 
-### Optimisations Techniques
+- [ ] Messages avec pièces jointes
+- [ ] Réactions aux messages
+- [ ] Notifications push
+- [ ] Historique des messages
+- [ ] Modération des conversations
+- [ ] Intégration avec les événements
 
-1. **Pagination** : Chargement progressif des messages
-2. **Cache** : Mise en cache des conversations fréquentes
-3. **Compression** : Compression des messages volumineux
-4. **CDN** : Distribution des assets statiques
-5. **Monitoring** : Surveillance des performances en temps réel
+#### Système Temps Réel
+
+- [ ] Notifications Push : Intégration avec les notifications navigateur
+- [ ] Messages Éphémères : Messages qui s'effacent automatiquement
+- [ ] Réactions : Système de réactions aux messages
+- [ ] Threads : Conversations en fil de discussion
+- [ ] Recherche : Recherche dans les messages
+- [ ] Mentions : Système de mentions d'utilisateurs
+- [ ] Fichiers : Upload et partage de fichiers
+- [ ] Messages Vocaux : Enregistrement et envoi de messages vocaux
+
+### Améliorations Techniques
+
+#### Messagerie de Groupe
+
+- [ ] Pagination des messages
+- [ ] Compression des données
+- [ ] Optimisation des requêtes
+- [ ] Tests automatisés
+- [ ] Documentation API
+
+#### Système Temps Réel
+
+- [ ] Pagination : Chargement progressif des messages
+- [ ] Cache : Mise en cache des conversations fréquentes
+- [ ] Compression : Compression des messages volumineux
+- [ ] CDN : Distribution des assets statiques
+- [ ] Monitoring : Surveillance des performances en temps réel
+
+---
 
 ## Conclusion
 
@@ -1054,3 +1142,13 @@ Le système de messagerie de Teamify représente une solution complète et moder
 L'utilisation de Socket.IO pour la communication temps réel, combinée à une API REST pour la persistance des données, offre le meilleur des deux mondes : performance et fiabilité. L'architecture en composants React facilite la maintenance et l'évolution du code, tandis que TypeScript assure la robustesse du système.
 
 Cette implémentation constitue une base solide pour développer des fonctionnalités de communication avancées et répondre aux besoins futurs de l'application Teamify.
+
+---
+
+## Support
+
+Pour toute question ou problème concernant le système de messagerie, consultez :
+
+- La documentation des composants
+- Les logs de l'application
+- L'équipe de développement

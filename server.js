@@ -4,10 +4,24 @@ import next from "next";
 import { Server } from "socket.io";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "localhost";
-const port = process.env.SOCKET_PORT || 3001;
+const hostname = process.env.HOSTNAME || "localhost";
+const port = process.env.SOCKET_PORT || process.env.PORT || 3001;
+const appUrl =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (dev ? "http://localhost:3000" : "http://localhost:3000");
+
+// Validation de la configuration
+if (!dev && !process.env.NEXT_PUBLIC_APP_URL) {
+  console.error(
+    "❌ ERREUR: NEXT_PUBLIC_APP_URL doit être définie en production"
+  );
+  process.exit(1);
+}
 
 console.log("🚀 Démarrage du serveur Socket.IO...");
+console.log(`📊 Environnement: ${dev ? "développement" : "production"}`);
+console.log(`🌐 URL de l'application: ${appUrl}`);
+console.log(`🔌 Port du serveur: ${port}`);
 
 // Créer l'application Next.js
 const app = next({ dev, hostname, port });
@@ -30,16 +44,18 @@ app
       }
     });
 
-    // Initialiser Socket.IO avec une configuration simple
+    // Initialiser Socket.IO avec une configuration optimisée pour la production
     const io = new Server(httpServer, {
       cors: {
-        origin: dev ? "http://localhost:3000" : process.env.NEXT_PUBLIC_APP_URL,
+        origin: appUrl,
         methods: ["GET", "POST"],
         credentials: true,
         allowedHeaders: ["Cookie", "Authorization"],
       },
       transports: ["websocket", "polling"],
       allowEIO3: true,
+      pingTimeout: 60000,
+      pingInterval: 25000,
     });
 
     console.log("✅ Socket.IO initialisé");
@@ -47,11 +63,15 @@ app
     // Middleware d'authentification
     io.use(async (socket, next) => {
       try {
-        console.log("[Socket.IO] 🔍 Vérification de l'authentification...");
+        if (dev) {
+          console.log("[Socket.IO] 🔍 Vérification de l'authentification...");
+        }
 
         // Récupérer les cookies de la requête
         const cookies = socket.handshake.headers.cookie;
-        console.log("[Socket.IO] Cookies reçus:", cookies);
+        if (dev) {
+          console.log("[Socket.IO] Cookies reçus:", cookies);
+        }
 
         if (!cookies) {
           console.log("[Socket.IO] ❌ Aucun cookie fourni");
@@ -60,7 +80,7 @@ app
 
         // Vérifier l'authentification via l'API avec les cookies
         try {
-          const response = await fetch("http://localhost:3000/api/auth/me", {
+          const response = await fetch(`${appUrl}/api/auth/me`, {
             method: "GET",
             headers: {
               Cookie: cookies,
@@ -68,19 +88,23 @@ app
             },
           });
 
-          console.log("[Socket.IO] Réponse API auth:", {
-            status: response.status,
-            ok: response.ok,
-          });
+          if (dev) {
+            console.log("[Socket.IO] Réponse API auth:", {
+              status: response.status,
+              ok: response.ok,
+            });
+          }
 
           if (response.ok) {
             const data = await response.json();
             socket.data.userId = data.user.uid;
             socket.data.userUid = data.user.uid;
-            console.log(
-              "[Socket.IO] ✅ Authentification réussie pour:",
-              data.user.email
-            );
+            if (dev) {
+              console.log(
+                "[Socket.IO] ✅ Authentification réussie pour:",
+                data.user.email
+              );
+            }
             next();
           } else {
             console.log("[Socket.IO] ❌ Authentification échouée");
@@ -102,16 +126,20 @@ app
     // Gestion des connexions
     io.on("connection", (socket) => {
       const userId = socket.data.userId;
-      console.log(
-        `[Socket.IO] 🔌 Utilisateur connecté: ${userId} (${socket.id})`
-      );
+      if (dev) {
+        console.log(
+          `[Socket.IO] 🔌 Utilisateur connecté: ${userId} (${socket.id})`
+        );
+      }
 
       // Rejoindre la room utilisateur
       socket.join(`user:${userId}`);
 
       // Événement de test
       socket.on("ping", () => {
-        console.log(`[Socket.IO] 📡 Ping reçu de ${userId}`);
+        if (dev) {
+          console.log(`[Socket.IO] 📡 Ping reçu de ${userId}`);
+        }
         socket.emit("pong", {
           message: "Pong!",
           timestamp: new Date().toISOString(),
@@ -122,7 +150,9 @@ app
       // Événement d'envoi de message
       socket.on("message:send", async (data) => {
         try {
-          console.log(`[Socket.IO] 📨 Message reçu:`, data);
+          if (dev) {
+            console.log(`[Socket.IO] 📨 Message reçu:`, data);
+          }
 
           // Sauvegarder le message en base via l'API
           try {
@@ -130,7 +160,7 @@ app
             const cookies = socket.handshake.headers.cookie;
 
             const response = await fetch(
-              `http://localhost:3000/api/conversations/${data.conversationId}/messages`,
+              `${appUrl}/api/conversations/${data.conversationId}/messages`,
               {
                 method: "POST",
                 headers: {
@@ -146,19 +176,23 @@ app
 
             if (response.ok) {
               const messageData = await response.json();
-              console.log(
-                `[Socket.IO] ✅ Message sauvegardé en base:`,
-                messageData.id
-              );
+              if (dev) {
+                console.log(
+                  `[Socket.IO] ✅ Message sauvegardé en base:`,
+                  messageData.id
+                );
+              }
 
               // Diffuser à la conversation (sauf à l'expéditeur qui a déjà le message optimiste)
               io.to(`conversation:${data.conversationId}`).emit(
                 "message:new",
                 messageData
               );
-              console.log(
-                `[Socket.IO] ✅ Message diffusé à la conversation: ${data.conversationId}`
-              );
+              if (dev) {
+                console.log(
+                  `[Socket.IO] ✅ Message diffusé à la conversation: ${data.conversationId}`
+                );
+              }
             } else {
               console.error(
                 `[Socket.IO] ❌ Erreur sauvegarde:`,
@@ -179,16 +213,20 @@ app
       // Rejoindre une conversation
       socket.on("join:conversation", (data) => {
         try {
-          console.log(
-            `[Socket.IO] 🏠 Utilisateur ${userId} rejoint conversation: ${data.conversationId}`
-          );
+          if (dev) {
+            console.log(
+              `[Socket.IO] 🏠 Utilisateur ${userId} rejoint conversation: ${data.conversationId}`
+            );
+          }
           socket.join(`conversation:${data.conversationId}`);
           socket.emit("conversation:joined", {
             conversationId: data.conversationId,
           });
-          console.log(
-            `[Socket.IO] ✅ Utilisateur ${userId} dans la room: conversation:${data.conversationId}`
-          );
+          if (dev) {
+            console.log(
+              `[Socket.IO] ✅ Utilisateur ${userId} dans la room: conversation:${data.conversationId}`
+            );
+          }
         } catch (error) {
           console.error(`[Socket.IO] ❌ Erreur join:`, error);
         }
@@ -197,9 +235,11 @@ app
       // Quitter une conversation
       socket.on("leave:conversation", (data) => {
         try {
-          console.log(
-            `[Socket.IO] 🚪 Quitte conversation: ${data.conversationId}`
-          );
+          if (dev) {
+            console.log(
+              `[Socket.IO] 🚪 Quitte conversation: ${data.conversationId}`
+            );
+          }
           socket.leave(`conversation:${data.conversationId}`);
         } catch (error) {
           console.error(`[Socket.IO] ❌ Erreur leave:`, error);
@@ -208,7 +248,9 @@ app
 
       // Gestion de la déconnexion
       socket.on("disconnect", (reason) => {
-        console.log(`[Socket.IO] ❌ Déconnexion: ${userId} - ${reason}`);
+        if (dev) {
+          console.log(`[Socket.IO] ❌ Déconnexion: ${userId} - ${reason}`);
+        }
       });
 
       // Message de bienvenue
@@ -225,30 +267,56 @@ app
     });
 
     // Démarrer le serveur
-    httpServer.listen(port, (err) => {
+    httpServer.listen(port, hostname, (err) => {
       if (err) {
         console.error("❌ Erreur de démarrage:", err);
         throw err;
       }
       console.log(`🚀 Serveur Socket.IO démarré sur le port ${port}`);
       console.log(`🔗 URL: http://${hostname}:${port}`);
+      console.log(`🌐 Application: ${appUrl}`);
+
+      // En production, afficher des informations de santé
+      if (!dev) {
+        console.log("✅ Serveur prêt pour la production");
+        console.log(`📊 Environnement: ${process.env.NODE_ENV}`);
+      }
     });
 
     // Gestion des signaux d'arrêt
-    process.on("SIGTERM", () => {
-      console.log("🛑 Signal SIGTERM reçu, arrêt du serveur...");
+    const gracefulShutdown = (signal) => {
+      console.log(`🛑 Signal ${signal} reçu, arrêt du serveur...`);
+
+      // Fermer les connexions Socket.IO
+      io.close(() => {
+        console.log("✅ Socket.IO fermé");
+      });
+
+      // Fermer le serveur HTTP
       httpServer.close(() => {
         console.log("✅ Serveur arrêté proprement");
         process.exit(0);
       });
+
+      // Forcer l'arrêt après 10 secondes
+      setTimeout(() => {
+        console.log("⚠️ Arrêt forcé du serveur");
+        process.exit(1);
+      }, 10000);
+    };
+
+    process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+    process.on("SIGINT", () => gracefulShutdown("SIGINT"));
+
+    // Gestion des erreurs non capturées
+    process.on("uncaughtException", (error) => {
+      console.error("❌ Erreur non capturée:", error);
+      gracefulShutdown("uncaughtException");
     });
 
-    process.on("SIGINT", () => {
-      console.log("🛑 Signal SIGINT reçu, arrêt du serveur...");
-      httpServer.close(() => {
-        console.log("✅ Serveur arrêté proprement");
-        process.exit(0);
-      });
+    process.on("unhandledRejection", (reason, promise) => {
+      console.error("❌ Promesse rejetée non gérée:", reason);
+      gracefulShutdown("unhandledRejection");
     });
   })
   .catch((error) => {

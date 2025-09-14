@@ -242,7 +242,7 @@ export const ConversationView = ({
       </div>
 
       {/* Zone de saisie - Responsive */}
-      <div className="p-3 md:p-4 border-t bg-background flex-shrink-0">
+      <div className="p-6 md:p-3 border-t bg-background flex-shrink-0">
         <div className="flex items-end gap-2 w-full">
           <div className="relative flex-1">
             <Input
