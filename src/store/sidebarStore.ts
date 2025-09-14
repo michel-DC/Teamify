@@ -30,11 +30,17 @@ interface NavItem {
   }[];
 }
 
+interface SidebarGroup {
+  title: string;
+  icon: string;
+  items: NavItem[];
+}
+
 interface SidebarData {
   user: User;
   teams: Team[];
   events: Event[];
-  navMain: NavItem[];
+  navGroups: SidebarGroup[];
 }
 
 interface SidebarStore {
@@ -65,72 +71,88 @@ const initialData: SidebarData = {
     },
   ],
   events: [],
-  navMain: [
+  navGroups: [
     {
-      title: "Tableau de bord",
-      url: "/dashboard",
-      icon: "PieChart",
-      isActive: true,
+      title: "Navigation principale",
+      icon: "LayoutDashboard",
       items: [
         {
-          title: "Vue d'ensemble",
+          title: "Tableau de bord",
           url: "/dashboard",
+          icon: "LayoutDashboard",
+          isActive: true,
+          items: [
+            {
+              title: "Vue d'ensemble",
+              url: "/dashboard",
+            },
+          ],
         },
       ],
     },
     {
       title: "Événements",
-      url: "/dashboard/events",
       icon: "Calendar",
-      isActive: true,
       items: [
         {
           title: "Tous les événements",
           url: "/dashboard/events",
+          icon: "Calendar",
+          isActive: false,
         },
         {
           title: "Créer un événement",
           url: "/dashboard/events/new",
+          icon: "Plus",
+          isActive: false,
         },
         {
           title: "Gestion des invitations",
           url: "/dashboard/events/invitations",
+          icon: "UserPlus",
+          isActive: false,
         },
       ],
     },
     {
       title: "Organisations",
-      url: "/organizations",
-      icon: "GalleryVerticalEnd",
-      isActive: true,
+      icon: "Building2",
       items: [
         {
           title: "Mes organisations",
           url: "/dashboard/organizations",
+          icon: "Building2",
+          isActive: false,
         },
         {
           title: "Créer une organisation",
           url: "/dashboard/organizations/new",
+          icon: "Plus",
+          isActive: false,
         },
         {
           title: "Inviter un membre",
           url: "/dashboard/organizations/invitations",
+          icon: "UserPlus",
+          isActive: false,
         },
       ],
     },
     {
       title: "Messagerie",
-      url: "/messages",
       icon: "MessageCircle",
-      isActive: true,
       items: [
         {
           title: "Messages privés",
           url: "/dashboard/messages",
+          icon: "MessageCircle",
+          isActive: false,
         },
         {
           title: "Groupes d'organisations",
           url: "/dashboard/messages/groups",
+          icon: "Users",
+          isActive: false,
         },
       ],
     },
@@ -145,10 +167,10 @@ export const useSidebarStore = create<SidebarStore>()(
     (set, get) => ({
       // État initial
       data: initialData,
-      loading: false,
-      initialized: false,
-      lastFetch: null,
-      error: null,
+      loading: false as boolean,
+      initialized: false as boolean,
+      lastFetch: null as number | null,
+      error: null as string | null,
 
       // Action pour récupérer les données de la sidebar
       fetchSidebarData: async () => {

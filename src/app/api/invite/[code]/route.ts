@@ -81,30 +81,50 @@ export async function GET(
     }
 
     // Transaction pour ajouter le membre et marquer l'invitation comme acceptée
-    await prisma.$transaction([
+    await prisma.$transaction(async (tx) => {
       // Ajout du membre à l'organisation
-      prisma.organizationMember.create({
+      await tx.organizationMember.create({
         data: {
           userUid,
           organizationId: invitation.organizationId,
           role: "MEMBER",
         },
-      }),
+      });
+
       // Mise à jour du statut de l'invitation
-      prisma.organizationInvite.update({
+      await tx.organizationInvite.update({
         where: { id: invitation.id },
         data: { status: "ACCEPTED" },
-      }),
+      });
+
       // Mise à jour du nombre de membres de l'organisation
-      prisma.organization.update({
+      await tx.organization.update({
         where: { id: invitation.organizationId },
         data: {
           memberCount: {
             increment: 1,
           },
         },
-      }),
-    ]);
+      });
+
+      // Ajouter le nouveau membre à la conversation de groupe de l'organisation
+      const groupConversation = await tx.conversation.findFirst({
+        where: {
+          type: "GROUP",
+          organizationId: invitation.organizationId,
+        },
+      });
+
+      if (groupConversation) {
+        await tx.conversationMember.create({
+          data: {
+            conversationId: groupConversation.id,
+            userId: userUid,
+            role: "MEMBER",
+          },
+        });
+      }
+    });
 
     // Créer des notifications pour les OWNER et ADMIN
     try {

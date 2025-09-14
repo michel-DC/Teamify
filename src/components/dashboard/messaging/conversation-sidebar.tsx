@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useConversations } from "@/hooks/useConversations";
+import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -76,23 +77,33 @@ export const ConversationSidebar = ({
       }
     }
 
+    // Pour les conversations de groupe, afficher "Groupe {nom organisation}"
+    if (conversation.type === "GROUP" && conversation.organization) {
+      return `Groupe ${conversation.organization.name}`;
+    }
+
     return "Conversation";
   };
 
   /**
-   * Obtenir l'avatar d'une conversation
+   * Obtenir l'avatar d'une conversation avec URL signée
    */
   const getConversationAvatar = (conversation: any) => {
+    let imageUrl: string | null = null;
+
     if (conversation.type === "PRIVATE") {
       const otherMember = conversation.members.find(
         (member: any) => member.user.uid !== user?.uid
       );
       if (otherMember) {
-        return otherMember.user.profileImage;
+        imageUrl = otherMember.user.profileImage;
       }
+    } else if (conversation.type === "GROUP" && conversation.organization) {
+      // Pour les conversations de groupe, afficher l'image de profil de l'organisation
+      imageUrl = conversation.organization.profileImage;
     }
 
-    return null;
+    return imageUrl;
   };
 
   /**
@@ -110,7 +121,28 @@ export const ConversationSidebar = ({
       }
     }
 
+    // Pour les conversations de groupe, afficher les initiales de l'organisation
+    if (conversation.type === "GROUP" && conversation.organization) {
+      const orgName = conversation.organization.name || "";
+      return orgName.charAt(0).toUpperCase();
+    }
+
     return "C";
+  };
+
+  /**
+   * Composant Avatar avec URL signée
+   */
+  const SignedAvatar = ({ conversation }: { conversation: any }) => {
+    const imageUrl = getConversationAvatar(conversation);
+    const { signedUrl, isLoading } = useAutoSignedImage(imageUrl);
+
+    return (
+      <Avatar className="h-8 w-8 flex-shrink-0">
+        <AvatarImage src={signedUrl || undefined} />
+        <AvatarFallback>{getConversationInitials(conversation)}</AvatarFallback>
+      </Avatar>
+    );
   };
 
   return (
@@ -203,12 +235,7 @@ export const ConversationSidebar = ({
                   `}
                 >
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8 flex-shrink-0">
-                      <AvatarImage src={getConversationAvatar(conversation)} />
-                      <AvatarFallback>
-                        {getConversationInitials(conversation)}
-                      </AvatarFallback>
-                    </Avatar>
+                    <SignedAvatar conversation={conversation} />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">

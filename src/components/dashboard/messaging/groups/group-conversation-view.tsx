@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSocket } from "@/hooks/useSocket";
 import { useMessages } from "@/hooks/useMessages";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
-import { MessageList } from "./message-list";
+import { MessageList } from "../message-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,9 +14,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ArrowLeft, MoreVertical, Send, X } from "lucide-react";
+import { ArrowLeft, MoreVertical, Send, X, Users } from "lucide-react";
+import { GroupMembersList } from "./group-members-list";
+import { WelcomeMessage } from "./welcome-message";
 
-interface ConversationViewProps {
+interface GroupConversationViewProps {
   conversationId: string;
   conversation: any;
   user: any;
@@ -24,14 +26,14 @@ interface ConversationViewProps {
 }
 
 /**
- * Vue d'une conversation responsive avec zone de messages et saisie
+ * Vue d'une conversation de groupe responsive avec zone de messages et saisie
  */
-export const ConversationView = ({
+export const GroupConversationView = ({
   conversationId,
   conversation,
   user,
   onBackToConversations,
-}: ConversationViewProps) => {
+}: GroupConversationViewProps) => {
   const [newMessage, setNewMessage] = useState("");
 
   // Hook pour gérer les messages de la conversation
@@ -58,7 +60,7 @@ export const ConversationView = ({
       addMessage(message);
     },
     onError: (error) => {
-      console.error("❌ Erreur Socket.IO dans ConversationView:", error);
+      console.error("❌ Erreur Socket.IO dans GroupConversationView:", error);
     },
   });
 
@@ -76,91 +78,40 @@ export const ConversationView = ({
   }, [conversationId, isConnected, joinConversation, leaveConversation]);
 
   /**
-   * Obtenir le nom d'affichage d'une conversation
+   * Obtenir le nom d'affichage d'une conversation de groupe
    */
   const getConversationDisplayName = (conversation: any) => {
     if (conversation.title) return conversation.title;
-
-    // Pour les conversations privées, afficher le nom de l'autre utilisateur
-    if (conversation.type === "PRIVATE") {
-      const otherMember = conversation.members.find(
-        (member: any) => member.user.uid !== user?.uid
-      );
-      if (otherMember) {
-        return (
-          `${otherMember.user.firstname || ""} ${
-            otherMember.user.lastname || ""
-          }`.trim() || "Utilisateur"
-        );
-      }
-    }
-
-    // Pour les conversations de groupe, afficher "Groupe {nom organisation}"
-    if (conversation.type === "GROUP" && conversation.organization) {
-      return `Groupe ${conversation.organization.name}`;
-    }
-
-    return "Conversation";
+    return "Groupe de discussion";
   };
 
   /**
-   * Obtenir l'avatar d'une conversation avec URL signée
+   * Obtenir l'avatar d'une conversation de groupe
    */
   const getConversationAvatar = (conversation: any) => {
-    let imageUrl: string | null = null;
-
-    if (conversation.type === "PRIVATE") {
-      const otherMember = conversation.members.find(
-        (member: any) => member.user.uid !== user?.uid
-      );
-      if (otherMember) {
-        imageUrl = otherMember.user.profileImage;
-      }
-    } else if (conversation.type === "GROUP" && conversation.organization) {
-      // Pour les conversations de groupe, afficher l'image de profil de l'organisation
-      imageUrl = conversation.organization.profileImage;
-    }
-
-    return imageUrl;
+    // Pour les conversations de groupe, utiliser l'avatar de l'organisation
+    return conversation.organization?.profileImage || null;
   };
 
   /**
-   * Obtenir les initiales d'une conversation
+   * Obtenir les initiales d'une conversation de groupe
    */
   const getConversationInitials = (conversation: any) => {
-    if (conversation.type === "PRIVATE") {
-      const otherMember = conversation.members.find(
-        (member: any) => member.user.uid !== user?.uid
-      );
-      if (otherMember) {
-        const firstname = otherMember.user.firstname || "";
-        const lastname = otherMember.user.lastname || "";
-        return `${firstname.charAt(0)}${lastname.charAt(0)}`.toUpperCase();
-      }
+    if (conversation.title) {
+      return conversation.title.charAt(0).toUpperCase();
     }
-
-    // Pour les conversations de groupe, afficher les initiales de l'organisation
-    if (conversation.type === "GROUP" && conversation.organization) {
-      const orgName = conversation.organization.name || "";
-      return orgName.charAt(0).toUpperCase();
+    // Utiliser les initiales de l'organisation
+    if (conversation.organization?.name) {
+      return conversation.organization.name.charAt(0).toUpperCase();
     }
-
-    return "C";
+    return "G";
   };
 
   /**
-   * Composant Avatar avec URL signée
+   * Obtenir le nombre de membres dans la conversation
    */
-  const SignedAvatar = ({ conversation }: { conversation: any }) => {
-    const imageUrl = getConversationAvatar(conversation);
-    const { signedUrl, isLoading } = useAutoSignedImage(imageUrl);
-
-    return (
-      <Avatar className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0">
-        <AvatarImage src={signedUrl || undefined} />
-        <AvatarFallback>{getConversationInitials(conversation)}</AvatarFallback>
-      </Avatar>
-    );
+  const getMemberCount = (conversation: any) => {
+    return conversation.members?.length || 0;
   };
 
   /**
@@ -185,8 +136,27 @@ export const ConversationView = ({
     }
   };
 
+  /**
+   * Composant pour l'avatar de la conversation avec URL signée
+   */
+  const ConversationAvatar = () => {
+    const { signedUrl } = useAutoSignedImage(
+      getConversationAvatar(conversation)
+    );
+
+    return (
+      <Avatar className="h-8 w-8 md:h-10 md:w-10 flex-shrink-0">
+        <AvatarImage src={signedUrl || undefined} />
+        <AvatarFallback>{getConversationInitials(conversation)}</AvatarFallback>
+      </Avatar>
+    );
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full relative">
+      {/* Message de bienvenue automatique */}
+      <WelcomeMessage conversationId={conversationId} />
+
       {/* En-tête de la conversation - Responsive */}
       <div className="p-3 md:p-4 border-b bg-background flex-shrink-0">
         <div className="flex items-center justify-between">
@@ -203,12 +173,18 @@ export const ConversationView = ({
               </Button>
             )}
 
-            <SignedAvatar conversation={conversation} />
+            <ConversationAvatar />
 
             <div className="min-w-0 flex-1">
               <h2 className="font-semibold text-sm md:text-base truncate">
                 {getConversationDisplayName(conversation)}
               </h2>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <GroupMembersList
+                  members={conversation.members || []}
+                  currentUserId={user?.uid}
+                />
+              </div>
             </div>
           </div>
 

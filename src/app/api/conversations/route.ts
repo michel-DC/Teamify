@@ -32,6 +32,13 @@ export async function GET(req: NextRequest) {
     const conversations = await prisma.conversation.findMany({
       where: whereClause,
       include: {
+        organization: {
+          select: {
+            id: true,
+            name: true,
+            profileImage: true,
+          },
+        },
         members: {
           include: {
             user: {
@@ -68,6 +75,7 @@ export async function GET(req: NextRequest) {
       type: conv.type,
       title: conv.title,
       organizationId: conv.organizationId,
+      organization: conv.organization,
       createdAt: conv.createdAt,
       members: conv.members.map((member) => ({
         id: member.id,

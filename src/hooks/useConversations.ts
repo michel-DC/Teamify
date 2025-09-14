@@ -11,6 +11,11 @@ export interface Conversation {
   type: "PRIVATE" | "GROUP";
   title?: string;
   organizationId?: number;
+  organization?: {
+    id: number;
+    name: string;
+    profileImage: string | null;
+  };
   createdAt: Date;
   members: Array<{
     id: string;
