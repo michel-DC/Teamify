@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSocket } from "@/hooks/useSocket";
+import { useSocketSimple } from "@/hooks/useSocketSimple";
 import { useMessages } from "@/hooks/useMessages";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { MessageList } from "../message-list";
@@ -54,13 +54,16 @@ export const GroupConversationView = ({
     error: socketError,
     joinConversation,
     leaveConversation,
-  } = useSocket({
+  } = useSocketSimple({
     currentUserId: user?.uid,
     onMessage: (message) => {
       addMessage(message);
     },
     onError: (error) => {
-      console.error("❌ Erreur Socket.IO dans GroupConversationView:", error);
+      console.error(
+        "❌ Erreur Socket Simple dans GroupConversationView:",
+        error
+      );
     },
   });
 
@@ -117,7 +120,7 @@ export const GroupConversationView = ({
   /**
    * Envoyer un message
    */
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) {
       return;
     }
@@ -126,7 +129,7 @@ export const GroupConversationView = ({
       return;
     }
 
-    const success = sendMessage({
+    const success = await sendMessage({
       conversationId,
       content: newMessage.trim(),
     });
@@ -218,7 +221,7 @@ export const GroupConversationView = ({
       </div>
 
       {/* Zone de saisie - Responsive */}
-      <div className="p-2 mb-7 md:p-3 border-t bg-background flex-shrink-0">
+      <div className="p-3 md:p-3 border-t bg-background flex-shrink-0">
         <div className="flex items-end gap-2 w-full">
           <div className="relative flex-1">
             <Input

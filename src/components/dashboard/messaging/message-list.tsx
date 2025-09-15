@@ -147,8 +147,8 @@ export const MessageList = ({
                 isCurrentUser ? "justify-end" : "justify-start"
               }`}
             >
-              {/* Contenu du message */}
-              <div className={`flex flex-col w-64 md:w-80 relative`}>
+              {/* Contenu du message - Responsive */}
+              <div className={`flex flex-col w-48 sm:w-64 md:w-80 relative`}>
                 {/* Nom de l'expéditeur pour les conversations de groupe */}
                 {isGroupConversation && !isCurrentUser && (
                   <p className="text-xs text-muted-foreground mb-1 px-1">
@@ -156,9 +156,9 @@ export const MessageList = ({
                   </p>
                 )}
 
-                {/* Bulle de message */}
+                {/* Bulle de message - Responsive */}
                 <div
-                  className={`rounded-lg px-3 py-2 text-sm min-h-[40px] flex items-center ${
+                  className={`rounded-lg px-2 md:px-3 py-2 text-xs md:text-sm min-h-[36px] md:min-h-[40px] flex items-center ${
                     isCurrentUser
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted"

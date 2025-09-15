@@ -13,8 +13,8 @@ export const ConnectionStatus = ({
   isConnecting,
 }: ConnectionStatusProps) => {
   return (
-    <div className="p-4 border-t">
-      <div className="flex items-center gap-2 text-sm">
+    <div className="p-3 md:p-4 border-t">
+      <div className="flex items-center gap-2 text-xs md:text-sm">
         <div
           className={`h-2 w-2 rounded-full ${
             isConnected

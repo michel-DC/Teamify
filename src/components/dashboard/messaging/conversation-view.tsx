@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSocket } from "@/hooks/useSocket";
+import { useSocketSimple } from "@/hooks/useSocketSimple";
 import { useMessages } from "@/hooks/useMessages";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { MessageList } from "./message-list";
@@ -52,13 +52,13 @@ export const ConversationView = ({
     error: socketError,
     joinConversation,
     leaveConversation,
-  } = useSocket({
+  } = useSocketSimple({
     currentUserId: user?.uid,
     onMessage: (message) => {
       addMessage(message);
     },
     onError: (error) => {
-      console.error("❌ Erreur Socket.IO dans ConversationView:", error);
+      console.error("❌ Erreur Socket Simple dans ConversationView:", error);
     },
   });
 
@@ -166,7 +166,7 @@ export const ConversationView = ({
   /**
    * Envoyer un message
    */
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) {
       return;
     }
@@ -175,7 +175,7 @@ export const ConversationView = ({
       return;
     }
 
-    const success = sendMessage({
+    const success = await sendMessage({
       conversationId,
       content: newMessage.trim(),
     });

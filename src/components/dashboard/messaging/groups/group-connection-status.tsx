@@ -18,9 +18,9 @@ export const GroupConnectionStatus = ({
 }: GroupConnectionStatusProps) => {
   if (isConnecting) {
     return (
-      <div className="p-2 text-center text-sm text-muted-foreground">
+      <div className="p-2 md:p-3 text-center text-xs md:text-sm text-muted-foreground">
         <div className="flex items-center justify-center gap-2">
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
           <span>Connexion au groupe en cours...</span>
         </div>
       </div>
@@ -29,9 +29,9 @@ export const GroupConnectionStatus = ({
 
   if (!isConnected) {
     return (
-      <div className="p-2 text-center text-sm text-destructive">
+      <div className="p-2 md:p-3 text-center text-xs md:text-sm text-destructive">
         <div className="flex items-center justify-center gap-2">
-          <WifiOff className="h-4 w-4" />
+          <WifiOff className="h-3 w-3 md:h-4 md:w-4" />
           <span>Connexion perdue - Reconnexion en cours...</span>
         </div>
       </div>
@@ -39,9 +39,9 @@ export const GroupConnectionStatus = ({
   }
 
   return (
-    <div className="p-2 text-center text-sm text-green-600">
+    <div className="p-2 md:p-3 text-center text-xs md:text-sm text-green-600">
       <div className="flex items-center justify-center gap-2">
-        <Wifi className="h-4 w-4" />
+        <Wifi className="h-3 w-3 md:h-4 md:w-4" />
         <span>Connecté au groupe</span>
       </div>
     </div>

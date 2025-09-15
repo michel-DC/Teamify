@@ -154,6 +154,12 @@ const initialData: SidebarData = {
           icon: "Users",
           isActive: false,
         },
+        {
+          title: "Test Socket.IO",
+          url: "/test-socket",
+          icon: "MessageCircle",
+          isActive: false,
+        },
       ],
     },
   ],

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useSocket } from "@/hooks/useSocket";
+import { useSocketSimple } from "@/hooks/useSocketSimple";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
@@ -19,7 +19,7 @@ export const WelcomeMessage = ({
 }: WelcomeMessageProps) => {
   const { user } = useAuth();
   const { activeOrganization } = useActiveOrganization();
-  const { sendMessage, isConnected } = useSocket({
+  const { sendMessage, isConnected } = useSocketSimple({
     currentUserId: user?.uid,
   });
 

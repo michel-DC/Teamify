@@ -25,5 +25,11 @@
     "env": {
       "VERCEL_LOG_LEVEL": "info"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/socket.io/(.*)",
+      "destination": "/api/socket-io"
+    }
+  ]
 }

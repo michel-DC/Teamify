@@ -147,12 +147,14 @@ export const ConversationSidebar = ({
 
   return (
     <>
-      {/* Header de la sidebar */}
-      <div className="p-2 border-b bg-background mt-4">
-        <div className="flex items-center justify-between mb-4">
+      {/* Header de la sidebar - Responsive */}
+      <div className="p-3 md:p-4 border-b bg-background mt-4">
+        <div className="flex items-center justify-between mb-3 md:mb-4">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
-            <h2 className="text-lg font-semibold">Vos conversations</h2>
+            <h2 className="text-base md:text-lg font-semibold">
+              Vos conversations
+            </h2>
           </div>
           {/* Bouton fermer sur mobile */}
           <Button
@@ -165,24 +167,24 @@ export const ConversationSidebar = ({
           </Button>
         </div>
 
-        {/* Barre de recherche */}
+        {/* Barre de recherche - Responsive */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
           <Input
             placeholder="Rechercher une conversation..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-8 md:pl-10 text-sm md:text-base"
           />
         </div>
 
-        {/* Bouton créer conversation */}
+        {/* Bouton créer conversation - Responsive */}
         <Button
           onClick={() => setIsCreateDialogOpen(true)}
-          className="w-full mt-3"
+          className="w-full mt-3 text-sm md:text-base"
           size="sm"
         >
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="h-3 w-3 md:h-4 md:w-4 mr-2" />
           Nouvelle conversation
         </Button>
       </div>
@@ -226,7 +228,7 @@ export const ConversationSidebar = ({
                   key={conversation.id}
                   onClick={() => onConversationSelect(conversation.id)}
                   className={`
-                    p-2 rounded-lg cursor-pointer transition-colors border
+                    p-2 md:p-3 rounded-lg cursor-pointer transition-colors border
                     ${
                       selectedConversationId === conversation.id
                         ? "bg-muted/50 border-2 border-accent"
@@ -234,18 +236,18 @@ export const ConversationSidebar = ({
                     }
                   `}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 md:gap-3">
                     <SignedAvatar conversation={conversation} />
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-medium truncate text-sm">
+                        <h3 className="font-medium truncate text-xs md:text-sm">
                           {getConversationDisplayName(conversation)}
                         </h3>
                         {conversation.unreadCount > 0 && (
                           <Badge
                             variant="destructive"
-                            className="h-5 w-5 p-0 flex items-center justify-center text-xs flex-shrink-0"
+                            className="h-4 w-4 md:h-5 md:w-5 p-0 flex items-center justify-center text-xs flex-shrink-0"
                           >
                             {conversation.unreadCount}
                           </Badge>

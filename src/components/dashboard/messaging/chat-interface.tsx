@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useSocket, MessageData, MessageReadData } from "@/hooks/useSocket";
+import {
+  useSocketSimple,
+  MessageData,
+  MessageReadData,
+} from "@/hooks/useSocketSimple";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
@@ -9,7 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 // import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Users, MessageCircle } from "lucide-react";
+import { Send, Users, MessageCircle, Settings } from "lucide-react";
+import { SocketTest } from "@/components/test/socket-test";
 
 /**
  * Interface pour les conversations
@@ -67,6 +72,7 @@ export const ChatInterface = ({
   const [readReceipts, setReadReceipts] = useState<
     Map<string, MessageReadData>
   >(new Map());
+  const [showTestPanel, setShowTestPanel] = useState(false);
 
   // Initialiser Socket.IO
   const {
@@ -77,7 +83,7 @@ export const ChatInterface = ({
     markMessageAsRead,
     joinConversation,
     leaveConversation,
-  } = useSocket({
+  } = useSocketSimple({
     onMessage: (message: MessageData) => {
       setMessages((prev) => [...prev, message]);
 
@@ -207,10 +213,21 @@ export const ChatInterface = ({
       {/* Liste des conversations */}
       <div className="w-80 border-r bg-muted/50">
         <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
-            Messages
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Messages
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowTestPanel(!showTestPanel)}
+              className="flex items-center gap-1"
+            >
+              <Settings className="h-4 w-4" />
+              Test Socket
+            </Button>
+          </div>
           {socketError && (
             <Badge variant="destructive" className="mt-2">
               Erreur de connexion
@@ -289,7 +306,11 @@ export const ChatInterface = ({
 
       {/* Zone de chat */}
       <div className="flex-1 flex flex-col">
-        {selectedConversation ? (
+        {showTestPanel ? (
+          <div className="flex-1 p-4 overflow-y-auto">
+            <SocketTest />
+          </div>
+        ) : selectedConversation ? (
           <>
             {/* En-tête de conversation */}
             <div className="p-4 border-b bg-background">
@@ -418,6 +439,9 @@ export const ChatInterface = ({
             <div className="text-center">
               <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Sélectionnez une conversation pour commencer</p>
+              <p className="text-sm mt-2">
+                Ou cliquez sur "Test Socket" pour tester la connexion Socket.IO
+              </p>
             </div>
           </div>
         )}
