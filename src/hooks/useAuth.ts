@@ -76,33 +76,22 @@ export const useAuth = () => {
       // Vérifier d'abord le localStorage pour une vérification rapide
       const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
+      // Vérifier les cookies
+      const cookies = document.cookie.split(";");
+      const tokenCookie = cookies.find((cookie) =>
+        cookie.trim().startsWith("token=")
+      );
+
       if (!isLoggedIn) {
-        console.log(
-          "[useAuth] localStorage indique que l'utilisateur n'est pas connecté"
-        );
         return { isAuthenticated: false, user: null };
       }
-
-      console.log(
-        "[useAuth] Vérification de l'authentification côté serveur..."
-      );
 
       const response = await fetch("/api/auth/me", {
         credentials: "include",
       });
 
-      console.log("[useAuth] Réponse de /api/auth/me:", {
-        status: response.status,
-        ok: response.ok,
-        statusText: response.statusText,
-      });
-
       if (response.ok) {
         const user = await response.json();
-        console.log("[useAuth] Utilisateur authentifié:", {
-          uid: user.user?.uid,
-          email: user.user?.email,
-        });
         return { isAuthenticated: true, user: user.user };
       }
 
@@ -115,13 +104,9 @@ export const useAuth = () => {
         // Impossible de parser l'erreur
       }
 
-      console.log("[useAuth] Échec de l'authentification:", errorMessage);
       return { isAuthenticated: false, user: null, error: errorMessage };
     } catch (error) {
-      console.error(
-        "[useAuth] Erreur lors de la vérification d'authentification:",
-        error
-      );
+      console.error(error);
       return {
         isAuthenticated: false,
         user: null,

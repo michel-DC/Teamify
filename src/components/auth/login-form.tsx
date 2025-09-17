@@ -100,8 +100,7 @@ export const LoginForm = ({
           // Toast de succès avec prénom pendant 3s
           toast.success(
             <>
-              Vous êtes maintenant connecté en tant que{" "}
-              <b>{data.user.firstname}</b> ​❤️‍🔥​
+              Ravi de vous revoir <b>{data.user.firstname}</b> ​❤️‍🔥​
             </>,
             {
               duration: 3000,
@@ -145,8 +144,7 @@ export const LoginForm = ({
         // Toast de succès avec prénom pendant 3s
         toast.success(
           <>
-            Vous êtes maintenant connecté en tant que{" "}
-            <b>{data.user.firstname}</b> ​❤️‍🔥​
+            Ravi de vous revoir <b>{data.user.firstname}</b> ​❤️‍🔥​
           </>,
           {
             duration: 3000,

@@ -97,6 +97,21 @@ export async function POST(req: Request) {
         data: { organizationCount: { increment: 1 } },
       });
 
+      // Créer automatiquement une conversation de groupe pour l'organisation
+      await tx.conversation.create({
+        data: {
+          type: "GROUP",
+          title: "Groupe de discussion",
+          organizationId: createdOrg.id,
+          members: {
+            create: {
+              userId: user.uid,
+              role: "ADMIN", // Le propriétaire de l'organisation est admin de la conversation
+            },
+          },
+        },
+      });
+
       return createdOrg;
     });
 

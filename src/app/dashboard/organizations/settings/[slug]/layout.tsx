@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Teamify - Paramètres de votre organisation",
+  title: "Paramètres de votre organisation - Teamify",
   description: "Page de paramètres de votre organisation sur Teamify",
 };
 

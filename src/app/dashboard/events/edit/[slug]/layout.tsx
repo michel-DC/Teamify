@@ -15,11 +15,11 @@ export async function generateMetadata({
   const eventName = await getEventNameBySlug(slug);
 
   return {
-    title: `Modifier l'événement: ${
+    title: `Modifier l'événement${
       eventName
-        ? eventName.charAt(0).toLowerCase() + eventName.slice(1)
-        : "l'événement"
-    }`,
+        ? ` : ${eventName.charAt(0).toLowerCase() + eventName.slice(1)}`
+        : ""
+    } - Teamify`,
     description: "Page de modification d'un événement sur Teamify",
   };
 }

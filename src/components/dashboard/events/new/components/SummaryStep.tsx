@@ -101,7 +101,8 @@ export function SummaryStep({
             <div>
               <span className="font-medium">Catégorie :</span>
               <Badge variant="secondary" className="ml-2">
-                {categoryLabels[formData.category]}
+                {categoryLabels[formData.category as EventCategory] ||
+                  formData.category}
               </Badge>
             </div>
           </CardContent>
@@ -156,7 +157,8 @@ export function SummaryStep({
               <span className="font-medium">Statut :</span>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline" className="ml-2">
-                  {statusLabels[formData.status]}
+                  {statusLabels[formData.status as EventStatus] ||
+                    formData.status}
                 </Badge>
                 <span className="text-xs text-muted-foreground">
                   (calculé automatiquement)

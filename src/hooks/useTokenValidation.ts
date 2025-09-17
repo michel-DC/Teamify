@@ -32,7 +32,7 @@ export const useTokenValidation = (options: TokenValidationOptions = {}) => {
   const {
     checkInterval = 5 * 60 * 1000, // 5 minutes par défaut
     redirectDelay = 2000, // 2 secondes par défaut
-    customMessage = "Votre session a expiré. Vous allez être redirigé vers la page de connexion.",
+    customMessage = "Session expirée. Veuillez vous reconnecter 🛡️",
   } = options;
 
   /**
@@ -65,8 +65,6 @@ export const useTokenValidation = (options: TokenValidationOptions = {}) => {
       const isValid = response.ok;
 
       if (!isValid) {
-        console.log("[useTokenValidation] Token expiré ou invalide");
-
         // Nettoyer le localStorage
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("hasOrganization");

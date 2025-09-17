@@ -2,15 +2,17 @@
 
 import * as React from "react";
 import {
-  PieChart,
+  LayoutDashboard,
   Calendar,
-  GalleryVerticalEnd,
+  Plus,
+  UserPlus,
+  Building2,
+  MessageCircle,
   Users,
-  Command,
-  Settings2,
+  GalleryVerticalEnd,
 } from "lucide-react";
 
-import { NavMain } from "@/components/nav-main";
+import { NavGroups } from "@/components/nav-groups";
 import { NavEvents } from "@/components/nav-events";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
@@ -22,26 +24,23 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useSidebarData } from "@/hooks/useSidebarData";
+// import Image from "next/image";
 
 // Mapping des icônes pour les éléments de navigation
 const iconMap = {
-  PieChart,
+  LayoutDashboard,
   Calendar,
-  GalleryVerticalEnd,
+  Plus,
+  UserPlus,
+  Building2,
+  MessageCircle,
   Users,
-  Command,
-  Settings2,
+  GalleryVerticalEnd,
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Utilisation du hook personnalisé pour les données de la sidebar
   const { data } = useSidebarData();
-
-  // Transformation des données pour les icônes de navigation
-  const navMainWithIcons = data.navMain.map((item) => ({
-    ...item,
-    icon: iconMap[item.icon as keyof typeof iconMap] || PieChart,
-  }));
 
   // Transformation des données pour les équipes avec icônes
   const teamsWithIcons = data.teams.map((team) => ({
@@ -58,11 +57,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
+      {/* <div className="flex justify-center items-center">
+        <Image
+          src="/images/logo/favicon.svg"
+          alt="Logo"
+          width={32}
+          height={32}
+        />
+      </div> */}
       <SidebarHeader>
         <TeamSwitcher teams={teamsWithIcons} />
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={navMainWithIcons} />
+      <SidebarContent className="mt-4">
+        <NavGroups groups={data.navGroups} iconMap={iconMap} />
         <NavEvents events={eventsWithIcons} />
       </SidebarContent>
       <SidebarFooter>

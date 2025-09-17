@@ -61,12 +61,9 @@ export default function ClientGate({ children }: ClientGateProps) {
             setRedirecting(true);
 
             import("sonner").then(({ toast }) => {
-              toast.error(
-                "Votre session a expiré. Veuillez vous reconnecter 🛡️",
-                {
-                  duration: 5000,
-                }
-              );
+              toast.error("Session expirée. Veuillez vous reconnecter 🛡️", {
+                duration: 5000,
+              });
             });
 
             setTimeout(() => {

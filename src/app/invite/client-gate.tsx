@@ -43,12 +43,9 @@ export default function InviteClientGate({ children }: InviteClientGateProps) {
 
           // Afficher le toast d'information
           import("sonner").then(({ toast }) => {
-            toast.info(
-              "Votre session a expiré. Vous allez être redirigé vers la page de connexion.",
-              {
-                duration: 2000,
-              }
-            );
+            toast.info("Session expirée. Veuillez vous reconnecter 🛡️", {
+              duration: 2000,
+            });
           });
 
           // Rediriger vers la page de connexion
