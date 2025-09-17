@@ -5,7 +5,8 @@
 
 import { io } from "socket.io-client";
 
-const SOCKET_URL = "http://localhost:3001";
+const SOCKET_URL =
+  process.env.SOCKET_URL || "https://socket.teamify.onlinemichel.dev";
 const API_URL = "http://localhost:3000";
 
 async function testAuthenticatedMessageSending() {

@@ -161,3 +161,26 @@ export function extractBucketFromR2Url(url: string): string | null {
     return null;
   }
 }
+
+/**
+ * @param Vérification si une URL est une URL R2 Cloudflare
+ *
+ * Détermine si une URL provient de Cloudflare R2 et nécessite une signature.
+ * Les URLs Google, Gravatar, etc. ne nécessitent pas de signature.
+ */
+export function isR2Url(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+
+    // Vérifier si c'est une URL R2 Cloudflare
+    return (
+      hostname.includes("r2.cloudflarestorage.com") ||
+      hostname.includes("r2.dev") ||
+      // Vérifier aussi par le pattern de l'URL R2
+      (hostname.includes("cloudflare") && urlObj.pathname.includes("/"))
+    );
+  } catch {
+    return false;
+  }
+}

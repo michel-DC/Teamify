@@ -142,11 +142,25 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     setError(null);
 
     try {
+      // Déterminer l'URL du serveur Socket.IO
+      const isProduction = process.env.NODE_ENV === "production";
+      const isLocalhost =
+        typeof window !== "undefined" &&
+        window.location.hostname === "localhost";
+
       const socketUrl =
-        process.env.NODE_ENV === "production"
-          ? process.env.NEXT_PUBLIC_SOCKET_URL ||
-            window.location.origin.replace("3000", "3001")
-          : "http://localhost:3001";
+        process.env.NEXT_PUBLIC_SOCKET_URL ||
+        "https://socket.teamify.onlinemichel.dev";
+
+      // Log pour le débogage
+      if (process.env.NODE_ENV === "development") {
+        console.log("🔌 Connexion Socket.IO:", {
+          environment: process.env.NODE_ENV,
+          socketUrl,
+          isProduction,
+          hasEnvVar: !!process.env.NEXT_PUBLIC_SOCKET_URL,
+        });
+      }
 
       const socket = io(socketUrl, {
         withCredentials: true,

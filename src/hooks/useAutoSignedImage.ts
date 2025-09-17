@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 interface UseAutoSignedImageOptions {
-  refreshThreshold?: number; // Seuil de rafraîchissement en secondes (défaut: 60s)
-  autoRefresh?: boolean; // Renouvellement automatique activé par défaut
-  debounceMs?: number; // Délai de debounce en millisecondes (défaut: 300ms)
+  refreshThreshold?: number;
+  autoRefresh?: boolean;
+  debounceMs?: number;
 }
 
 interface UseAutoSignedImageReturn {
