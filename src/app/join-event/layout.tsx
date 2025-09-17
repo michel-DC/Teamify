@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Teamify | Rejoindre un évènement",
+  title: "Rejoindre un événement - Teamify",
   description:
-    "Accédez à cette page pour rejoindre un évènement existant sur Teamify.",
+    "Accédez à cette page pour rejoindre un événement existant sur Teamify.",
 };
 
 export default function JoinEventLayout({

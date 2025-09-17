@@ -27,9 +27,11 @@ import {
   Users,
   Eye,
   Slash,
+  CalendarPlus,
 } from "lucide-react";
 import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
 import { useOrganizationPermissions } from "@/hooks/useOrganization";
+import { addEventToGoogleCalendar } from "@/lib/google-calendar-utils";
 
 /**
  * Extrait le nom de la ville depuis une adresse complète
@@ -165,11 +167,11 @@ export default function EventDetailsPage() {
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink href="/dashboard/events">
-                  Évènements
+                  Événements
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>Détails de l&apos;évènement</BreadcrumbItem>
+              <BreadcrumbItem>Détails de l&apos;événement</BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
                 <BreadcrumbPage>{event.title}</BreadcrumbPage>
@@ -195,7 +197,7 @@ export default function EventDetailsPage() {
                 <h1 className="text-4xl font-bold text-center">
                   {event.title}
                 </h1>
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-wrap justify-center">
                   {canModifyEvent && (
                     <Button
                       className="bg-green-700 hover:bg-green-800 text-white"
@@ -203,7 +205,7 @@ export default function EventDetailsPage() {
                         router.push(`/dashboard/events/edit/${params.slug}`)
                       }
                     >
-                      Modifier l&apos;évènement
+                      Modifier l&apos;événement
                     </Button>
                   )}
                   {canDeleteEvent && (
@@ -213,14 +215,30 @@ export default function EventDetailsPage() {
                         router.push(`/dashboard/events/delete/${params.slug}`)
                       }
                     >
-                      Supprimer l&apos;évènement
+                      Supprimer l&apos;événement
                     </Button>
                   )}
+                  <Button
+                    variant="outline"
+                    className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                    onClick={() =>
+                      addEventToGoogleCalendar({
+                        title: event.title,
+                        description: event.description,
+                        location: event.location,
+                        startDate: event.startDate,
+                        endDate: event.endDate,
+                      })
+                    }
+                  >
+                    <CalendarPlus className="h-4 w-4 mr-2" />
+                    Ajouter à Google Agenda
+                  </Button>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 px-4 lg:px-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Budget</CardTitle>
@@ -233,7 +251,7 @@ export default function EventDetailsPage() {
                       : "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Budget de l&apos;évènement
+                    Budget de l&apos;événement
                   </p>
                 </CardContent>
               </Card>
@@ -250,7 +268,7 @@ export default function EventDetailsPage() {
                     {event.category || "—"}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Type d&apos;évènement
+                    Type d&apos;événement
                   </p>
                 </CardContent>
               </Card>

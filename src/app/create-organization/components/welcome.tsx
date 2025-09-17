@@ -2,6 +2,7 @@ import { useRouter } from "next/navigation";
 import { StepProps } from "@/types/steps";
 import Image from "next/image";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export default function Welcome({ next }: Pick<StepProps, "next">) {
   const router = useRouter();
@@ -42,18 +43,10 @@ export default function Welcome({ next }: Pick<StepProps, "next">) {
         création.
       </p>
       <div className="flex flex-col sm:flex-row justify-center items-start gap-4 mt-6">
-        <button
-          onClick={handleNext}
-          className="flex-1 sm:flex-none px-6 py-3 text-lg font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          Créer mon organisation
-        </button>
-        <button
-          onClick={handleExit}
-          className="flex-1 sm:flex-none px-6 py-3 text-lg font-medium text-secondary-foreground bg-secondary rounded-lg hover:bg-secondary/80 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
+        <Button onClick={handleNext}>Créer mon organisation</Button>
+        <Button onClick={handleExit} variant="outline">
           Annuler
-        </button>
+        </Button>
       </div>
     </div>
   );

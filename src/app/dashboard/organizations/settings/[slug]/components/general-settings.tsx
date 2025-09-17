@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUploadZone } from "@/components/ui/image-upload-zone";
+import { AutoSignedImage } from "@/components/ui/auto-signed-image";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -147,12 +148,13 @@ export function GeneralSettings({
 
     setDeleteLoading(true);
     try {
-      const response = await fetch(
-        `/api/organizations/settings/${organization.publicId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch("/api/organizations/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ organizationId: organization.id }),
+      });
 
       if (response.ok) {
         toast.success("Organisation supprimée avec succès 🤩​");
@@ -160,7 +162,7 @@ export function GeneralSettings({
         window.location.href = "/dashboard/organizations";
       } else {
         const error = await response.json();
-        toast.error(error.message || "Erreur lors de la suppression 😭​");
+        toast.error(error.error || "Erreur lors de la suppression 😭​");
       }
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
@@ -253,9 +255,23 @@ export function GeneralSettings({
 
           <div className="space-y-2">
             <Label>Image de profil</Label>
+            {organization.profileImage && (
+              <div className="mb-4">
+                <Label className="text-sm text-muted-foreground mb-2 block">
+                  Image actuelle
+                </Label>
+                <div className="relative w-24 h-24 rounded-lg overflow-hidden border">
+                  <AutoSignedImage
+                    src={organization.profileImage}
+                    alt="Image de profil actuelle"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
             <ImageUploadZone
               onImageChange={handleImageUpload}
-              imagePreviewUrl={organization.profileImage}
+              imagePreviewUrl={null}
               disabled={!canModify}
             />
           </div>

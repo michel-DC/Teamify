@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 /**
  * Composant de contenu pour le callback Google
@@ -14,14 +15,23 @@ export function GoogleCallbackContent() {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasRedirected, setHasRedirected] = useState(false);
+  const isProcessingRef = useRef(false);
 
   useEffect(() => {
     const processGoogleAuth = async () => {
+      // Protection contre les appels multiples
+      if (isProcessingRef.current) {
+        return;
+      }
+
+      isProcessingRef.current = true;
+
       const code = searchParams.get("code");
 
       if (!code) {
         setError("Code d'autorisation manquant");
         setIsProcessing(false);
+        isProcessingRef.current = false;
         return;
       }
 
@@ -48,7 +58,7 @@ export function GoogleCallbackContent() {
         localStorage.setItem("isLoggedIn", "true");
 
         // Afficher un message de succès
-        toast.success("Connexion Google réussie !", {
+        toast.success("Connexion Google réussie 🎉", {
           duration: 3000,
         });
 
@@ -64,11 +74,15 @@ export function GoogleCallbackContent() {
 
         setHasRedirected(true);
 
-        // Utiliser window.location.href pour une redirection complète
-        window.location.href = redirectPath;
+        // Délai court pour permettre au toast de s'afficher
+        setTimeout(() => {
+          // Utiliser window.location.href pour une redirection complète
+          window.location.href = redirectPath;
+        }, 100);
       } catch (error) {
         setError(error instanceof Error ? error.message : "Erreur inconnue");
         setIsProcessing(false);
+        isProcessingRef.current = false;
       }
     };
 
@@ -84,12 +98,12 @@ export function GoogleCallbackContent() {
               Erreur d'authentification
             </h2>
             <p className="text-muted-foreground mb-6">{error}</p>
-            <button
+            <Button
               onClick={() => router.push("/auth/login")}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md transition-colors"
+              className="w-full"
             >
               Retour à la connexion
-            </button>
+            </Button>
           </div>
         </div>
       </div>

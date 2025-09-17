@@ -1,6 +1,11 @@
 import { RegisterForm } from "@/components/auth/register-form";
 import React, { Suspense } from "react";
 
+export const metadata = {
+  title: "Je me crée un compte - Teamify",
+  description: "Page d'inscription de teamify",
+};
+
 export default function RegisterPage() {
   return (
     <div>

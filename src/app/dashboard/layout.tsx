@@ -6,7 +6,7 @@ import {
   SidebarInset,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import ClientGate from "./ClientGate";
+import ClientGate from "./client-gate";
 import { DataPersistenceManager } from "@/components/data-persistence-manager";
 
 const poppins = Poppins({
@@ -16,7 +16,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Teamify | Dashboard",
+  title: "Tableau de bord - Teamify",
   description: "Dashboard utilisateur de gestion d'organisation",
 };
 

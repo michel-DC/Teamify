@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
+import { createNotificationForOrganizationOwnersAndAdmins } from "@/lib/notification-service";
 
 export async function GET(
   request: Request,
@@ -227,6 +228,29 @@ export async function POST(
         },
       },
     });
+
+    // Créer des notifications pour les OWNER et ADMIN
+    try {
+      await createNotificationForOrganizationOwnersAndAdmins(organization.id, {
+        notificationName: "Nouveau membre ajouté à l'organisation",
+        notificationDescription: `${
+          userToAdd.firstname || userToAdd.email
+        } a été ajouté(e) à l'organisation "${
+          organization.name
+        }" avec le rôle ${role}.`,
+        notificationType: "INFO",
+      });
+
+      console.log(
+        `Notifications créées pour les OWNER/ADMIN de l'organisation ${organization.id} - nouveau membre ajouté: ${userUid}`
+      );
+    } catch (notificationError) {
+      console.error(
+        "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
+        notificationError
+      );
+      // Ne pas faire échouer l'ajout du membre si les notifications échouent
+    }
 
     return NextResponse.json(
       {

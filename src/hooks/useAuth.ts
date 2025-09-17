@@ -73,18 +73,45 @@ export const useAuth = () => {
    */
   const checkAuth = useCallback(async () => {
     try {
+      // Vérifier d'abord le localStorage pour une vérification rapide
+      const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+      // Vérifier les cookies
+      const cookies = document.cookie.split(";");
+      const tokenCookie = cookies.find((cookie) =>
+        cookie.trim().startsWith("token=")
+      );
+
+      if (!isLoggedIn) {
+        return { isAuthenticated: false, user: null };
+      }
+
       const response = await fetch("/api/auth/me", {
         credentials: "include",
       });
 
       if (response.ok) {
         const user = await response.json();
-        return { isAuthenticated: true, user };
+        return { isAuthenticated: true, user: user.user };
       }
 
-      return { isAuthenticated: false, user: null };
+      // Si la réponse n'est pas ok, essayer de récupérer l'erreur
+      let errorMessage = "Erreur d'authentification";
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch {
+        // Impossible de parser l'erreur
+      }
+
+      return { isAuthenticated: false, user: null, error: errorMessage };
     } catch (error) {
-      return { isAuthenticated: false, user: null };
+      console.error(error);
+      return {
+        isAuthenticated: false,
+        user: null,
+        error: error instanceof Error ? error.message : "Erreur inconnue",
+      };
     }
   }, []);
 

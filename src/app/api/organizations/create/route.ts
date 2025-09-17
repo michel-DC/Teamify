@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 import { OrganizationType } from "@prisma/client";
+import { createNotification } from "@/lib/notification-service";
+import { WelcomeEmailService } from "../../../../../emails/services/welcome.service";
 import { uploadImage } from "@/lib/upload-utils";
 
 export async function POST(req: Request) {
@@ -95,8 +97,71 @@ export async function POST(req: Request) {
         data: { organizationCount: { increment: 1 } },
       });
 
+      // Créer automatiquement une conversation de groupe pour l'organisation
+      await tx.conversation.create({
+        data: {
+          type: "GROUP",
+          title: "Groupe de discussion",
+          organizationId: createdOrg.id,
+          members: {
+            create: {
+              userId: user.uid,
+              role: "ADMIN", // Le propriétaire de l'organisation est admin de la conversation
+            },
+          },
+        },
+      });
+
       return createdOrg;
     });
+
+    // Créer une notification pour l'utilisateur qui a créé l'organisation
+    try {
+      await createNotification({
+        notificationName: "Organisation créée",
+        notificationDescription: `Votre organisation "${organization.name}" a été créée avec succès`,
+        notificationType: "SUCCESS",
+        eventPublicId: undefined,
+        organizationPublicId: organization.publicId || undefined,
+        userUid: user.uid,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Erreur lors de la création de la notification:",
+        notificationError
+      );
+      // Ne pas faire échouer la création de l'organisation si la notification échoue
+    }
+
+    // Envoyer un email de bienvenue si c'est la première organisation de l'utilisateur
+    try {
+      if (user.organizationCount === 1) {
+        const welcomeData = {
+          userName:
+            `${user.firstname || ""} ${user.lastname || ""}`.trim() ||
+            "Utilisateur",
+          hasOrganization: true,
+          organizationName: organization.name,
+          organizationPublicId: organization.publicId || undefined,
+        };
+
+        const recipientName =
+          `${user.firstname || ""} ${user.lastname || ""}`.trim() ||
+          "Utilisateur";
+
+        WelcomeEmailService.sendWelcomeEmailAsync(
+          user.email,
+          recipientName,
+          welcomeData
+        );
+      }
+    } catch (welcomeEmailError) {
+      console.error(
+        "Erreur lors de l'envoi de l'email de bienvenue:",
+        welcomeEmailError
+      );
+      // Ne pas faire échouer la création de l'organisation si l'email échoue
+    }
 
     return NextResponse.json(
       { message: "Organisation créée", organization },

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { createNotificationForOrganizationOwnersAndAdmins } from "@/lib/notification-service";
 
 /**
  * Route pour traiter une invitation d'organisation via le code d'invitation
@@ -80,30 +81,74 @@ export async function GET(
     }
 
     // Transaction pour ajouter le membre et marquer l'invitation comme acceptée
-    await prisma.$transaction([
+    await prisma.$transaction(async (tx) => {
       // Ajout du membre à l'organisation
-      prisma.organizationMember.create({
+      await tx.organizationMember.create({
         data: {
           userUid,
           organizationId: invitation.organizationId,
           role: "MEMBER",
         },
-      }),
+      });
+
       // Mise à jour du statut de l'invitation
-      prisma.organizationInvite.update({
+      await tx.organizationInvite.update({
         where: { id: invitation.id },
         data: { status: "ACCEPTED" },
-      }),
+      });
+
       // Mise à jour du nombre de membres de l'organisation
-      prisma.organization.update({
+      await tx.organization.update({
         where: { id: invitation.organizationId },
         data: {
           memberCount: {
             increment: 1,
           },
         },
-      }),
-    ]);
+      });
+
+      // Ajouter le nouveau membre à la conversation de groupe de l'organisation
+      const groupConversation = await tx.conversation.findFirst({
+        where: {
+          type: "GROUP",
+          organizationId: invitation.organizationId,
+        },
+      });
+
+      if (groupConversation) {
+        await tx.conversationMember.create({
+          data: {
+            conversationId: groupConversation.id,
+            userId: userUid,
+            role: "MEMBER",
+          },
+        });
+      }
+    });
+
+    // Créer des notifications pour les OWNER et ADMIN
+    try {
+      await createNotificationForOrganizationOwnersAndAdmins(
+        invitation.organizationId,
+        {
+          notificationName: "Nouveau membre rejoint l'organisation",
+          notificationDescription: `${
+            user.firstname || user.email
+          } a rejoint l'organisation "${invitation.organization.name}".`,
+          notificationType: "INFO",
+        }
+      );
+
+      console.log(
+        `Notifications créées pour les OWNER/ADMIN de l'organisation ${invitation.organizationId} - nouveau membre: ${userUid}`
+      );
+    } catch (notificationError) {
+      console.error(
+        "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
+        notificationError
+      );
+      // Ne pas faire échouer le processus de rejoindre l'organisation si les notifications échouent
+    }
 
     // Redirection vers le dashboard de l'organisation
     const dashboardUrl = `/dashboard/organizations`;

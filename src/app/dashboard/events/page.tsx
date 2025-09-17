@@ -33,7 +33,7 @@ export default function EventOverview() {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage>Évènements</BreadcrumbPage>
+                <BreadcrumbPage>Événements</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

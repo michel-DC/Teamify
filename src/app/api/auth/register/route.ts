@@ -1,6 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { WelcomeEmailService } from "../../../../../emails/services/welcome.service";
+import { createNotificationForOrganizationOwnersAndAdmins } from "@/lib/notification-service";
 
 const prisma = new PrismaClient();
 
@@ -94,6 +96,32 @@ export async function POST(req: Request) {
               }),
             ]);
 
+            // Créer des notifications pour les OWNER et ADMIN
+            try {
+              await createNotificationForOrganizationOwnersAndAdmins(
+                invitation.organizationId,
+                {
+                  notificationName: "Nouveau membre rejoint l'organisation",
+                  notificationDescription: `${
+                    newUser.firstname || newUser.email
+                  } a rejoint l'organisation "${
+                    invitation.organization.name
+                  }" via une invitation.`,
+                  notificationType: "INFO",
+                }
+              );
+
+              console.log(
+                `Notifications créées pour les OWNER/ADMIN de l'organisation ${invitation.organizationId} - nouveau membre via inscription: ${newUser.uid}`
+              );
+            } catch (notificationError) {
+              console.error(
+                "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
+                notificationError
+              );
+              // Ne pas faire échouer l'inscription si les notifications échouent
+            }
+
             console.log(
               `Utilisateur ${newUser.uid} ajouté à l'organisation ${invitation.organizationId}`
             );
@@ -106,6 +134,50 @@ export async function POST(req: Request) {
         );
         // On ne fait pas échouer l'inscription si l'invitation échoue
       }
+    }
+
+    // Envoyer un email de bienvenue
+    try {
+      const hasOrganization = !!inviteCode;
+      let organizationName: string | undefined;
+      let organizationPublicId: string | undefined;
+
+      // Si l'utilisateur a une organisation, récupérer ses informations
+      if (hasOrganization) {
+        const userOrganizations = await prisma.organizationMember.findMany({
+          where: { userUid: newUser.uid },
+          include: { organization: true },
+        });
+
+        if (userOrganizations.length > 0) {
+          const firstOrg = userOrganizations[0].organization;
+          organizationName = firstOrg.name;
+          organizationPublicId = firstOrg.publicId || undefined;
+        }
+      }
+
+      const welcomeData = {
+        userName:
+          `${firstname || ""} ${lastname || ""}`.trim() || "Utilisateur",
+        hasOrganization,
+        organizationName,
+        organizationPublicId,
+      };
+
+      const recipientName =
+        `${firstname || ""} ${lastname || ""}`.trim() || "Utilisateur";
+
+      WelcomeEmailService.sendWelcomeEmailAsync(
+        newUser.email,
+        recipientName,
+        welcomeData
+      );
+    } catch (welcomeEmailError) {
+      console.error(
+        "Erreur lors de l'envoi de l'email de bienvenue:",
+        welcomeEmailError
+      );
+      // Ne pas faire échouer la création du compte si l'email échoue
     }
 
     return NextResponse.json({

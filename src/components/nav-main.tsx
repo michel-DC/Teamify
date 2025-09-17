@@ -14,9 +14,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 export function NavMain({
   items,
@@ -55,11 +55,16 @@ export function NavMain({
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start h-7 px-2 text-sm"
+                        asChild
+                      >
                         <a href={subItem.url}>
                           <span>{subItem.title}</span>
                         </a>
-                      </SidebarMenuSubButton>
+                      </Button>
                     </SidebarMenuSubItem>
                   ))}
                 </SidebarMenuSub>

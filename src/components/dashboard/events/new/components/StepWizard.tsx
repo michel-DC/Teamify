@@ -60,7 +60,8 @@ export function StepWizard({
         // La validation détaillée des contraintes de temps est gérée dans Step2
         return !!(formData.startDate && formData.endDate && formData.location);
       case "capacity-budget":
-        return !!(formData.capacity && formData.budget && formData.status);
+        // Le statut est maintenant calculé automatiquement, on ne vérifie que la capacité et le budget
+        return !!(formData.capacity && formData.budget);
       case "configuration":
         return true; // Toujours complète car valeurs par défaut
       case "summary":

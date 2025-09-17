@@ -13,8 +13,9 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Teamify · Gestion d'événements en équipe",
-  description: "Avec teamify ...",
+  title: "Teamify - Gestion d'événements en équipe",
+  description:
+    "Avec teamify vous pouvez gérer vos événements en équipe de manière simple et efficace.",
 };
 
 export default function RootLayout({

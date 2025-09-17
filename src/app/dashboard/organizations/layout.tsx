@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Teamify | Vos organisations",
-  description: "...",
+  title: "Gérer vos organisations - Teamify",
+  description: "Page de gestion des organisations sur Teamify",
 };
 
 export default function OrganizationsLayout({

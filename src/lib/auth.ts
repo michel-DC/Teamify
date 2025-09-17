@@ -34,19 +34,32 @@ export async function verifyToken(
  * Récupère l'utilisateur actuellement connecté via le token
  */
 export async function getCurrentUser() {
-  const cookieStore = cookies();
-  const token = (await cookieStore).get("token")?.value;
+  try {
+    const cookieStore = cookies();
+    const token = (await cookieStore).get("token")?.value;
 
-  if (!token) return null;
+    if (!token) {
+      return null;
+    }
 
-  const payload = await verifyToken(token);
-  if (!payload?.userUid) return null;
+    const payload = await verifyToken(token);
 
-  const user = await prisma.user.findUnique({
-    where: { uid: payload.userUid },
-  });
+    if (!payload?.userUid) {
+      return null;
+    }
 
-  return user;
+    const user = await prisma.user.findUnique({
+      where: { uid: payload.userUid },
+    });
+
+    return user;
+  } catch (error) {
+    console.error(
+      "[getCurrentUser] Erreur lors de la récupération de l'utilisateur:",
+      error
+    );
+    return null;
+  }
 }
 
 /**

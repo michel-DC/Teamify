@@ -4,7 +4,8 @@ import * as React from "react";
 import { TrendingUp, TrendingDown, Calendar, MapPin } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatEventStatus, formatDateToFrench } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { formatDateToFrench } from "@/lib/utils";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 
 /**
@@ -39,7 +40,21 @@ const extractCityName = (address: string): string => {
   return firstValidPart || "Ville inconnue";
 };
 
+const CardSkeleton = () => (
+  <Card className="border-2 shadow-lg bg-muted/60 animate-pulse">
+    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+      <Skeleton className="h-6 w-36 rounded bg-primary/30" />
+      <Skeleton className="h-6 w-6 rounded-full bg-primary/30" />
+    </CardHeader>
+    <CardContent>
+      <Skeleton className="h-10 w-24 mb-4 rounded bg-primary/20" />
+      <Skeleton className="h-4 w-32 rounded bg-primary/20" />
+    </CardContent>
+  </Card>
+);
+
 export function SectionCards() {
+  const [loading, setLoading] = React.useState(true);
   const [totalBudget, setTotalBudget] = React.useState<number | null>(null);
   const [eventCount, setEventCount] = React.useState<number | null>(null);
   const [mostCreatedCategory, setMostCreatedCategory] = React.useState<
@@ -143,11 +158,26 @@ export function SectionCards() {
         }
       } catch (error) {
         console.error("Error fetching events data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchEventsData();
   }, [activeOrganization]);
+
+  // Affichage des skeletons pendant le chargement
+  if (loading) {
+    return (
+      <div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 px-4 lg:px-6 mb-4">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <CardSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -155,14 +185,14 @@ export function SectionCards() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Nombre d&apos;évènements
+              Nombre d&apos;événements
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{eventCount ?? "—"}</div>
             <p className="text-xs text-muted-foreground">
-              Total des évènements
+              Total des événements
             </p>
           </CardContent>
         </Card>
@@ -205,7 +235,7 @@ export function SectionCards() {
           <CardContent>
             <div className="text-2xl font-bold">{mostPresentCity ?? "—"}</div>
             <p className="text-xs text-muted-foreground">
-              Où se déroulent le plus d&apos;évènements
+              Où se déroulent le plus d&apos;événements
             </p>
           </CardContent>
         </Card>
@@ -213,7 +243,7 @@ export function SectionCards() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Dernier évènement
+              Dernier événement
             </CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -226,7 +256,7 @@ export function SectionCards() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Évènements publics
+              Événements publics
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -239,7 +269,7 @@ export function SectionCards() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Évènements terminés
+              Événements terminés
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -252,7 +282,7 @@ export function SectionCards() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Évènements annulés
+              Événements annulés
             </CardTitle>
             <TrendingDown className="h-4 w-4 text-muted-foreground" />
           </CardHeader>

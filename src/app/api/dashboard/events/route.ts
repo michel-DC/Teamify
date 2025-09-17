@@ -6,6 +6,8 @@ import { nanoid } from "nanoid";
 import { uploadImage } from "@/lib/upload-utils";
 import { writeFile } from "fs";
 import { join } from "path";
+import { calculateEventStatus } from "@/lib/event-status-utils";
+import { createNotificationForOrganizationMembers } from "@/lib/notification-service";
 
 export async function POST(req: Request) {
   const user = await getCurrentUser();
@@ -24,7 +26,6 @@ export async function POST(req: Request) {
     location: formData.get("location"),
     locationCoords: formData.get("locationCoords"),
     capacity: formData.get("capacity"),
-    status: formData.get("status"),
     budget: formData.get("budget"),
     category: formData.get("category"),
     isPublic: formData.get("isPublic"),
@@ -40,7 +41,6 @@ export async function POST(req: Request) {
   const location = formData.get("location") as string;
   const locationCoordsRaw = formData.get("locationCoords") as string | null;
   const capacity = formData.get("capacity") as string;
-  const status = formData.get("status") as EventStatus;
   const budget = formData.get("budget")
     ? parseFloat(formData.get("budget") as string)
     : null;
@@ -49,6 +49,9 @@ export async function POST(req: Request) {
   const eventCode = formData.get("eventCode") as string;
   const file = formData.get("file") as File;
   const orgId = parseInt(formData.get("orgId") as string);
+
+  // Calcul automatique du statut basé sur les dates
+  const status = calculateEventStatus(startDate, endDate);
 
   // Parse locationCoords si fourni
   let locationCoords: any = null;
@@ -69,7 +72,7 @@ export async function POST(req: Request) {
     endDate,
     location,
     capacity,
-    status,
+    status: "Calculé automatiquement: " + status,
     budget,
     category,
     isPublic,
@@ -104,7 +107,6 @@ export async function POST(req: Request) {
     if (!location) missingFields.push("location");
     if (!imageUrl) missingFields.push("imageUrl");
     if (!capacity) missingFields.push("capacity");
-    if (!status) missingFields.push("status");
     if (!budget) missingFields.push("budget");
     if (!category) missingFields.push("category");
     if (!orgId || isNaN(orgId)) missingFields.push("orgId");
@@ -178,6 +180,21 @@ export async function POST(req: Request) {
 
       return newEvent;
     });
+
+    // Créer des notifications pour tous les membres de l'organisation
+    try {
+      await createNotificationForOrganizationMembers(orgId, {
+        notificationName: "Nouvel événement créé",
+        notificationDescription: `Un nouvel événement "${title}" a été créé dans l'organisation`,
+        notificationType: "INFO",
+        eventPublicId: event.publicId,
+      });
+    } catch (notificationError) {
+      console.error(
+        "Erreur lors de la création des notifications:",
+        notificationError
+      );
+    }
 
     return NextResponse.json(
       {
