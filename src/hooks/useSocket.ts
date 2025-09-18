@@ -150,7 +150,7 @@ export const useSocket = (options: UseSocketOptions = {}) => {
 
       const socketUrl =
         process.env.NEXT_PUBLIC_SOCKET_URL ||
-        "https://teamify-socket-server.up.railway.app";
+        "https://socket.teamify.onlinemichel.dev/";
 
       // Log pour le débogage
       if (process.env.NODE_ENV === "development") {
