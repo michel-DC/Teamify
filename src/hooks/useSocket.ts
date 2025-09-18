@@ -163,7 +163,7 @@ export const useSocket = (options: UseSocketOptions = {}) => {
       }
 
       const socket = io(socketUrl, {
-        path: "/socket.io/",
+        path: "/socket.io",
         withCredentials: true,
         transports: ["websocket", "polling"],
         autoConnect: true,
