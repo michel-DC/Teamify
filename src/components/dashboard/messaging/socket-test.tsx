@@ -8,31 +8,25 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Loader2, Wifi, WifiOff } from "lucide-react";
 
 /**
- * Composant de test pour vérifier la connexion Socket.IO
+ * Composant de test pour vérifier le système de polling
  */
 export const SocketTest = () => {
   const [testResults, setTestResults] = useState<any[]>([]);
   const [isRunning, setIsRunning] = useState(false);
 
-  const {
-    isConnected,
-    isConnecting,
-    error,
-    socket,
-    sendMessage,
-    joinConversation,
-  } = useSocket({
-    onMessage: (message) => {
-      addTestResult(
-        "✅ Message reçu",
-        `Message: ${message.content}`,
-        "success"
-      );
-    },
-    onError: (error) => {
-      addTestResult("❌ Erreur Socket.IO", error.message, "error");
-    },
-  });
+  const { isConnected, isConnecting, error, sendMessage, joinConversation } =
+    useSocket({
+      onMessage: (message) => {
+        addTestResult(
+          "✅ Message reçu",
+          `Message: ${message.content}`,
+          "success"
+        );
+      },
+      onError: (error) => {
+        addTestResult("❌ Erreur Polling", error.message, "error");
+      },
+    });
 
   const addTestResult = (
     title: string,
@@ -57,7 +51,7 @@ export const SocketTest = () => {
 
     addTestResult(
       "🧪 Début des tests",
-      "Initialisation des tests Socket.IO",
+      "Initialisation des tests de polling",
       "info"
     );
 
@@ -72,11 +66,9 @@ export const SocketTest = () => {
       isConnected ? "success" : isConnecting ? "info" : "error"
     );
 
-    // Test 2: Vérifier l'URL de connexion
-    const socketUrl =
-      process.env.NEXT_PUBLIC_SOCKET_URL ||
-      "https://socket.teamify.onlinemichel.dev";
-    addTestResult("🌐 URL Socket.IO", socketUrl, "info");
+    // Test 2: Vérifier l'URL de polling
+    const pollingUrl = "/api/polling";
+    addTestResult("🌐 URL Polling", pollingUrl, "info");
 
     // Test 3: Vérifier l'environnement
     addTestResult(
@@ -87,20 +79,37 @@ export const SocketTest = () => {
       "info"
     );
 
-    // Test 4: Test de ping si connecté
-    if (isConnected && socket) {
-      addTestResult("📡 Test de ping", "Envoi d'un ping au serveur...", "info");
+    // Test 4: Test de l'endpoint de polling
+    if (isConnected) {
+      addTestResult(
+        "📡 Test de polling",
+        "Test de l'endpoint de polling...",
+        "info"
+      );
 
       try {
-        socket.emit("ping", { message: "Test depuis l'interface" });
-        addTestResult("✅ Ping envoyé", "Ping envoyé avec succès", "success");
+        const response = await fetch("/api/polling?userId=test&timeout=1000");
+        if (response.ok) {
+          const data = await response.json();
+          addTestResult(
+            "✅ Polling OK",
+            `Réponse: ${JSON.stringify(data)}`,
+            "success"
+          );
+        } else {
+          addTestResult(
+            "❌ Erreur polling",
+            `Status: ${response.status}`,
+            "error"
+          );
+        }
       } catch (error) {
-        addTestResult("❌ Erreur ping", `Erreur: ${error}`, "error");
+        addTestResult("❌ Erreur polling", `Erreur: ${error}`, "error");
       }
     } else {
       addTestResult(
         "⚠️ Pas de connexion",
-        "Impossible de tester le ping",
+        "Impossible de tester le polling",
         "error"
       );
     }
@@ -127,6 +136,25 @@ export const SocketTest = () => {
       }
     }
 
+    // Test 6: Test d'envoi de message
+    if (isConnected && sendMessage) {
+      addTestResult("📨 Test d'envoi", "Test d'envoi de message...", "info");
+
+      try {
+        const result = sendMessage({
+          conversationId: "test-conversation",
+          content: "Message de test",
+        });
+        addTestResult(
+          result ? "✅ Message envoyé" : "❌ Échec envoi",
+          result ? "Message de test envoyé" : "Impossible d'envoyer le message",
+          result ? "success" : "error"
+        );
+      } catch (error) {
+        addTestResult("❌ Erreur envoi", `Erreur: ${error}`, "error");
+      }
+    }
+
     setIsRunning(false);
   };
 
@@ -139,7 +167,7 @@ export const SocketTest = () => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Wifi className="h-5 w-5" />
-          Test Socket.IO
+          Test Polling
           <Badge variant={isConnected ? "default" : "destructive"}>
             {isConnected
               ? "Connecté"

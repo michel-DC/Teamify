@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import {
+  addPendingMessage,
+  broadcastToConversation,
+} from "@/lib/polling-server";
 
 /**
  * Route API pour récupérer les messages d'une conversation
@@ -159,7 +163,8 @@ export async function POST(
 
     console.log(`[conversations/messages] Message créé:`, message.id);
 
-    return NextResponse.json({
+    // Diffuser le message via le système de polling
+    const messageData = {
       id: message.id,
       conversationId: message.conversationId,
       senderId: message.senderId,
@@ -167,7 +172,27 @@ export async function POST(
       attachments: message.attachments,
       createdAt: message.createdAt,
       sender: message.sender,
-    });
+    };
+
+    // Créer un message de polling pour la diffusion
+    const pollingMessage = {
+      id: `msg_${message.id}`,
+      type: "message:new" as const,
+      data: messageData,
+      timestamp: new Date().toISOString(),
+      userId: user.uid,
+      conversationId: conversationId,
+    };
+
+    console.log(
+      `[conversations/messages] Diffusion du message via polling:`,
+      message.id
+    );
+
+    // Diffuser à tous les membres de la conversation
+    await broadcastToConversation(conversationId, pollingMessage);
+
+    return NextResponse.json(messageData);
   } catch (error) {
     console.error("[conversations/messages] Erreur création:", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

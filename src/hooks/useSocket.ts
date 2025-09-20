@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { io, Socket } from "socket.io-client";
 import { useAuth } from "./useAuth";
+import { usePolling } from "./usePolling";
 
 /**
  * Types pour les événements Socket.IO côté client
@@ -84,7 +84,8 @@ interface UseSocketOptions {
 }
 
 /**
- * Hook pour gérer la connexion Socket.IO
+ * Hook pour gérer la connexion en temps réel via polling
+ * Compatible avec Vercel et les API Routes Next.js
  */
 export const useSocket = (options: UseSocketOptions = {}) => {
   const {
@@ -96,266 +97,29 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     onConversationJoined,
   } = options;
 
-  const { checkAuth } = useAuth();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-  const socketRef = useRef<Socket<
-    ServerToClientEvents,
-    ClientToServerEvents
-  > | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Utiliser le hook de polling en arrière-plan
+  // currentUserId est optionnel car usePolling s'authentifie automatiquement
+  const polling = usePolling({
+    autoConnect,
+    currentUserId, // Peut être undefined, usePolling gérera l'authentification
+    onMessage,
+    onMessageRead,
+    onError,
+    onConversationJoined,
+    pollingInterval: 2000, // Polling toutes les 2 secondes
+  });
 
-  // Utiliser des refs pour les callbacks pour éviter les re-renders
-  const onMessageRef = useRef(onMessage);
-  const onMessageReadRef = useRef(onMessageRead);
-  const onErrorRef = useRef(onError);
-  const onConversationJoinedRef = useRef(onConversationJoined);
-
-  // Mettre à jour les refs quand les callbacks changent
-  useEffect(() => {
-    onMessageRef.current = onMessage;
-  }, [onMessage]);
-
-  useEffect(() => {
-    onMessageReadRef.current = onMessageRead;
-  }, [onMessageRead]);
-
-  useEffect(() => {
-    onErrorRef.current = onError;
-  }, [onError]);
-
-  useEffect(() => {
-    onConversationJoinedRef.current = onConversationJoined;
-  }, [onConversationJoined]);
-
-  /**
-   * Initialise la connexion Socket.IO
-   */
-  const connect = useCallback(() => {
-    if (socketRef.current?.connected) {
-      return;
-    }
-
-    setIsConnecting(true);
-    setError(null);
-
-    try {
-      // Déterminer l'URL du serveur Socket.IO
-      const isProduction = process.env.NODE_ENV === "production";
-      const isLocalhost =
-        typeof window !== "undefined" &&
-        window.location.hostname === "localhost";
-
-      const socketUrl =
-        process.env.NEXT_PUBLIC_SOCKET_URL ||
-        "https://teamify-socket-server.up.railway.app";
-
-      // Log pour le débogage
-      if (process.env.NODE_ENV === "development") {
-        console.log("🔌 Connexion Socket.IO:", {
-          environment: process.env.NODE_ENV,
-          socketUrl,
-          isProduction,
-          hasEnvVar: !!process.env.NEXT_PUBLIC_SOCKET_URL,
-        });
-      }
-
-      const socket = io(socketUrl, {
-        path: "/socket.io",
-        withCredentials: true,
-        transports: ["polling"],
-        autoConnect: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-      });
-
-      socket.on("connect", () => {
-        setIsConnected(true);
-        setIsConnecting(false);
-        setError(null);
-      });
-
-      socket.on("disconnect", (reason) => {
-        setIsConnected(false);
-        setIsConnecting(false);
-      });
-
-      socket.on("connect_error", (error) => {
-        setError(error.message);
-        setIsConnecting(false);
-        setIsConnected(false);
-      });
-
-      socket.on("message:new", (data) => {
-        onMessageRef.current?.(data);
-      });
-
-      socket.on("message:read", (data) => {
-        onMessageReadRef.current?.(data);
-      });
-
-      socket.on("conversation:joined", (data) => {
-        onConversationJoinedRef.current?.(data);
-      });
-
-      socket.on("error", (errorData) => {
-        setError(errorData.message);
-        onErrorRef.current?.(errorData);
-      });
-
-      socketRef.current = socket;
-    } catch (error) {
-      setError("Erreur lors de l'initialisation de la connexion");
-      setIsConnecting(false);
-    }
-  }, [token, isAuthenticated]);
-
-  /**
-   * Déconnecte le socket
-   */
-  const disconnect = useCallback(() => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-      socketRef.current = null;
-      setIsConnected(false);
-      setIsConnecting(false);
-    }
-  }, []);
-
-  /**
-   * Envoie un message avec mise à jour optimiste
-   */
-  const sendMessage = useCallback(
-    (data: { conversationId: string; content: string; attachments?: any }) => {
-      if (!socketRef.current?.connected) {
-        return false;
-      }
-
-      try {
-        const userId = currentUserId || "current_user";
-
-        const tempMessage: MessageData = {
-          id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          conversationId: data.conversationId,
-          senderId: userId,
-          content: data.content,
-          attachments: data.attachments,
-          createdAt: new Date(),
-          sender: {
-            uid: userId,
-            firstname: "Vous",
-            lastname: "",
-            profileImage: null,
-          },
-        };
-
-        onMessageRef.current?.(tempMessage);
-        socketRef.current.emit("message:send", data);
-        return true;
-      } catch (error) {
-        return false;
-      }
-    },
-    [currentUserId]
-  );
-
-  /**
-   * Marque un message comme lu
-   */
-  const markMessageAsRead = useCallback((messageId: string) => {
-    if (!socketRef.current?.connected) {
-      return false;
-    }
-
-    try {
-      socketRef.current.emit("message:read", { messageId });
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }, []);
-
-  /**
-   * Rejoint une conversation
-   */
-  const joinConversation = useCallback((conversationId: string) => {
-    if (!socketRef.current?.connected) {
-      return false;
-    }
-
-    try {
-      socketRef.current.emit("join:conversation", { conversationId });
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }, []);
-
-  /**
-   * Quitte une conversation
-   */
-  const leaveConversation = useCallback((conversationId: string) => {
-    if (!socketRef.current?.connected) {
-      return false;
-    }
-
-    try {
-      socketRef.current.emit("leave:conversation", { conversationId });
-      return true;
-    } catch (error) {
-      return false;
-    }
-  }, []);
-
-  /**
-   * Vérification de l'authentification au montage
-   */
-  useEffect(() => {
-    const verifyAuth = async () => {
-      const authResult = await checkAuth();
-      setIsAuthenticated(authResult.isAuthenticated);
-
-      if (authResult.isAuthenticated) {
-        setToken("authenticated");
-      } else {
-        setToken(null);
-      }
-    };
-
-    verifyAuth();
-  }, [checkAuth]);
-
-  /**
-   * Gestion de la connexion automatique
-   */
-  useEffect(() => {
-    if (autoConnect && isAuthenticated && token) {
-      connect();
-    }
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-        socketRef.current = null;
-        setIsConnected(false);
-        setIsConnecting(false);
-      }
-    };
-  }, [autoConnect, isAuthenticated, token, connect]);
-
+  // Adapter l'interface pour maintenir la compatibilité
   return {
-    socket: socketRef.current,
-    isConnected,
-    isConnecting,
-    error,
-    connect,
-    disconnect,
-    sendMessage,
-    markMessageAsRead,
-    joinConversation,
-    leaveConversation,
+    socket: null, // Pas de socket réel avec le polling
+    isConnected: polling.isConnected,
+    isConnecting: polling.isConnecting,
+    error: polling.error,
+    connect: polling.connect,
+    disconnect: polling.disconnect,
+    sendMessage: polling.sendMessage,
+    markMessageAsRead: polling.markMessageAsRead,
+    joinConversation: polling.joinConversation,
+    leaveConversation: polling.leaveConversation,
   };
 };
