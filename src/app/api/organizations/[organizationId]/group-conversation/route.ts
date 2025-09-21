@@ -91,6 +91,11 @@ export async function GET(
               profileImage: true,
             },
           },
+          organization: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
 
@@ -100,7 +105,7 @@ export async function GET(
       conversation = await prisma.conversation.create({
         data: {
           type: "GROUP",
-          title: "Groupe de discussion",
+          title: `Groupe ${organizationMembers[0].organization.name} `,
           organizationId: parseInt(organizationId),
           members: {
             create: organizationMembers.map((member) => ({
