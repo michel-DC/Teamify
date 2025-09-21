@@ -3,4 +3,5 @@ export { ProfileSection } from "./profile-section";
 export { OrganizationsSection } from "./organizations-section";
 export { SecuritySection } from "./security-section";
 export { DeleteAccountSection } from "./delete-account-section";
-export { LocationSearch, UserLocation } from "./location-search";
+export { LocationSearch } from "./location-search";
+export type { UserLocation } from "./location-search";

@@ -1,0 +1,41 @@
+# Configuration Railway pour Teamify
+# Application Next.js + Socket.IO unifiée
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+# Commande de démarrage en production - Next.js + Socket.IO unifiés
+startCommand = "node server.js"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10
+
+# Configuration des environnements
+[environments.production]
+variables = { NODE_ENV = "production" }
+
+[environments.staging]
+variables = { NODE_ENV = "production" }
+
+# Configuration pour le développement local
+[environments.development]
+variables = { NODE_ENV = "development" }
+
+# Scripts de développement disponibles
+[scripts]
+# Développement complet (Next.js + Socket.IO unifiés)
+dev = "node server.js"
+
+# Développement Next.js uniquement (sans Socket.IO)
+dev:next = "pnpm dev"
+
+# Build de production
+build = "pnpm build"
+
+# Démarrage de production (Next.js + Socket.IO unifiés)
+start = "node server.js"
+
+# Démarrage Next.js uniquement (sans Socket.IO)
+start:next = "pnpm start"
