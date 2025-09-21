@@ -29,7 +29,7 @@ variables = { NODE_ENV = "development" }
 dev = "node server.js"
 
 # Développement Next.js uniquement (sans Socket.IO)
-dev:next = "pnpm dev"
+dev-next = "pnpm dev"
 
 # Build de production
 build = "pnpm build"
@@ -38,4 +38,4 @@ build = "pnpm build"
 start = "node server.js"
 
 # Démarrage Next.js uniquement (sans Socket.IO)
-start:next = "pnpm start"
+start-next = "pnpm start"
