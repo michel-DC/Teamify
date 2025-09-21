@@ -142,11 +142,12 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     setError(null);
 
     try {
+      // En production, utiliser la même URL que l'application Next.js
+      // En développement, utiliser localhost:3000 (même port que Next.js)
       const socketUrl =
         process.env.NODE_ENV === "production"
-          ? process.env.NEXT_PUBLIC_SOCKET_URL ||
-            window.location.origin.replace("3000", "3001")
-          : "http://localhost:3001";
+          ? window.location.origin
+          : "http://localhost:3000";
 
       const socket = io(socketUrl, {
         withCredentials: true,
