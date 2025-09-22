@@ -8,12 +8,13 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:socket": "node server.js",
-    "dev:full": "concurrently \"pnpm dev\" \"pnpm dev:socket\"",
-    "build": "prisma generate --no-engine && next build",
+    "dev:unified": "node server.js",
+    "dev:full": "concurrently \"pnpm dev\" \"pnpm dev:unified\"",
+    "build": "node scripts/pre-build.js && next build",
+    "build:prisma": "prisma generate",
     "start": "next start",
-    "start:socket": "NODE_ENV=production node server.js",
-    "start:full": "concurrently \"pnpm start\" \"pnpm start:socket\"",
+    "start:unified": "NODE_ENV=production node server.js",
+    "start:full": "concurrently \"pnpm start\" \"pnpm start:unified\"",
     "lint": "next lint",
     "db:seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate"
