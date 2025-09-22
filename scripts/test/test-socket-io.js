@@ -6,7 +6,8 @@
 import { io } from "socket.io-client";
 
 // Configuration
-const SERVER_URL = process.env.SOCKET_SERVER_URL || "http://localhost:3001";
+const SERVER_URL =
+  process.env.SOCKET_SERVER_URL || "https://socket.teamify.onlinemichel.dev";
 const TEST_TOKEN = process.env.TEST_JWT_TOKEN || "test_token"; // Token JWT valide pour les tests
 
 /**

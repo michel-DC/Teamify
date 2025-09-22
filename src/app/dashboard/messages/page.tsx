@@ -7,6 +7,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { ConversationSidebar } from "@/components/dashboard/messaging/conversation-sidebar";
 import { ConversationView } from "@/components/dashboard/messaging/conversation-view";
 import { EmptyConversationState } from "@/components/dashboard/messaging/empty-conversation-state";
+import { SocketDebug } from "@/components/dashboard/messaging/socket-debug";
+import { SocketTest } from "@/components/dashboard/messaging/socket-test";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Menu } from "lucide-react";
 
@@ -147,6 +149,14 @@ export default function MessagesPage() {
             />
           )}
         </div>
+      </div>
+
+      {/* Composant de débogage Socket.IO */}
+      <SocketDebug />
+
+      {/* Composant de test Socket.IO */}
+      <div className="fixed bottom-4 left-4 z-50">
+        <SocketTest />
       </div>
     </div>
   );
