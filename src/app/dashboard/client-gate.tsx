@@ -33,6 +33,9 @@ export default function ClientGate({ children }: ClientGateProps) {
         if (!isLoggedIn) {
           setAuthChecked(false);
           setRedirecting(true);
+
+          // Redirection immédiate si pas de connexion
+          router.replace("/auth/login");
           return;
         }
 
@@ -55,6 +58,7 @@ export default function ClientGate({ children }: ClientGateProps) {
 
           // Nettoyer le localStorage si l'authentification échoue définitivement
           localStorage.removeItem("isLoggedIn");
+          localStorage.removeItem("hasOrganization");
 
           if (!toastShownRef.current) {
             toastShownRef.current = true;
