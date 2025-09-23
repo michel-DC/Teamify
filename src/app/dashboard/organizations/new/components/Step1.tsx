@@ -32,7 +32,7 @@ export default function Step1({
       <Button
         onClick={handleNext}
         disabled={!formData.name}
-        className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
+        className="w-full px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg rounded-md font-medium transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
       >
         Suivant
       </Button>

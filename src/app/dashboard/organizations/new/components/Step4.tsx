@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { StepProps } from "@/types/steps";
 import { Button } from "@/components/ui/button";
 
@@ -12,9 +12,15 @@ export default function Step4({
 }: StepProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<
-    Array<{ display_name: string; lat: string; lon: string }>
+    Array<{
+      city: string;
+      coordinates: { lat: number; lon: number };
+      displayName: string;
+    }>
   >([]);
   const [loading, setLoading] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   /**
    * Initialisation du champ avec la ville déjà sélectionnée si elle existe
@@ -34,28 +40,36 @@ export default function Step4({
     async function fetchCities() {
       if (!debouncedQuery || debouncedQuery.length < 2) {
         setResults([]);
+        setShowResults(false);
         return;
       }
       setLoading(true);
       try {
-        const url = `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${encodeURIComponent(
-          debouncedQuery
-        )}&accept-language=fr`;
-        const res = await fetch(url, {
-          signal: controller.signal,
-          headers: {
-            Accept: "application/json",
-            "User-Agent": "teamify.com/1.0 ",
-            Referer: "teamify-site.vercel.app",
-          },
-        });
-        if (res.ok) {
-          const data = (await res.json()) as Array<{
-            display_name: string;
-            lat: string;
-            lon: string;
-          }>;
-          setResults(data);
+        // Utiliser l'API de géocodage existante qui filtre déjà les résultats
+        const response = await fetch(
+          `/api/geocoding/search?q=${encodeURIComponent(debouncedQuery)}`,
+          {
+            signal: controller.signal,
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          // Filtrer uniquement les villes françaises
+          const frenchCities = (data.results || []).filter((city: any) => {
+            const displayName = city.displayName?.toLowerCase() || "";
+            return (
+              displayName.includes("france") ||
+              displayName.includes("french") ||
+              displayName.includes("fr,") ||
+              displayName.includes(", france")
+            );
+          });
+          setResults(frenchCities);
+          setShowResults(true);
         }
       } catch {
         // ignore
@@ -71,6 +85,25 @@ export default function Step4({
     };
   }, [debouncedQuery]);
 
+  /**
+   * Masquer les résultats quand on clique en dehors
+   */
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowResults(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const handleNext = () => {
     if (next) next();
   };
@@ -80,22 +113,23 @@ export default function Step4({
   };
 
   const handleSelect = (r: {
-    display_name: string;
-    lat: string;
-    lon: string;
+    city: string;
+    coordinates: { lat: number; lon: number };
+    displayName: string;
   }) => {
     setFormData({
       ...formData,
       location: {
-        city: r.display_name,
-        lat: parseFloat(r.lat),
-        lon: parseFloat(r.lon),
-        displayName: r.display_name,
+        city: r.city,
+        lat: r.coordinates.lat,
+        lon: r.coordinates.lon,
+        displayName: r.displayName,
       },
     });
 
-    setQuery(r.display_name);
+    setQuery(r.city);
     setResults([]);
+    setShowResults(false);
   };
 
   return (
@@ -104,35 +138,37 @@ export default function Step4({
         Dans quelle ville êtes-vous situé ?
       </h2>
       <input
+        ref={inputRef}
         type="text"
         className="w-full p-2 border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onFocus={() => {
+          if (results.length > 0) {
+            setShowResults(true);
+          }
+        }}
         placeholder="Saisissez une ville (ex: Paris)"
         aria-autocomplete="list"
         aria-controls="city-suggestions"
       />
       {loading && <p className="text-sm text-muted-foreground">Recherche...</p>}
-      {results.length > 0 && (
-        <ul
-          id="city-suggestions"
-          className="max-h-48 overflow-auto border border-border rounded-md divide-y"
-        >
+      {showResults && results.length > 0 && (
+        <div className="max-h-48 overflow-auto border border-border rounded-md divide-y bg-white dark:bg-gray-800">
           {results.map((r, idx) => (
-            <li
-              key={`${r.lat}-${r.lon}-${idx}`}
-              role="option"
-              tabIndex={0}
-              className="p-2 hover:bg-accent cursor-pointer text-foreground"
+            <button
+              key={`${r.coordinates.lat}-${r.coordinates.lon}-${idx}`}
+              type="button"
+              className="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600 last:border-b-0 transition-colors"
               onClick={() => handleSelect(r)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSelect(r);
-              }}
             >
-              {r.display_name}
-            </li>
+              <div className="font-medium text-sm">{r.city}</div>
+              <div className="text-xs text-muted-foreground truncate">
+                {r.displayName}
+              </div>
+            </button>
           ))}
-        </ul>
+        </div>
       )}
 
       <div className="flex justify-between gap-4">
@@ -145,7 +181,7 @@ export default function Step4({
         <Button
           onClick={handleNext}
           disabled={!formData.location}
-          className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
+          className="px-4 py-2 text-sm font-medium bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg rounded-md transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none"
         >
           Suivant
         </Button>

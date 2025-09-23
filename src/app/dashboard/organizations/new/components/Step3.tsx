@@ -39,7 +39,7 @@ export default function Step3({ next, prev, setFormData }: StepProps) {
         </Button>
         <Button
           onClick={handleNext}
-          className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary/90 transition-all duration-200"
+          className="px-4 py-2 text-sm font-medium bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg rounded-md transition-all duration-200"
         >
           Suivant
         </Button>

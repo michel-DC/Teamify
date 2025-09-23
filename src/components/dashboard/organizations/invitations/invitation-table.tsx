@@ -283,7 +283,7 @@ export default function InvitationTable({
 
   if (loading) {
     return (
-      <Card>
+      <Card className="bg-background">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
@@ -313,7 +313,7 @@ export default function InvitationTable({
   }
 
   return (
-    <Card>
+    <Card className="bg-background">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -345,7 +345,7 @@ export default function InvitationTable({
             <Button
               onClick={() => setInviteDialogOpen(true)}
               size="sm"
-              className="gap-2"
+              className="gap-2 bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg"
             >
               <UserPlus className="h-4 w-4" />
               Envoyer une invitation
@@ -390,7 +390,7 @@ export default function InvitationTable({
               Aucune invitation envoyée pour votre organisation
             </p>
             <Button
-              className="mt-4 gap-2"
+              className="mt-4 gap-2 bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg"
               onClick={() => setInviteDialogOpen(true)}
             >
               <UserPlus className="h-4 w-4" />
@@ -465,7 +465,11 @@ export default function InvitationTable({
               >
                 Annuler
               </Button>
-              <Button type="submit" disabled={sending}>
+              <Button
+                type="submit"
+                disabled={sending}
+                className="bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg"
+              >
                 {sending ? "Envoi en cours..." : "Envoyer l'invitation"}
               </Button>
             </DialogFooter>
