@@ -148,9 +148,9 @@ export const RegisterForm = () => {
 
             <form
               onSubmit={handleSubmit}
-              className="space-y-5 sm:space-y-6 w-full border border-border rounded-lg p-6 sm:p-8 bg-card mt-6"
+              className="space-y-3 sm:space-y-4 w-full border border-border rounded-lg p-4 sm:p-6 bg-card mt-4"
             >
-              <div className="space-y-4 sm:space-y-5">
+              <div className="space-y-3 sm:space-y-4">
                 {/* Bouton de retour */}
                 <Link
                   href="/"
@@ -219,7 +219,7 @@ export const RegisterForm = () => {
                 </div>
 
                 {/* Champs Prénom et Nom côte à côte */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstname" className="text-sm sm:text-base">
                       Prénom
@@ -269,7 +269,7 @@ export const RegisterForm = () => {
                 </div>
 
                 {/* Champs Mot de passe et Confirmation côte à côte sur md+ */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="password" className="text-sm sm:text-base">
                       Mot de passe
@@ -346,7 +346,7 @@ export const RegisterForm = () => {
               )}
 
               {/* Bouton de soumission */}
-              <div className="flex justify-end pt-4 sm:pt-6">
+              <div className="flex justify-end pt-3 sm:pt-4">
                 <Button
                   type="submit"
                   className="w-full h-11 sm:h-12 text-sm sm:text-base bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg"
@@ -357,7 +357,7 @@ export const RegisterForm = () => {
               </div>
 
               {/* Lien de connexion */}
-              <div className="text-center text-xs sm:text-sm text-muted-foreground mt-6">
+              <div className="text-center text-xs sm:text-sm text-muted-foreground mt-4">
                 Déjà un compte ?{" "}
                 <Link
                   href="/auth/login"

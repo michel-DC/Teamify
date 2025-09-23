@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Votre messagerie groupe - Teamify",
+  title: "Votre messagerie de groupe - Teamify",
   description: "Page de messagerie sur Teamify",
 };
 

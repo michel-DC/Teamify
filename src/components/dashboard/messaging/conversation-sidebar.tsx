@@ -179,7 +179,7 @@ export const ConversationSidebar = ({
         {/* Bouton créer conversation */}
         <Button
           onClick={() => setIsCreateDialogOpen(true)}
-          className="w-full mt-3"
+          className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg"
           size="sm"
         >
           <Plus className="h-4 w-4 mr-2" />
