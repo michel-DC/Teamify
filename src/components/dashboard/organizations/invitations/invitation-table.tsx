@@ -283,7 +283,7 @@ export default function InvitationTable({
 
   if (loading) {
     return (
-      <Card className="bg-background">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
@@ -313,7 +313,7 @@ export default function InvitationTable({
   }
 
   return (
-    <Card className="bg-background">
+    <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">

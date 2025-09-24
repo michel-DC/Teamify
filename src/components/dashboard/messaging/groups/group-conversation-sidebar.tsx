@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useGroupConversations } from "@/hooks/useGroupConversations";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/Input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Search, X, Users } from "lucide-react";
+import { MessageCircle, X, Users } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { OrganizationInfo } from "./organization-info";
 
@@ -102,7 +101,7 @@ export const GroupConversationSidebar = ({
             onClick={onCloseSidebar}
             className="md:hidden"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 text-[#7C3AED]" />
           </Button>
         </div>
       </div>
@@ -123,7 +122,7 @@ export const GroupConversationSidebar = ({
         ) : conversationsError ? (
           <div className="flex items-center justify-center h-32">
             <div className="text-center">
-              <MessageCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <MessageCircle className="h-8 w-8  mx-auto mb-2 text-[#7C3AED] " />
               <p className="text-sm text-muted-foreground">
                 Erreur lors du chargement
               </p>
@@ -132,7 +131,7 @@ export const GroupConversationSidebar = ({
         ) : filteredConversations.length === 0 ? (
           <div className="flex items-center justify-center h-32">
             <div className="text-center">
-              <Users className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <Users className="h-8 w-8 text-[#7C3AED]  mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">
                 {searchQuery
                   ? "Aucune conversation trouvée"
@@ -182,13 +181,13 @@ export const GroupConversationSidebar = ({
                           </h3>
                           <div className="flex items-center gap-2 flex-shrink-0">
                             <Badge variant="secondary" className="text-xs">
-                              <Users className="h-3 w-3 mr-1" />
+                              <Users className="h-3 w-3 mr-1 text-[#7C3AED]" />
                               {getMemberCount(conversation)}
                             </Badge>
                             {conversation.unreadCount > 0 && (
                               <Badge
                                 variant="destructive"
-                                className="h-5 w-5 p-0 flex items-center justify-center text-xs"
+                                className="h-5 w-5 p-0 flex items-center justify-center text-xs text-[#7C3AED]"
                               >
                                 {conversation.unreadCount}
                               </Badge>
