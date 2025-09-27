@@ -155,17 +155,17 @@ export function PerformanceMetrics() {
   }, [activeOrganization]);
 
   const getMetricColor = (value: number, threshold: number = 70) => {
-    if (value >= threshold) return "text-green-600";
-    if (value >= threshold * 0.8) return "text-yellow-600";
-    return "text-red-600";
+    if (value >= threshold) return "text-foreground";
+    if (value >= threshold * 0.8) return "text-foreground";
+    return "text-foreground";
   };
 
   const getMetricIcon = (value: number, threshold: number = 70) => {
     if (value >= threshold)
-      return <TrendingUp className="h-4 w-4 text-green-600" />;
+      return <TrendingUp className="h-4 w-4 text-foreground" />;
     if (value >= threshold * 0.8)
-      return <AlertTriangle className="h-4 w-4 text-yellow-600" />;
-    return <TrendingDown className="h-4 w-4 text-red-600" />;
+      return <AlertTriangle className="h-4 w-4 text-foreground" />;
+    return <TrendingDown className="h-4 w-4 text-foreground" />;
   };
 
   if (loading) {
@@ -246,7 +246,7 @@ export function PerformanceMetrics() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Note moyenne</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-4 w-4" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">

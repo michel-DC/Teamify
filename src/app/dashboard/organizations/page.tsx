@@ -33,7 +33,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -333,7 +332,7 @@ export default function OrganizationsDashboardPage() {
 
         {/* Statistiques principales */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card className="bg-background border-1 border-[#7C3AED] ">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Organisations
@@ -350,7 +349,7 @@ export default function OrganizationsDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-background border-1 border-[#7C3AED]">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Membres</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
@@ -363,7 +362,7 @@ export default function OrganizationsDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-background border-1 border-[#7C3AED]">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Événements</CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -378,7 +377,7 @@ export default function OrganizationsDashboardPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-background border-1 border-[#7C3AED]">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Invitations</CardTitle>
               <Mail className="h-4 w-4 text-muted-foreground" />
@@ -397,7 +396,7 @@ export default function OrganizationsDashboardPage() {
         {/* Statistiques détaillées */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {/* Statistiques des événements */}
-          <Card className="bg-background">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Statut des événements
@@ -427,7 +426,7 @@ export default function OrganizationsDashboardPage() {
           </Card>
 
           {/* Statistiques des tâches */}
-          <Card className="bg-background">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Tâches de préparation
@@ -457,7 +456,7 @@ export default function OrganizationsDashboardPage() {
           </Card>
 
           {/* Statistiques financières */}
-          <Card className="bg-background">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Budget total
@@ -475,7 +474,7 @@ export default function OrganizationsDashboardPage() {
           </Card>
 
           {/* Statistiques géographiques */}
-          <Card className="bg-background">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Événements localisés
@@ -493,7 +492,7 @@ export default function OrganizationsDashboardPage() {
           </Card>
 
           {/* Capacité moyenne */}
-          <Card className="bg-background">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Capacité moyenne
@@ -511,7 +510,7 @@ export default function OrganizationsDashboardPage() {
           </Card>
 
           {/* Activité récente */}
-          <Card className="bg-background">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Activité ce mois
@@ -536,7 +535,7 @@ export default function OrganizationsDashboardPage() {
         </div>
 
         {/* Répartition par type d'organisation */}
-        <Card className="bg-background">
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg">
               Répartition par type d'organisation
@@ -577,7 +576,7 @@ export default function OrganizationsDashboardPage() {
               return (
                 <Card
                   key={org.id}
-                  className="hover:shadow-md transition-shadow relative bg-background"
+                  className="hover:shadow-md transition-shadow relative"
                 >
                   <CardHeader>
                     <div className="flex items-start justify-between">

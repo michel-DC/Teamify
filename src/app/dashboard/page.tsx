@@ -1,6 +1,5 @@
 "use client";
 
-import { Toaster } from "sonner";
 import { MainDashboardStats } from "@/components/dashboard/main-dashboard-stats";
 import { RecentActivities } from "@/components/dashboard/recent-activities";
 import { QuickActions } from "@/components/dashboard/quick-actions";

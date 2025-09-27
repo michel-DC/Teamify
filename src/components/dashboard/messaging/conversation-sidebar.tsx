@@ -228,10 +228,10 @@ export const ConversationSidebar = ({
                   key={conversation.id}
                   onClick={() => onConversationSelect(conversation.id)}
                   className={`
-                    p-2 rounded-lg cursor-pointer transition-colors border
+                    p-2 rounded-lg cursor-pointer transition-colors border bg-white
                     ${
                       selectedConversationId === conversation.id
-                        ? "bg-background ring-offset-background file:border-0 file:bg-transparent border-2 border-accent"
+                        ? "bg-white border-2 border-accent"
                         : "border-border hover:bg-muted"
                     }
                   `}

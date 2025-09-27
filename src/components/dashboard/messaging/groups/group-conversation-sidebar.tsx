@@ -163,10 +163,10 @@ export const GroupConversationSidebar = ({
                     key={conversation.id}
                     onClick={() => onConversationSelect(conversation.id)}
                     className={`
-                      p-2 rounded-lg cursor-pointer transition-colors border
+                      p-2 rounded-lg cursor-pointer transition-colors border bg-white
                       ${
                         selectedConversationId === conversation.id
-                          ? "bg-muted/50 border-2 border-accent"
+                          ? "bg-white border-2 border-accent"
                           : "border-border hover:bg-muted"
                       }
                     `}

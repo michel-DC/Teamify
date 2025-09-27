@@ -50,7 +50,12 @@ export function Step4({
         <Button type="button" variant="outline" onClick={onPrev}>
           Retour
         </Button>
-        <Button type="button" onClick={onNext} disabled={!isStepComplete}>
+        <Button
+          type="button"
+          onClick={onNext}
+          disabled={!isStepComplete}
+          className="bg-[#7C3AED] hover:bg-[#7C3AED]/90 text-white border border-[#7C3AED] shadow-lg"
+        >
           Suivant
         </Button>
       </div>
