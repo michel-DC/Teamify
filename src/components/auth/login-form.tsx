@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LoadingScreen } from "@/components/ui/Loader";
 import { useTheme } from "@/components/theme-provider";

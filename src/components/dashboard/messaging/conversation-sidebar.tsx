@@ -35,6 +35,8 @@ export const ConversationSidebar = ({
     conversations,
     isLoading: conversationsLoading,
     error: conversationsError,
+    createConversation,
+    fetchConversations,
   } = useConversations({ autoFetch: true });
 
   /**
@@ -229,7 +231,7 @@ export const ConversationSidebar = ({
                     p-2 rounded-lg cursor-pointer transition-colors border
                     ${
                       selectedConversationId === conversation.id
-                        ? "bg-muted/50 border-2 border-accent"
+                        ? "bg-background ring-offset-background file:border-0 file:bg-transparent border-2 border-accent"
                         : "border-border hover:bg-muted"
                     }
                   `}
@@ -275,6 +277,7 @@ export const ConversationSidebar = ({
           onConversationSelect(conversationId);
           setIsCreateDialogOpen(false);
         }}
+        onConversationCreatedCallback={fetchConversations}
       />
     </>
   );

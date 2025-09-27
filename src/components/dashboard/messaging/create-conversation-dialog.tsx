@@ -21,6 +21,7 @@ interface CreateConversationDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onConversationCreated: (conversationId: string) => void;
+  onConversationCreatedCallback?: () => void;
 }
 
 /**
@@ -30,13 +31,14 @@ export const CreateConversationDialog = ({
   isOpen,
   onOpenChange,
   onConversationCreated,
+  onConversationCreatedCallback,
 }: CreateConversationDialogProps) => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [foundUser, setFoundUser] = useState<any>(null);
 
-  const { createConversation } = useConversations();
+  const { createConversation } = useConversations({ autoFetch: true });
 
   /**
    * Rechercher un utilisateur par email
@@ -138,6 +140,10 @@ export const CreateConversationDialog = ({
 
       if (newConversation) {
         onConversationCreated(newConversation.id);
+        // Déclencher le callback de rechargement si fourni
+        if (onConversationCreatedCallback) {
+          onConversationCreatedCallback();
+        }
         // Reset form
         setEmail("");
         setFoundUser(null);

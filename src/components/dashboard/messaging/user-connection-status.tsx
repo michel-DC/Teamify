@@ -43,11 +43,6 @@ export const UserConnectionStatus = ({
       <div className="flex items-center justify-center gap-2">
         <Wifi className="h-4 w-4" />
         <span>Connecté</span>
-        {participantCount > 0 && (
-          <span className="text-muted-foreground">
-            • {participantCount} participant{participantCount > 1 ? "s" : ""}
-          </span>
-        )}
       </div>
     </div>
   );
