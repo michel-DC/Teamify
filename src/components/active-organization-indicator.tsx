@@ -17,7 +17,7 @@ export function ActiveOrganizationIndicator() {
       <span className="text-sm text-muted-foreground">
         Organisation active :
       </span>
-      <Badge variant="secondary" className="font-medium">
+      <Badge variant="secondary" className="font-medium text-[#7C3AED] ">
         {activeOrganization.name}
       </Badge>
     </div>

@@ -48,7 +48,9 @@ export default function Page() {
           {activeOrganization ? (
             <>
               Bienvenue dans votre espace de gestion pour{" "}
-              <span className="font-bold">{activeOrganization.name}</span>
+              <span className="font-bold text-[#7C3AED]">
+                {activeOrganization.name}
+              </span>
             </>
           ) : (
             "Sélectionnez une organisation pour commencer"

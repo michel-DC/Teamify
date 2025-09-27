@@ -26,7 +26,7 @@ export function QuickActions() {
       icon: <Plus className="h-4 w-4" />,
       href: "/dashboard/events/new",
       color: "text-blue-600 dark:text-blue-400",
-      bgColor: "bg-blue-50 dark:bg-blue-950/30",
+      bgColor: "bg-white",
       borderColor: "border-blue-200 dark:border-blue-800",
     },
     {
@@ -35,7 +35,7 @@ export function QuickActions() {
       icon: <Mail className="h-4 w-4" />,
       href: "/dashboard/events/invitations",
       color: "text-purple-600 dark:text-purple-400",
-      bgColor: "bg-purple-50 dark:bg-purple-950/30",
+      bgColor: "bg-white",
       borderColor: "border-purple-200 dark:border-purple-800",
     },
     {
@@ -46,7 +46,7 @@ export function QuickActions() {
         ? `/dashboard/organizations/settings/${activeOrganization.publicId}/members`
         : "#",
       color: "text-green-600 dark:text-green-400",
-      bgColor: "bg-green-50 dark:bg-green-950/30",
+      bgColor: "bg-white",
       borderColor: "border-green-200 dark:border-green-800",
     },
     {
@@ -57,7 +57,7 @@ export function QuickActions() {
         ? `/dashboard/organizations/settings/${activeOrganization.publicId}`
         : "#",
       color: "text-gray-600 dark:text-gray-400",
-      bgColor: "bg-gray-50 dark:bg-gray-800/50",
+      bgColor: "bg-white",
       borderColor: "border-gray-200 dark:border-gray-700",
     },
     {
@@ -66,7 +66,7 @@ export function QuickActions() {
       icon: <BarChart3 className="h-4 w-4" />,
       href: "/dashboard/events",
       color: "text-indigo-600 dark:text-indigo-400",
-      bgColor: "bg-indigo-50 dark:bg-indigo-950/30",
+      bgColor: "bg-white",
       borderColor: "border-indigo-200 dark:border-indigo-800",
     },
     {
@@ -75,7 +75,7 @@ export function QuickActions() {
       icon: <MapPin className="h-4 w-4" />,
       href: "/dashboard/events#maps-section",
       color: "text-teal-600 dark:text-teal-400",
-      bgColor: "bg-teal-50 dark:bg-teal-950/30",
+      bgColor: "bg-white",
       borderColor: "border-teal-200 dark:border-teal-800",
     },
   ];
@@ -96,7 +96,7 @@ export function QuickActions() {
             <div
               className={`
                 rounded-lg border ${action.borderColor} 
-                ${action.bgColor} p-4 hover:bg-opacity-80
+                ${action.bgColor} p-4 hover:bg-opacity-80 shadow-md hover:shadow-lg transition-shadow
               `}
             >
               {/* Icon */}

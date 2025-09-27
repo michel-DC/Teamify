@@ -153,7 +153,7 @@ export function LocationSearch({
           disabled={disabled}
           className={cn(
             "pr-20",
-            value && "border-green-500 focus:border-green-500"
+            value && "border-green-500 focus:border-green-500 bg-white"
           )}
         />
 
