@@ -61,44 +61,31 @@ interface NotificationsResponse {
  * Icône correspondant au type de notification
  */
 const getNotificationIcon = (type: Notification["notificationType"]) => {
+  const iconProps = { className: "h-5 w-5", style: { color: "#7C3AED" } };
+
   switch (type) {
     case "SUCCESS":
-      return <CheckCircle className="h-5 w-5" style={{ color: "#6D5DE6" }} />;
+      return <CheckCircle {...iconProps} />;
     case "WARNING":
-      return <AlertCircle className="h-5 w-5" style={{ color: "#FCA7DB" }} />;
+      return <AlertCircle {...iconProps} />;
     case "ERROR":
-      return <XCircle className="h-5 w-5" style={{ color: "#E37ED2" }} />;
+      return <XCircle {...iconProps} />;
     case "INVITATION":
-      return <Bell className="h-5 w-5" style={{ color: "#BBA2F5" }} />;
+      return <Bell {...iconProps} />;
     case "REMINDER":
-      return <Calendar className="h-5 w-5" style={{ color: "#9B84EE" }} />;
+      return <Calendar {...iconProps} />;
     case "UPDATE":
-      return <Info className="h-5 w-5" style={{ color: "#F5B4E8" }} />;
+      return <Info {...iconProps} />;
     default:
-      return <Info className="h-5 w-5" style={{ color: "#020102" }} />;
+      return <Info {...iconProps} />;
   }
 };
 
 /**
  * Couleur du badge selon le type de notification
  */
-const getNotificationBadgeColor = (type: Notification["notificationType"]) => {
-  switch (type) {
-    case "SUCCESS":
-      return "bg-blue-600 text-white";
-    case "WARNING":
-      return "bg-purple-600 text-white";
-    case "ERROR":
-      return "bg-red-600 text-white";
-    case "INVITATION":
-      return "bg-pink-400 text-[#020102]";
-    case "REMINDER":
-      return "bg-indigo-400 text-[#020102]";
-    case "UPDATE":
-      return "bg-green-400 text-[#020102]";
-    default:
-      return "bg-gray-200 text-[#020102]";
-  }
+const getNotificationBadgeColor = () => {
+  return "bg-[#7C3AED] text-white";
 };
 
 export default function NotificationsPage() {
@@ -324,9 +311,7 @@ export default function NotificationsPage() {
               <Card
                 key={notification.id}
                 className={`transition-all duration-200 ${
-                  !notification.isRead
-                    ? "border-l-4 border-l-indigo-400 bg-background"
-                    : ""
+                  !notification.isRead ? " bg-background" : ""
                 }`}
               >
                 <CardContent className="p-6">
@@ -350,7 +335,7 @@ export default function NotificationsPage() {
                           {!notification.isRead && (
                             <Badge
                               variant="secondary"
-                              className="bg-blue-100 text-blue-800"
+                              className="bg-[#7C3AED] text-white"
                             >
                               Non lu
                             </Badge>
@@ -367,18 +352,26 @@ export default function NotificationsPage() {
                           {notification.event && (
                             <Link
                               href={`/dashboard/events/details/${notification.event.publicId}`}
-                              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+                              className="flex items-center gap-1"
+                              style={{ color: "#7C3AED" }}
                             >
-                              <Calendar className="h-4 w-4" />
+                              <Calendar
+                                className="h-4 w-4"
+                                style={{ color: "#7C3AED" }}
+                              />
                               {notification.event.title}
                             </Link>
                           )}
                           {notification.organization && (
                             <Link
                               href={`/dashboard/organizations/${notification.organization.publicId}`}
-                              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+                              className="flex items-center gap-1"
+                              style={{ color: "#7C3AED" }}
                             >
-                              <Building2 className="h-4 w-4" />
+                              <Building2
+                                className="h-4 w-4"
+                                style={{ color: "#7C3AED" }}
+                              />
                               {notification.organization.name}
                             </Link>
                           )}
