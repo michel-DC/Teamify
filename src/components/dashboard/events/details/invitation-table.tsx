@@ -37,6 +37,7 @@ import {
   PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface Invitation {
   id: number;
@@ -342,31 +343,37 @@ export default function InvitationTable({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Invitations envoyées
+            <span className="text-lg sm:text-xl">Invitations envoyées</span>
           </CardTitle>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button
               onClick={handleRefresh}
               disabled={refreshing}
               variant="outline"
               size="sm"
-              className="flex items-center gap-2"
+              className="flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <RefreshCw
                 className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
               />
-              {refreshing ? "Actualisation..." : "Actualiser"}
+              <span className="hidden sm:inline">
+                {refreshing ? "Actualisation..." : "Actualiser"}
+              </span>
+              <span className="sm:hidden">
+                {refreshing ? "..." : "Actualiser"}
+              </span>
             </Button>
             <Button
               size="sm"
-              className="gap-2 bg-[#7C3AED] hover:bg-[#c1a3f4] text-white"
+              className="gap-2 bg-[#7C3AED] hover:bg-[#c1a3f4] text-white w-full sm:w-auto"
               onClick={() => setInviteOpen(true)}
             >
               <UserPlus className="h-4 w-4" />
-              Inviter des participants
+              <span className="hidden sm:inline">Inviter des participants</span>
+              <span className="sm:hidden">Inviter</span>
             </Button>
           </div>
         </div>
@@ -376,34 +383,50 @@ export default function InvitationTable({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <div className="text-2xl font-bold text-primary">{stats.total}</div>
-            <div className="text-sm text-muted-foreground">Total</div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="text-center p-3 sm:p-4 bg-muted/30 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-primary">
+              {stats.total}
+            </div>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              Total
+            </div>
           </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">
               {stats.accepted}
             </div>
-            <div className="text-sm text-muted-foreground">Acceptées</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              Acceptées
+            </div>
           </div>
-          <div className="text-center p-4 bg-yellow-50 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-600">
+          <div className="text-center p-3 sm:p-4 bg-yellow-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-yellow-600">
               {stats.pending}
             </div>
-            <div className="text-sm text-muted-foreground">En attente</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              En attente
+            </div>
           </div>
-          <div className="text-center p-4 bg-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-red-600">
+          <div className="text-center p-3 sm:p-4 bg-red-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-red-600">
               {stats.declined}
             </div>
-            <div className="text-sm text-muted-foreground">Refusées</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              Refusées
+            </div>
           </div>
         </div>
 
         {invitations.length === 0 ? (
           <div className="text-center py-8">
-            <Users className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+            <Image
+              src="/images/illustration/no-invitation-send.svg"
+              alt="Aucune invitation envoyée"
+              width={100}
+              height={100}
+              className="mx-auto"
+            />
             <p className="text-muted-foreground">
               Aucune invitation envoyée pour cet événement
             </p>
@@ -417,7 +440,37 @@ export default function InvitationTable({
           </div>
         ) : (
           <>
-            <div className="rounded-md border">
+            {/* Version mobile - Cards */}
+            <div className="block sm:hidden space-y-3">
+              {paginatedInvitations.map((invitation) => (
+                <div
+                  key={invitation.id}
+                  className="border rounded-lg p-4 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-sm">
+                      {invitation.receiverName}
+                    </div>
+                    {getStatusBadge(invitation.status)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {invitation.receiverEmail}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>Envoyée:</strong> {formatDate(invitation.sentAt)}
+                  </div>
+                  {invitation.respondedAt && (
+                    <div className="text-xs text-muted-foreground">
+                      <strong>Réponse:</strong>{" "}
+                      {formatDate(invitation.respondedAt)}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Version desktop - Table */}
+            <div className="hidden sm:block rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -454,7 +507,7 @@ export default function InvitationTable({
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-center sm:justify-end mt-4">
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
@@ -517,7 +570,7 @@ export default function InvitationTable({
 
       {/* Dialog d'invitation */}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Inviter un participant</DialogTitle>
           </DialogHeader>
@@ -533,23 +586,25 @@ export default function InvitationTable({
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
                 required
+                className="w-full"
               />
               {inviteError && (
                 <p className="text-sm text-destructive">{inviteError}</p>
               )}
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => setInviteOpen(false)}
+                className="w-full sm:w-auto order-2 sm:order-1"
               >
                 Annuler
               </Button>
               <Button
                 type="submit"
                 disabled={inviteSubmitting}
-                className="bg-[#7C3AED] hover:bg-[#c1a3f4] text-white"
+                className="bg-[#7C3AED] hover:bg-[#c1a3f4] text-white w-full sm:w-auto order-1 sm:order-2"
               >
                 {inviteSubmitting ? "Envoi..." : "Envoyer l'invitation"}
               </Button>

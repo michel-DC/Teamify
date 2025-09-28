@@ -135,7 +135,7 @@ export default function ClientGate({ children }: ClientGateProps) {
   );
 
   if (isLoading) {
-    return <LoadingScreen text="Chargement de votre espace..." />;
+    return <LoadingScreen />;
   }
 
   return (

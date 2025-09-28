@@ -253,12 +253,12 @@ export function NavUser({
                   Notifications
                 </a>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <SunMoon />
                 <a href="#" onClick={handleThemeChange} className="">
                   Changer de thème
                 </a>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
