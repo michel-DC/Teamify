@@ -73,7 +73,7 @@ export function EditMenu({ eventSlug, eventTitle }: EditMenuProps) {
                 variant={
                   selectedOption === "edit-event" ? "default" : "outline"
                 }
-                className="w-full"
+                className="w-full bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleOptionSelect("edit-event");
@@ -108,7 +108,7 @@ export function EditMenu({ eventSlug, eventTitle }: EditMenuProps) {
                 variant={
                   selectedOption === "edit-status" ? "default" : "outline"
                 }
-                className="w-full"
+                className="w-full bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg"
                 onClick={(e) => {
                   e.stopPropagation();
                   handleOptionSelect("edit-status");

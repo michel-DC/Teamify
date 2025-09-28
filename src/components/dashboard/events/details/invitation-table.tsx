@@ -362,7 +362,7 @@ export default function InvitationTable({
             </Button>
             <Button
               size="sm"
-              className="gap-2"
+              className="gap-2 bg-[#7C3AED] hover:bg-[#c1a3f4] text-white"
               onClick={() => setInviteOpen(true)}
             >
               <UserPlus className="h-4 w-4" />
@@ -407,7 +407,10 @@ export default function InvitationTable({
             <p className="text-muted-foreground">
               Aucune invitation envoyée pour cet événement
             </p>
-            <Button className="mt-4 gap-2" onClick={() => setInviteOpen(true)}>
+            <Button
+              className="mt-4 gap-2 bg-[#7C3AED] hover:bg-[#c1a3f4] text-white"
+              onClick={() => setInviteOpen(true)}
+            >
               <UserPlus className="h-4 w-4" />
               Envoyer des invitations
             </Button>
@@ -543,7 +546,11 @@ export default function InvitationTable({
               >
                 Annuler
               </Button>
-              <Button type="submit" disabled={inviteSubmitting}>
+              <Button
+                type="submit"
+                disabled={inviteSubmitting}
+                className="bg-[#7C3AED] hover:bg-[#c1a3f4] text-white"
+              >
                 {inviteSubmitting ? "Envoi..." : "Envoyer l'invitation"}
               </Button>
             </DialogFooter>

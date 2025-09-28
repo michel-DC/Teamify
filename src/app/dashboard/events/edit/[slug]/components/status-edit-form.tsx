@@ -206,7 +206,7 @@ export function StatusEditForm() {
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1 h-12 text-base"
+                  className="flex-1 h-12 text-base bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg"
                   disabled={isSubmitting || selectedStatus === eventData.status}
                 >
                   <Save className="h-4 w-4 mr-2" />

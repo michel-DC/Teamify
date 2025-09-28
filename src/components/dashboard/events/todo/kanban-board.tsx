@@ -405,12 +405,12 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
           value={newGroupName}
           onChange={(e) => setNewGroupName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && addGroup()}
-          className="max-w-xs"
+          className="max-w-xs bg-white"
         />
         <Button
           onClick={addGroup}
           disabled={!newGroupName.trim()}
-          className="flex items-center"
+          className="flex items-center bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg"
         >
           <Plus className="mr-2" />
           Nouveau groupe
@@ -576,7 +576,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                   onClick={() => addTodo(group.id)}
                   disabled={!(newTodoTitles[group.id] || "").trim()}
                   size="sm"
-                  className="h-8 w-8 p-0 flex items-center justify-center"
+                  className="h-8 w-8 p-0 flex items-center justify-center bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg mt-3"
                 >
                   <Plus className="h-3 w-3" />
                 </Button>
