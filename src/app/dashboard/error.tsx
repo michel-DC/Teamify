@@ -1,12 +1,23 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 
-export default function ErrorPage() {
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
   const router = useRouter();
+
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -32,8 +43,7 @@ export default function ErrorPage() {
               Oups ! Une erreur s'est produite
             </h2>
             <p className="text-gray-600">
-              Désolé, une erreur s'est produite lors de la création de votre
-              organisation.
+              Désolé, quelque chose s'est mal passé. Veuillez réessayer.
             </p>
           </div>
 
@@ -41,7 +51,7 @@ export default function ErrorPage() {
           <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
             <Button
               type="button"
-              onClick={() => window.location.reload()}
+              onClick={reset}
               className="inline-flex items-center gap-2 bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg"
             >
               <RefreshCw className="w-4 h-4" />
@@ -54,7 +64,7 @@ export default function ErrorPage() {
               className="inline-flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
             >
               <ArrowLeft className="w-4 h-4" />
-              Retour au tableau de bord
+              Retour au dashboard
             </Button>
           </div>
 

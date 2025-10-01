@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Consulter vos notifications - Teamify",
+  title: "Consulter vos notifications • Teamify",
   description: "Page de gestion des notifications sur Teamify",
 };
 

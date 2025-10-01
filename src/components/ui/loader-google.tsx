@@ -44,16 +44,15 @@ export function LoadingScreen({
   text = "Chargement...",
   className,
 }: LoadingScreenProps) {
-  // Messages de chargement avec des blagues
   const loadingMessages = [
-    "Préparation de votre espace de travail... 🚀",
-    "Assemblage de votre équipe de rêve... 👥",
-    "Chargement de la magie collaborative... ✨",
-    "Préparation de votre café virtuel... ☕",
-    "Optimisation de votre productivité... 📈",
-    "Synchronisation des cerveaux créatifs... 🧠",
-    "Chargement de l'innovation... 💡",
-    "Préparation de votre succès... 🎯",
+    "Connexion à Google en cours... 🔐",
+    "Vérification de votre identité Google... 🕵️‍♂️",
+    "Synchronisation avec votre compte Google... 🔄",
+    "Authentification sécurisée via Google... 🛡️",
+    "Récupération de vos informations Google... 📡",
+    "Connexion à votre espace via Google... 🌐",
+    "Merci de patienter pendant la connexion Google... ⏳",
+    "Presque terminé, finalisation avec Google... ✅",
   ];
 
   const randomMessage =
@@ -74,7 +73,7 @@ export function LoadingScreen({
 
           <div className="w-16 h-16 flex items-center justify-center bg-transparent">
             <Image
-              src="/images/logo/favicon.svg"
+              src="/images/logo/google/google.svg"
               alt="Teamify - Plateforme de gestion d'équipe"
               width={40}
               height={40}

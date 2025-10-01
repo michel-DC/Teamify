@@ -2,7 +2,7 @@ import React, { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata = {
-  title: "Je me connecte - Teamify",
+  title: "Je me connecte • Teamify",
   description: "Page de connexion de teamify",
 };
 
