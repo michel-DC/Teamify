@@ -12,8 +12,13 @@ export async function GET(
 ) {
   try {
     const { publicId } = await params;
+    console.log(
+      "API Invitations: Début de la requête pour publicId:",
+      publicId
+    );
 
     if (!publicId) {
+      console.log("API Invitations: PublicId manquant");
       return NextResponse.json(
         { error: "PublicId d'organisation requis" },
         { status: 400 }
@@ -63,6 +68,11 @@ export async function GET(
       orderBy: { createdAt: "desc" },
     });
 
+    console.log(
+      "API Invitations: Retour de",
+      invitations.length,
+      "invitations"
+    );
     return NextResponse.json({
       success: true,
       invitations,

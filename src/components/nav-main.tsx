@@ -1,78 +1,106 @@
 "use client";
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { type LucideIcon, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import {
   SidebarGroup,
+  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
+  SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 
-export function NavMain({
-  items,
-}: {
-  items: {
+interface NavMainItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  isActive?: boolean;
+  items?: {
     title: string;
     url: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-    items?: {
-      title: string;
-      url: string;
-    }[];
   }[];
-}) {
+}
+
+interface NavMainProps {
+  items: NavMainItem[];
+}
+
+export function NavMain({ items }: NavMainProps) {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+  // Initialiser avec tous les éléments qui ont des sous-éléments dépliés par défaut
+  const [expandedItems, setExpandedItems] = useState<string[]>(
+    items
+      .filter((item) => item.items && item.items.length > 0)
+      .map((item) => item.title)
+  );
+
+  const toggleExpanded = (itemTitle: string) => {
+    setExpandedItems((prev) =>
+      prev.includes(itemTitle)
+        ? prev.filter((title) => title !== itemTitle)
+        : [...prev, itemTitle]
+    );
+  };
+
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Menu</SidebarGroupLabel>
-      <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible
-            key={item.title}
-            asChild
-            defaultOpen={item.isActive}
-            className="group/collapsible"
-          >
-            <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon && <item.icon />}
-                  <span>{item.title}</span>
-                  <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                </SidebarMenuButton>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <SidebarMenuSub>
-                  {item.items?.map((subItem) => (
-                    <SidebarMenuSubItem key={subItem.title}>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full justify-start h-7 px-2 text-sm"
-                        asChild
-                      >
-                        <a href={subItem.url}>
-                          <span>{subItem.title}</span>
-                        </a>
-                      </Button>
-                    </SidebarMenuSubItem>
-                  ))}
-                </SidebarMenuSub>
-              </CollapsibleContent>
-            </SidebarMenuItem>
-          </Collapsible>
-        ))}
-      </SidebarMenu>
+      <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+      <SidebarGroupContent>
+        <SidebarMenu className="space-y-2">
+          {items.map((item) => {
+            const isExpanded = expandedItems.includes(item.title);
+            const hasSubItems = item.items && item.items.length > 0;
+
+            return (
+              <SidebarMenuItem key={item.title} className="mb-2">
+                {hasSubItems ? (
+                  <>
+                    <SidebarMenuButton
+                      isActive={item.isActive}
+                      onClick={() => toggleExpanded(item.title)}
+                    >
+                      <item.icon />
+                      <span>{item.title}</span>
+                      <ChevronRight
+                        className={`ml-auto transition-transform duration-200 ${
+                          isExpanded ? "rotate-90" : ""
+                        }`}
+                      />
+                    </SidebarMenuButton>
+
+                    {isExpanded && (
+                      <SidebarMenuSub>
+                        {item.items.map((subItem) => (
+                          <SidebarMenuSubItem key={subItem.title}>
+                            <SidebarMenuSubButton asChild>
+                              <a href={subItem.url}>
+                                <span>{subItem.title}</span>
+                              </a>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    )}
+                  </>
+                ) : (
+                  <SidebarMenuButton asChild isActive={item.isActive}>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                )}
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarGroupContent>
     </SidebarGroup>
   );
 }

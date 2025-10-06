@@ -95,103 +95,97 @@ export function TeamSwitcher({
   }
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                {profileImage ? (
-                  <div className="w-4 h-4">
-                    <AutoSignedImage
-                      src={profileImage}
-                      alt={displayName}
-                      className="rounded-full w-full h-full"
-                      errorComponent={
-                        <div className="w-full h-full flex items-center justify-center bg-muted rounded-full">
-                          <GalleryVerticalEnd className="size-3 text-muted-foreground" />
-                        </div>
-                      }
-                      loadingComponent={
-                        <div className="w-full h-full flex items-center justify-center bg-muted rounded-full animate-pulse">
-                          <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
-                        </div>
-                      }
-                    />
-                  </div>
-                ) : (
-                  <GalleryVerticalEnd className="size-4" />
-                )}
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{displayName}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            align="start"
-            side={isMobile ? "bottom" : "right"}
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="text-muted-foreground text-xs">
-              Vos organisations
-            </DropdownMenuLabel>
-            {organizations.map((org, index) => (
-              <DropdownMenuItem
-                key={org.id}
-                onClick={() => handleOrganizationChange(org)}
-                className={`gap-2 p-2 ${
-                  activeOrganization?.id === org.id ? "bg-accent" : ""
-                }`}
-              >
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  {org.profileImage ? (
-                    <div className="w-6 h-6">
-                      <AutoSignedImage
-                        src={org.profileImage}
-                        alt={org.name}
-                        className="rounded-full w-full h-full"
-                        errorComponent={
-                          <div className="w-full h-full flex items-center justify-center bg-muted rounded-full">
-                            <GalleryVerticalEnd className="size-4 text-muted-foreground" />
-                          </div>
-                        }
-                        loadingComponent={
-                          <div className="w-full h-full flex items-center justify-center bg-muted rounded-full animate-pulse">
-                            <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
-                          </div>
-                        }
-                      />
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuButton
+          size="lg"
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+        >
+          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            {profileImage ? (
+              <div className="w-4 h-4">
+                <AutoSignedImage
+                  src={profileImage}
+                  alt={displayName}
+                  className="rounded-full w-full h-full"
+                  errorComponent={
+                    <div className="w-full h-full flex items-center justify-center bg-muted rounded-full">
+                      <GalleryVerticalEnd className="size-3 text-muted-foreground" />
                     </div>
-                  ) : (
-                    <GalleryVerticalEnd className="h-6 w-6" />
-                  )}
+                  }
+                  loadingComponent={
+                    <div className="w-full h-full flex items-center justify-center bg-muted rounded-full animate-pulse">
+                      <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
+                    </div>
+                  }
+                />
+              </div>
+            ) : (
+              <GalleryVerticalEnd className="size-4" />
+            )}
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">{displayName}</span>
+          </div>
+          <ChevronsUpDown className="ml-auto" />
+        </SidebarMenuButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+        align="start"
+        side={isMobile ? "bottom" : "right"}
+        sideOffset={4}
+      >
+        <DropdownMenuLabel className="text-muted-foreground text-xs">
+          Vos organisations
+        </DropdownMenuLabel>
+        {organizations.map((org, index) => (
+          <DropdownMenuItem
+            key={org.id}
+            onClick={() => handleOrganizationChange(org)}
+            className={`gap-2 p-2 ${
+              activeOrganization?.id === org.id ? "bg-accent" : ""
+            }`}
+          >
+            <div className="flex size-6 items-center justify-center rounded-md border">
+              {org.profileImage ? (
+                <div className="w-6 h-6">
+                  <AutoSignedImage
+                    src={org.profileImage}
+                    alt={org.name}
+                    className="rounded-full w-full h-full"
+                    errorComponent={
+                      <div className="w-full h-full flex items-center justify-center bg-muted rounded-full">
+                        <GalleryVerticalEnd className="size-4 text-muted-foreground" />
+                      </div>
+                    }
+                    loadingComponent={
+                      <div className="w-full h-full flex items-center justify-center bg-muted rounded-full animate-pulse">
+                        <div className="w-3 h-3 bg-muted-foreground rounded-full"></div>
+                      </div>
+                    }
+                  />
                 </div>
-                {org.name}
-                {activeOrganization?.id === org.id && (
-                  <DropdownMenuShortcut>✓</DropdownMenuShortcut>
-                )}
-              </DropdownMenuItem>
-            ))}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                <Plus className="size-4" />
-              </div>
-              <div className="text-muted-foreground font-medium">
-                <a href="/dashboard/organizations/new">
-                  Créer une organisation
-                </a>
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+              ) : (
+                <GalleryVerticalEnd className="h-6 w-6" />
+              )}
+            </div>
+            {org.name}
+            {activeOrganization?.id === org.id && (
+              <DropdownMenuShortcut>✓</DropdownMenuShortcut>
+            )}
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="gap-2 p-2">
+          <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+            <Plus className="size-4" />
+          </div>
+          <div className="text-muted-foreground font-medium">
+            <a href="/dashboard/organizations/new">Créer une organisation</a>
+          </div>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
