@@ -156,6 +156,48 @@ const initialData: SidebarData = {
         },
       ],
     },
+    {
+      title: "Autres",
+      icon: "MoreHorizontal",
+      items: [
+        {
+          title: "Paramètres",
+          url: "/dashboard/settings",
+          icon: "Settings",
+          isActive: false,
+        },
+        {
+          title: "Aide & Support",
+          url: "/dashboard/help",
+          icon: "HelpCircle",
+          isActive: false,
+        },
+        {
+          title: "Exporter les données",
+          url: "/dashboard/export",
+          icon: "Download",
+          isActive: false,
+        },
+        {
+          title: "Importer des données",
+          url: "/dashboard/import",
+          icon: "Upload",
+          isActive: false,
+        },
+        {
+          title: "Rapports",
+          url: "/dashboard/reports",
+          icon: "FileText",
+          isActive: false,
+        },
+        {
+          title: "Corbeille",
+          url: "/dashboard/trash",
+          icon: "Trash2",
+          isActive: false,
+        },
+      ],
+    },
   ],
 };
 

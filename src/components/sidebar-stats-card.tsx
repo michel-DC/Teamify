@@ -32,10 +32,6 @@ export function SidebarStatsCard() {
       setIsLoading(true);
       try {
         // Récupérer les stats de l'organisation en utilisant les vrais endpoints
-        console.log(
-          "SidebarStatsCard: Récupération des stats pour l'organisation:",
-          activeOrganization.publicId
-        );
 
         const [statsResponse, invitationsResponse] = await Promise.all([
           fetch(
@@ -46,13 +42,6 @@ export function SidebarStatsCard() {
           ),
         ]);
 
-        console.log(
-          "SidebarStatsCard: Réponses reçues - Stats:",
-          statsResponse.status,
-          "Invitations:",
-          invitationsResponse.status
-        );
-
         const [statsData, invitationsData] = await Promise.all([
           statsResponse.ok
             ? statsResponse.json()
@@ -62,18 +51,7 @@ export function SidebarStatsCard() {
             : { invitations: [] },
         ]);
 
-        console.log(
-          "SidebarStatsCard: Données reçues - Stats:",
-          statsData,
-          "Invitations:",
-          invitationsData
-        );
-
         // L'API stats retourne maintenant les données de l'organisation active
-        console.log(
-          "SidebarStatsCard: Organisation active:",
-          activeOrganization
-        );
 
         // Calculer les invitations des 30 derniers jours
         const thirtyDaysAgo = new Date();
@@ -84,11 +62,6 @@ export function SidebarStatsCard() {
             const invitationDate = new Date(inv.createdAt);
             return invitationDate >= thirtyDaysAgo;
           }).length || 0;
-
-        console.log(
-          "SidebarStatsCard: Stats calculées - Invitations 30j:",
-          invitationsLast30Days
-        );
 
         setStats({
           userRole: statsData.stats?.userRole || "MEMBER",

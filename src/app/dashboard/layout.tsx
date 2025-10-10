@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { GlobalSearch } from "@/components/global-search";
 import ClientGate from "./client-gate";
 import { DataPersistenceManager } from "@/components/data-persistence-manager";
 import { DynamicTitleComponent } from "@/components/dynamic-title-component";
@@ -20,6 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* <SidebarTrigger /> */}
         <ClientGate>{children}</ClientGate>
       </SidebarInset>
+      <GlobalSearch />
     </SidebarProvider>
   );
 }

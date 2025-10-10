@@ -10,6 +10,13 @@ import {
   MessageCircle,
   Users,
   GalleryVerticalEnd,
+  MoreHorizontal,
+  Settings,
+  HelpCircle,
+  Download,
+  Upload,
+  FileText,
+  Trash2,
 } from "lucide-react";
 
 import {
@@ -22,6 +29,7 @@ import {
 import { useSidebarData } from "@/hooks/useSidebarData";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
+import { SidebarSearch } from "./sidebar-search";
 import { TeamSwitcher } from "./team-switcher";
 import { SidebarStatsCard } from "./sidebar-stats-card";
 
@@ -35,6 +43,13 @@ const iconMap = {
   MessageCircle,
   Users,
   GalleryVerticalEnd,
+  MoreHorizontal,
+  Settings,
+  HelpCircle,
+  Download,
+  Upload,
+  FileText,
+  Trash2,
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -66,6 +81,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
+        <SidebarSearch />
         <NavMain items={navMainItems} />
         <SidebarStatsCard />
       </SidebarContent>
