@@ -9,13 +9,15 @@ console.log("🔍 Vérification du serveur Socket.IO...");
 async function checkSocketServer() {
   try {
     // Test de l'endpoint Socket.IO
-    const response = await fetch("http://localhost:3001/socket.io/", {
+    const socketUrl =
+      process.env.SOCKET_URL || "https://socket.teamify.onlinemichel.dev";
+    const response = await fetch(`${socketUrl}/socket.io/`, {
       method: "GET",
     });
 
     if (response.ok) {
       console.log("✅ Serveur Socket.IO accessible !");
-      console.log("🔗 URL: http://localhost:3001");
+      console.log(`🔗 URL: ${socketUrl}`);
       return true;
     } else {
       console.log("❌ Serveur Socket.IO non accessible");

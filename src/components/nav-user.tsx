@@ -11,6 +11,7 @@ import {
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AutoSignedImage } from "@/components/ui/auto-signed-image";
+import { isR2Url } from "@/lib/r2-utils";
 import {
   DropdownMenu,
   DropdownMenuContent,

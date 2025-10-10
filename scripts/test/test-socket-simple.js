@@ -5,10 +5,12 @@
 import { io } from "socket.io-client";
 
 console.log("🔌 Test de connexion Socket.IO simple...");
-console.log("📍 Serveur: http://localhost:3001");
+const SOCKET_URL =
+  process.env.SOCKET_URL || "https://socket.teamify.onlinemichel.dev";
+console.log(`📍 Serveur: ${SOCKET_URL}`);
 console.log("🔑 Token: test_token");
 
-const socket = io("http://localhost:3001", {
+const socket = io(SOCKET_URL, {
   auth: {
     token: "test_token",
   },
