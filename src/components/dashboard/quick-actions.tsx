@@ -27,7 +27,6 @@ export function QuickActions() {
       href: "/dashboard/events/new",
       color: "text-blue-600 dark:text-blue-400",
       bgColor: "bg-white",
-      borderColor: "border-blue-200 dark:border-blue-800",
     },
     {
       title: "Gérer les invitations",
@@ -36,7 +35,6 @@ export function QuickActions() {
       href: "/dashboard/events/invitations",
       color: "text-purple-600 dark:text-purple-400",
       bgColor: "bg-white",
-      borderColor: "border-purple-200 dark:border-purple-800",
     },
     {
       title: "Gérer les membres",
@@ -47,7 +45,6 @@ export function QuickActions() {
         : "#",
       color: "text-green-600 dark:text-green-400",
       bgColor: "bg-white",
-      borderColor: "border-green-200 dark:border-green-800",
     },
     {
       title: "Paramètres",
@@ -58,7 +55,6 @@ export function QuickActions() {
         : "#",
       color: "text-gray-600 dark:text-gray-400",
       bgColor: "bg-white",
-      borderColor: "border-gray-200 dark:border-gray-700",
     },
     {
       title: "Statistiques",
@@ -67,7 +63,6 @@ export function QuickActions() {
       href: "/dashboard/events",
       color: "text-indigo-600 dark:text-indigo-400",
       bgColor: "bg-white",
-      borderColor: "border-indigo-200 dark:border-indigo-800",
     },
     {
       title: "Localisations",
@@ -76,7 +71,6 @@ export function QuickActions() {
       href: "/dashboard/events#maps-section",
       color: "text-teal-600 dark:text-teal-400",
       bgColor: "bg-white",
-      borderColor: "border-teal-200 dark:border-teal-800",
     },
   ];
 
@@ -95,7 +89,7 @@ export function QuickActions() {
           <Link key={index} href={action.href}>
             <div
               className={`
-                rounded-lg border ${action.borderColor} 
+                rounded-lg 
                 ${action.bgColor} p-4 hover:bg-opacity-80 shadow-md hover:shadow-lg transition-shadow
               `}
             >

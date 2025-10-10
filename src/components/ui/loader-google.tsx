@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 
 interface LoaderProps {
   className?: string;
@@ -55,8 +56,14 @@ export function LoadingScreen({
     "Presque terminé, finalisation avec Google... ✅",
   ];
 
-  const randomMessage =
-    loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+  const [randomMessage, setRandomMessage] = useState("Chargement...");
+
+  useEffect(() => {
+    // Sélection aléatoire uniquement côté client pour éviter l'erreur d'hydratation
+    const selectedMessage =
+      loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+    setRandomMessage(selectedMessage);
+  }, []);
 
   return (
     <div

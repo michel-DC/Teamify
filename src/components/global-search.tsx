@@ -184,7 +184,7 @@ export function GlobalSearch() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
-        className="max-w-5xl max-h-[80vh] p-0"
+        className="max-w-[90vw] sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl max-h-[80vh] p-0"
         showCloseButton={false}
       >
         <DialogHeader className="px-6 py-4 border-b">

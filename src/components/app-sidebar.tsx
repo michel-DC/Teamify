@@ -17,6 +17,7 @@ import {
   Upload,
   FileText,
   Trash2,
+  BriefcaseBusiness,
 } from "lucide-react";
 
 import {
@@ -50,6 +51,7 @@ const iconMap = {
   Upload,
   FileText,
   Trash2,
+  BriefcaseBusiness,
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {

@@ -33,10 +33,11 @@ interface NavMainProps {
 export function NavMain({ items }: NavMainProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  // Initialiser avec tous les éléments qui ont des sous-éléments dépliés par défaut
   const [expandedItems, setExpandedItems] = useState<string[]>(
     items
-      .filter((item) => item.items && item.items.length > 0)
+      .filter(
+        (item) => item.items && item.items.length > 0 && item.title !== "Autres"
+      )
       .map((item) => item.title)
   );
 
@@ -76,15 +77,16 @@ export function NavMain({ items }: NavMainProps) {
 
                     {isExpanded && (
                       <SidebarMenuSub>
-                        {item.items.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild>
-                              <a href={subItem.url}>
-                                <span>{subItem.title}</span>
-                              </a>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
+                        {item.items &&
+                          item.items.map((subItem) => (
+                            <SidebarMenuSubItem key={subItem.title}>
+                              <SidebarMenuSubButton asChild>
+                                <a href={subItem.url}>
+                                  <span>{subItem.title}</span>
+                                </a>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
                       </SidebarMenuSub>
                     )}
                   </>

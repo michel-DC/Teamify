@@ -158,11 +158,11 @@ const initialData: SidebarData = {
     },
     {
       title: "Autres",
-      icon: "MoreHorizontal",
+      icon: "BriefcaseBusiness",
       items: [
         {
           title: "Paramètres",
-          url: "/dashboard/settings",
+          url: "/dashboard/profile",
           icon: "Settings",
           isActive: false,
         },
@@ -174,26 +174,14 @@ const initialData: SidebarData = {
         },
         {
           title: "Exporter les données",
-          url: "/dashboard/export",
+          url: "/dashboard/events#events-table",
           icon: "Download",
           isActive: false,
         },
         {
-          title: "Importer des données",
-          url: "/dashboard/import",
-          icon: "Upload",
-          isActive: false,
-        },
-        {
-          title: "Rapports",
+          title: "Signalements",
           url: "/dashboard/reports",
           icon: "FileText",
-          isActive: false,
-        },
-        {
-          title: "Corbeille",
-          url: "/dashboard/trash",
-          icon: "Trash2",
           isActive: false,
         },
       ],
