@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -79,17 +80,12 @@ interface OnboardingModalProps {
 
 export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const currentStepData = onboardingSteps[currentStep];
 
   const handleNext = () => {
     if (currentStep < onboardingSteps.length - 1) {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentStep(currentStep + 1);
-        setIsAnimating(false);
-      }, 150);
+      setCurrentStep(currentStep + 1);
     } else {
       handleFinish();
     }
@@ -97,11 +93,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setIsAnimating(true);
-      setTimeout(() => {
-        setCurrentStep(currentStep - 1);
-        setIsAnimating(false);
-      }, 150);
+      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -114,64 +106,126 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-2xl max-h-[80vh]">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-center">
-            Découvrez Teamify
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground text-center">
-            Prenez quelques minutes pour découvrir les fonctionnalités
-            principales
-          </p>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Step content */}
-          <div className="text-center space-y-4">
-            <div className="text-6xl mb-4">{currentStepData.emoji}</div>
-
-            <div
-              className={`transition-all duration-300 ${
-                isAnimating
-                  ? "opacity-0 transform translate-x-4"
-                  : "opacity-100 transform translate-x-0"
-              }`}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+          <DialogHeader>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
             >
-              <h3 className="text-xl font-semibold mb-2">
-                {currentStepData.title}
-              </h3>
-              <p className="text-muted-foreground leading-relaxed">
-                {currentStepData.description}
-              </p>
+              <DialogTitle className="text-lg font-semibold text-center">
+                Découvrez Teamify
+              </DialogTitle>
+            </motion.div>
+            <motion.p
+              className="text-sm text-muted-foreground text-center"
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+            >
+              Prenez quelques minutes pour découvrir les fonctionnalités
+              principales
+            </motion.p>
+          </DialogHeader>
+
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            {/* Step content */}
+            <div className="text-center space-y-4">
+              <motion.div
+                className="text-6xl mb-4"
+                key={`emoji-${currentStep}`}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                {currentStepData.emoji}
+              </motion.div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentStep}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                >
+                  <h3 className="text-xl font-semibold mb-2">
+                    {currentStepData.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {currentStepData.description}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
             </div>
-          </div>
 
-          {/* Navigation buttons */}
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className="flex items-center gap-2 text-white hover:text-white bg-[#7C3AED] hover:bg-[#6D28D9]"
+            {/* Navigation buttons */}
+            <motion.div
+              className="flex justify-between"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
             >
-              <ChevronLeft className="h-4 w-4" />
-              Précédent
-            </Button>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Button
+                  variant="outline"
+                  onClick={handlePrevious}
+                  disabled={currentStep === 0}
+                  className="flex items-center gap-2 text-white hover:text-white bg-[#7C3AED] hover:bg-[#6D28D9]"
+                >
+                  <motion.div
+                    animate={{ x: currentStep > 0 ? 0 : -2 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </motion.div>
+                  Précédent
+                </Button>
+              </motion.div>
 
-            <Button
-              onClick={handleNext}
-              className="flex items-center gap-2 text-white hover:text-white bg-[#7C3AED] hover:bg-[#6D28D9]"
-            >
-              {currentStep === onboardingSteps.length - 1 ? (
-                "Terminer l'onboarding"
-              ) : (
-                <>
-                  Suivant
-                  <ChevronRight className="h-4 w-4" />
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Button
+                  onClick={handleNext}
+                  className="flex items-center gap-2 text-white hover:text-white bg-[#7C3AED] hover:bg-[#6D28D9]"
+                >
+                  {currentStep === onboardingSteps.length - 1 ? (
+                    "Terminer l'onboarding"
+                  ) : (
+                    <>
+                      Suivant
+                      <motion.div
+                        animate={{ x: 0 }}
+                        whileHover={{ x: 2 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </motion.div>
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </motion.div>
       </DialogContent>
     </Dialog>
   );
