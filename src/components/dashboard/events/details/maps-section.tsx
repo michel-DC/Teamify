@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { MapPin } from "lucide-react";
+import Image from "next/image";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -183,8 +183,17 @@ export default function MapsSection({ className }: MapsSectionProps) {
         </CardHeader>
         <CardContent>
           <div className="h-[500px] w-full bg-muted rounded-lg flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <div className="flex flex-col items-center justify-center w-full h-full text-center">
+              <div className="flex items-center justify-center mb-4">
+                <Image
+                  src="/images/illustration/maps.svg"
+                  alt="Map Pin"
+                  width={96}
+                  height={96}
+                  className="mx-auto"
+                  priority
+                />
+              </div>
               <p className="text-muted-foreground mb-2">
                 Aucun événement avec géolocalisation trouvé
               </p>

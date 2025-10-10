@@ -7,7 +7,7 @@
 }
 
 :root {
-  --background: hsl(0 0% 100%);
+  --background: hsl(0, 5%, 97%);
   --foreground: hsl(0 0% 14.5%);
   --card: hsl(0 0% 100%);
   --card-foreground: hsl(0 0% 14.5%);
@@ -31,7 +31,7 @@
   --chart-3: hsl(227 65% 39.8%);
   --chart-4: hsl(84 63% 82.8%);
   --chart-5: hsl(70 68% 76.9%);
-  --sidebar: hsl(0 0% 98.5%);
+  --sidebar: hsl(0, 5%, 97%);
   --sidebar-foreground: hsl(0 0% 14.5%);
   --sidebar-primary: hsl(0 0% 20.5%);
   --sidebar-primary-foreground: hsl(0 0% 98.5%);

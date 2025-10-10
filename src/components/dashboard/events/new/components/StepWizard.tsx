@@ -143,7 +143,7 @@ export function StepWizard({
                 <div
                   className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
                     currentStep === step.id
-                      ? "bg-primary border-primary text-primary-foreground"
+                      ? "bg-[#7C3AED] border-[#7C3AED] text-white"
                       : index <
                         EVENT_CREATION_STEPS.findIndex(
                           (s) => s.id === currentStep

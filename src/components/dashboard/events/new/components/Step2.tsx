@@ -421,7 +421,12 @@ export function Step2({
         <Button type="button" variant="outline" onClick={onPrev}>
           Retour
         </Button>
-        <Button type="button" onClick={handleNext} disabled={!isStepValid()}>
+        <Button
+          type="button"
+          onClick={handleNext}
+          disabled={!isStepValid()}
+          className="bg-[#7C3AED] hover:bg-[#7C3AED]/90 text-white border border-[#7C3AED] shadow-lg"
+        >
           Suivant
         </Button>
       </div>

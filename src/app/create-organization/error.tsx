@@ -1,25 +1,69 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, RefreshCw } from "lucide-react";
+
 export default function ErrorPage() {
+  const router = useRouter();
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-4">
-      <section
-        className="w-full max-w-md rounded-lg bg-white shadow-lg p-8 text-center"
-        role="alert"
-        aria-live="assertive"
-        aria-atomic="true"
-      >
-        <h1 className="text-2xl font-bold text-destructive mb-4">
-          Une erreur est survenue
-        </h1>
-        <p className="text-base text-muted-foreground">
-          Désolé, une erreur s&apos;est produite lors de la création de votre
-          organisation.
-          <br />
-          Veuillez réessayer plus tard ou contacter le support si le problème
-          persiste.
-        </p>
-      </section>
-    </main>
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-center max-w-4xl mx-auto px-6">
+        {/* Illustration SVG */}
+        <div className="mb-8 flex justify-center">
+          <div className="w-full max-w-md">
+            <Image
+              src="/images/illustration/error-page.svg"
+              alt="Erreur - Illustration"
+              width={400}
+              height={300}
+              className="w-full h-auto"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* Contenu principal */}
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-gray-700">
+              Oups ! Une erreur s'est produite
+            </h2>
+            <p className="text-gray-600">
+              Désolé, une erreur s'est produite lors de la création de votre
+              organisation.
+            </p>
+          </div>
+
+          {/* Boutons d'action */}
+          <div className="pt-4 flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center gap-2 bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Réessayer
+            </Button>
+            <Button
+              type="button"
+              onClick={() => router.push("/dashboard")}
+              variant="outline"
+              className="inline-flex items-center gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Retour au tableau de bord
+            </Button>
+          </div>
+
+          {/* Message d'encouragement */}
+          <p className="text-sm text-gray-500 mt-6">
+            Cette erreur est plus temporaire qu'un bug qu'on déteste… ❤️
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

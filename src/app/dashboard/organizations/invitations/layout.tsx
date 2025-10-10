@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Gérer les invitations d'organisation - Teamify",
+  title: "Gérer les invitations d'organisation • Teamify",
   description:
     "Page de gestion des invitations à vos organisations sur Teamify",
 };

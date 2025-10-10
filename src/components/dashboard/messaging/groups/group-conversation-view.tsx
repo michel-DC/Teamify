@@ -218,7 +218,7 @@ export const GroupConversationView = ({
       </div>
 
       {/* Zone de saisie - Responsive */}
-      <div className="p-2 mb-7 md:p-3 border-t bg-background flex-shrink-0">
+      <div className="p-2 mb-8 md:p-3 border-t bg-background flex-shrink-0">
         <div className="flex items-end gap-2 w-full">
           <div className="relative flex-1">
             <Input
@@ -240,7 +240,7 @@ export const GroupConversationView = ({
               className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-primary disabled:opacity-50"
               tabIndex={-1}
             >
-              <Send className="h-5 w-5" />
+              <Send className="h-5 w-5 text-[#7C3AED] " />
             </button>
           </div>
         </div>

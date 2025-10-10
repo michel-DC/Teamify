@@ -129,7 +129,7 @@ export function EventForm({ orgId }: EventFormProps) {
         )}
       </div>
 
-      <div className="border border-border rounded-lg p-4 max-w-5xl mx-auto">
+      <div className="border border-border rounded-lg p-8 max-w-5xl mx-auto bg-white">
         <StepWizard
           orgId={orgId}
           onComplete={handleFormComplete}

@@ -156,6 +156,36 @@ const initialData: SidebarData = {
         },
       ],
     },
+    {
+      title: "Autres",
+      icon: "BriefcaseBusiness",
+      items: [
+        {
+          title: "Paramètres",
+          url: "/dashboard/profile",
+          icon: "Settings",
+          isActive: false,
+        },
+        {
+          title: "Aide & Support",
+          url: "/dashboard/help",
+          icon: "HelpCircle",
+          isActive: false,
+        },
+        {
+          title: "Exporter les données",
+          url: "/dashboard/events#events-table",
+          icon: "Download",
+          isActive: false,
+        },
+        {
+          title: "Signalements",
+          url: "/dashboard/reports",
+          icon: "FileText",
+          isActive: false,
+        },
+      ],
+    },
   ],
 };
 

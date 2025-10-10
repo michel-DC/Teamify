@@ -237,7 +237,8 @@ export default function OrganizationSettingsPage() {
             {/* En-tête de la section */}
             <div className="mb-6">
               <h1 className="text-2xl font-bold mb-2">
-                Paramètres de {organization.name}
+                Paramètres de{" "}
+                <span className="text-[#7C3AED]">{organization.name}</span>
               </h1>
               <p className="text-muted-foreground">
                 Gérez les paramètres et les autorisations de votre organisation.

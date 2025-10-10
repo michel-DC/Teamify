@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit3, Save, X, UserCheck, Calendar } from "lucide-react";
-import { LocationSearch, UserLocation } from "./location-search";
+import { LocationSearch } from "./location-search";
 
 import { UserProfile } from "../types";
 
@@ -24,10 +24,7 @@ export function ProfileSection({
     firstname: userProfile.firstname,
     lastname: userProfile.lastname,
     bio: userProfile.bio || "",
-    phone: userProfile.phone || "",
     location: userProfile.location || undefined,
-    website: userProfile.website || "",
-    dateOfBirth: userProfile.dateOfBirth || undefined,
   });
 
   const handleInputChange = (
@@ -51,10 +48,7 @@ export function ProfileSection({
       firstname: userProfile.firstname,
       lastname: userProfile.lastname,
       bio: userProfile.bio || "",
-      phone: userProfile.phone || "",
       location: userProfile.location || undefined,
-      website: userProfile.website || "",
-      dateOfBirth: userProfile.dateOfBirth || undefined,
     });
     setEditing(false);
   };
@@ -70,7 +64,11 @@ export function ProfileSection({
           </Button>
         ) : (
           <div className="flex gap-2">
-            <Button onClick={handleSave} size="sm">
+            <Button
+              onClick={handleSave}
+              size="sm"
+              className="bg-[#7C3AED] hover:bg-[#7C3AED] text-white border border-[#7C3AED] shadow-lg"
+            >
               <Save className="h-4 w-4 mr-2" />
               Enregistrer
             </Button>
@@ -100,6 +98,7 @@ export function ProfileSection({
                 value={formData.firstname || ""}
                 onChange={(e) => handleInputChange("firstname", e.target.value)}
                 placeholder="Votre prénom"
+                className="bg-white"
               />
             ) : (
               <p className="text-sm text-muted-foreground mt-1">
@@ -116,6 +115,7 @@ export function ProfileSection({
                 value={formData.lastname || ""}
                 onChange={(e) => handleInputChange("lastname", e.target.value)}
                 placeholder="Votre nom"
+                className="bg-white"
               />
             ) : (
               <p className="text-sm text-muted-foreground mt-1">
@@ -137,23 +137,7 @@ export function ProfileSection({
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="phone">Téléphone</Label>
-            {editing ? (
-              <Input
-                id="phone"
-                value={formData.phone || ""}
-                onChange={(e) => handleInputChange("phone", e.target.value)}
-                placeholder="Votre numéro de téléphone"
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground mt-1">
-                {userProfile.phone || "Non renseigné"}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="location"> </Label>
+            <Label htmlFor="location"></Label>
             {editing ? (
               <LocationSearch
                 value={formData.location}
@@ -172,50 +156,6 @@ export function ProfileSection({
               </p>
             )}
           </div>
-
-          <div>
-            <Label htmlFor="dateOfBirth">Date de naissance</Label>
-            {editing ? (
-              <Input
-                id="dateOfBirth"
-                type="date"
-                value={
-                  formData.dateOfBirth
-                    ? new Date(formData.dateOfBirth).toISOString().split("T")[0]
-                    : ""
-                }
-                onChange={(e) =>
-                  handleInputChange(
-                    "dateOfBirth",
-                    e.target.value ? new Date(e.target.value) : null
-                  )
-                }
-                placeholder="Votre date de naissance"
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground mt-1">
-                {userProfile.dateOfBirth
-                  ? new Date(userProfile.dateOfBirth).toLocaleDateString()
-                  : "Non renseigné"}
-              </p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="website">Site web</Label>
-            {editing ? (
-              <Input
-                id="website"
-                value={formData.website || ""}
-                onChange={(e) => handleInputChange("website", e.target.value)}
-                placeholder="https://votre-site.com"
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground mt-1">
-                {userProfile.website || "Non renseigné"}
-              </p>
-            )}
-          </div>
         </div>
       </div>
 
@@ -228,6 +168,7 @@ export function ProfileSection({
             onChange={(e) => handleInputChange("bio", e.target.value)}
             placeholder="Parlez-nous de vous..."
             rows={4}
+            className="bg-white"
           />
         ) : (
           <p className="text-sm text-muted-foreground mt-1">

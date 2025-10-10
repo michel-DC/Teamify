@@ -21,6 +21,7 @@ interface CreateConversationDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onConversationCreated: (conversationId: string) => void;
+  onConversationCreatedCallback?: () => void;
 }
 
 /**
@@ -30,13 +31,14 @@ export const CreateConversationDialog = ({
   isOpen,
   onOpenChange,
   onConversationCreated,
+  onConversationCreatedCallback,
 }: CreateConversationDialogProps) => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [foundUser, setFoundUser] = useState<any>(null);
 
-  const { createConversation } = useConversations();
+  const { createConversation } = useConversations({ autoFetch: true });
 
   /**
    * Rechercher un utilisateur par email
@@ -138,6 +140,10 @@ export const CreateConversationDialog = ({
 
       if (newConversation) {
         onConversationCreated(newConversation.id);
+        // Déclencher le callback de rechargement si fourni
+        if (onConversationCreatedCallback) {
+          onConversationCreatedCallback();
+        }
         // Reset form
         setEmail("");
         setFoundUser(null);
@@ -201,7 +207,7 @@ export const CreateConversationDialog = ({
                 onClick={searchUserByEmail}
                 disabled={isLoading || !email.trim()}
                 size="sm"
-                className="px-4 py-2 mt-1.5 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 mt-1.5 bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -244,14 +250,14 @@ export const CreateConversationDialog = ({
             variant="outline"
             onClick={handleClose}
             disabled={isLoading}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto shadow-lg"
           >
             Annuler
           </Button>
           <Button
             onClick={createConversationWithUser}
             disabled={!foundUser || isLoading}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg"
           >
             {isLoading ? (
               <>

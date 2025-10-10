@@ -149,7 +149,7 @@ export default function PreparationTodoList({
         <h2 className="text-2xl font-bold">Tâches de préparation</h2>
         <div className="flex gap-2">
           <Input
-            className="w-64"
+            className="w-64 bg-white"
             placeholder="Nom du nouveau groupe..."
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
@@ -294,6 +294,7 @@ export default function PreparationTodoList({
                     onClick={() => addTodo(group.id)}
                     disabled={!newTodoTitle.trim()}
                     size="sm"
+                    className="bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg"
                   >
                     +
                   </Button>

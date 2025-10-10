@@ -1,20 +1,55 @@
-import Link from "next/link";
+"use client";
+
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
+  const router = useRouter();
+
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <h2 className="text-4xl font-bold mb-4">404</h2>
-        <p className="text-xl mb-4">Page non trouvée</p>
-        <p className="text-gray-600 mb-8">
-          Désolé, la page que vous recherchez n'existe pas.
-        </p>
-        <Link
-          href="/"
-          className="bg-blue-500 text-white px-6 py-3 rounded hover:bg-blue-600"
-        >
-          Retour à l'accueil
-        </Link>
+      <div className="text-center max-w-4xl mx-auto px-6">
+        {/* Illustration SVG */}
+        <div className="mb-8 flex justify-center">
+          <div className="w-full max-w-md">
+            <Image
+              src="/images/illustration/not-found-page.svg"
+              alt="Page non trouvée - Illustration"
+              width={400}
+              height={300}
+              className="w-full h-auto"
+              priority
+            />
+          </div>
+        </div>
+
+        {/* Contenu principal */}
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-semibold text-gray-700">
+              Oups ! Cette page a disparu
+            </h2>
+          </div>
+
+          {/* Bouton de retour */}
+          <div className="pt-4">
+            <Button
+              type="button"
+              onClick={() => router.push("/")}
+              className="inline-flex items-center gap-2 bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Retour à la page d'accueil
+            </Button>
+          </div>
+
+          {/* Message d'encouragement */}
+          <p className="text-sm text-gray-500 mt-6">
+            Cette page est plus introuvable qu’un bug qu’on aime bien… ❤️
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -166,127 +166,107 @@ export function NavUser({
   const userInitials = generateInitials(userData.name);
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="h-8 w-8 rounded-lg">
-                {userData.avatar ? (
-                  isR2Url(userData.avatar) ? (
-                    <AutoSignedImage
-                      src={userData.avatar}
-                      alt={userData.name}
-                      className="w-full h-full object-cover rounded-lg"
-                      errorComponent={
-                        <AvatarFallback className="rounded-lg">
-                          {isLoading ? "..." : userInitials}
-                        </AvatarFallback>
-                      }
-                    />
-                  ) : (
-                    <AvatarImage
-                      src={userData.avatar}
-                      alt={userData.name}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  )
-                ) : (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuButton
+          size="lg"
+          className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+        >
+          <Avatar className="h-8 w-8 rounded-lg">
+            {userData.avatar ? (
+              <AutoSignedImage
+                src={userData.avatar}
+                alt={userData.name}
+                className="w-full h-full object-cover rounded-lg"
+                errorComponent={
                   <AvatarFallback className="rounded-lg">
                     {isLoading ? "..." : userInitials}
                   </AvatarFallback>
-                )}
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{userData.name}</span>
-                <span className="truncate text-xs">{userData.email}</span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  {userData.avatar ? (
-                    isR2Url(userData.avatar) ? (
-                      <AutoSignedImage
-                        src={userData.avatar}
-                        alt={userData.name}
-                        className="w-full h-full object-cover rounded-lg"
-                        errorComponent={
-                          <AvatarFallback className="rounded-lg">
-                            {isLoading ? "..." : userInitials}
-                          </AvatarFallback>
-                        }
-                      />
-                    ) : (
-                      <AvatarImage
-                        src={userData.avatar}
-                        alt={userData.name}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                    )
-                  ) : (
+                }
+              />
+            ) : (
+              <AvatarFallback className="rounded-lg">
+                {isLoading ? "..." : userInitials}
+              </AvatarFallback>
+            )}
+          </Avatar>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">{userData.name}</span>
+            <span className="truncate text-xs">{userData.email}</span>
+          </div>
+          <ChevronsUpDown className="ml-auto size-4" />
+        </SidebarMenuButton>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+        side={isMobile ? "bottom" : "right"}
+        align="end"
+        sideOffset={4}
+      >
+        <DropdownMenuLabel className="p-0 font-normal">
+          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <Avatar className="h-8 w-8 rounded-lg">
+              {userData.avatar ? (
+                <AutoSignedImage
+                  src={userData.avatar}
+                  alt={userData.name}
+                  className="w-full h-full object-cover rounded-lg"
+                  errorComponent={
                     <AvatarFallback className="rounded-lg">
                       {isLoading ? "..." : userInitials}
                     </AvatarFallback>
-                  )}
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{userData.name}</span>
-                  <span className="truncate text-xs">{userData.email}</span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUser />
-                <a href="/dashboard/profile" className="">
-                  Mon compte
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <div className="relative">
-                  <Bell />
-                  {unreadNotificationsCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {unreadNotificationsCount > 99
-                        ? "99+"
-                        : unreadNotificationsCount}
-                    </span>
-                  )}
-                </div>
-                <a href="/dashboard/notifications" className="">
-                  Notifications
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+                  }
+                />
+              ) : (
+                <AvatarFallback className="rounded-lg">
+                  {isLoading ? "..." : userInitials}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{userData.name}</span>
+              <span className="truncate text-xs">{userData.email}</span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <CircleUser />
+            <a href="/dashboard/profile" className="">
+              Mon compte
+            </a>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <div className="relative">
+              <Bell />
+              {unreadNotificationsCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {unreadNotificationsCount > 99
+                    ? "99+"
+                    : unreadNotificationsCount}
+                </span>
+              )}
+            </div>
+            <a href="/dashboard/notifications" className="">
+              Notifications
+            </a>
+          </DropdownMenuItem>
+          {/* <DropdownMenuItem>
                 <SunMoon />
                 <a href="#" onClick={handleThemeChange} className="">
                   Changer de thème
                 </a>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut />
-              <a href="#" onClick={handleLogOut} className="">
-                Me deconnecter
-              </a>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+              </DropdownMenuItem> */}
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          <LogOut />
+          <a href="#" onClick={handleLogOut} className="">
+            Me deconnecter
+          </a>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

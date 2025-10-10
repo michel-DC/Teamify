@@ -395,7 +395,11 @@ export function PermissionsSettings({
 
             {/* Bouton de sauvegarde */}
             <div className="pt-4">
-              <Button onClick={handleSave} disabled={saving} className="w-full">
+              <Button
+                onClick={handleSave}
+                disabled={saving}
+                className="w-full bg-[#7C3AED] hover:bg-[#7C3AED] text-white border border-[#7C3AED] shadow-lg"
+              >
                 <Save className="h-4 w-4 mr-2" />
                 {saving ? "Sauvegarde..." : "Sauvegarder les permissions"}
               </Button>

@@ -59,7 +59,7 @@ export function Step1({
               <Label className="text-sm text-muted-foreground">
                 Code de l'événement
               </Label>
-              <div className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-2xl font-mono font-bold text-primary tracking-wider items-center justify-center">
+              <div className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-2xl font-mono font-black text-[#7C3AED] tracking-wider items-center justify-center">
                 {eventCode}
               </div>
               <p className="text-xs text-muted-foreground text-center">
@@ -119,7 +119,12 @@ export function Step1({
         >
           Retour
         </Button>
-        <Button type="button" onClick={onNext} disabled={!isStepComplete}>
+        <Button
+          type="button"
+          onClick={onNext}
+          disabled={!isStepComplete}
+          className="bg-[#7C3AED] hover:bg-[#7C3AED]/90 text-white border border-[#7C3AED] shadow-lg"
+        >
           Suivant
         </Button>
       </div>

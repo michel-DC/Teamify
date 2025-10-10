@@ -191,7 +191,7 @@ export function SecuritySection() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-[#7C3AED] hover:bg-[#7C3AED] text-white border border-[#7C3AED] shadow-lg"
                 disabled={isGoogleUser || isLoading}
                 onClick={() => {
                   if (isGoogleUser) {

@@ -17,7 +17,7 @@ export const EmptyConversationState = ({
       <div className="text-center flex flex-col items-center">
         <div className="mb-6 flex items-center justify-center">
           <Image
-            src="/images/svg/empty.svg"
+            src="/images/illustration/empty-conversation.svg"
             alt="Aucune conversation affichée"
             width={320}
             height={320}

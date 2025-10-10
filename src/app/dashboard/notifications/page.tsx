@@ -26,6 +26,7 @@ import {
   BreadcrumbPage,
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Notification {
   id: number;
@@ -61,44 +62,31 @@ interface NotificationsResponse {
  * Icône correspondant au type de notification
  */
 const getNotificationIcon = (type: Notification["notificationType"]) => {
+  const iconProps = { className: "h-5 w-5", style: { color: "#7C3AED" } };
+
   switch (type) {
     case "SUCCESS":
-      return <CheckCircle className="h-5 w-5" style={{ color: "#6D5DE6" }} />;
+      return <CheckCircle {...iconProps} />;
     case "WARNING":
-      return <AlertCircle className="h-5 w-5" style={{ color: "#FCA7DB" }} />;
+      return <AlertCircle {...iconProps} />;
     case "ERROR":
-      return <XCircle className="h-5 w-5" style={{ color: "#E37ED2" }} />;
+      return <XCircle {...iconProps} />;
     case "INVITATION":
-      return <Bell className="h-5 w-5" style={{ color: "#BBA2F5" }} />;
+      return <Bell {...iconProps} />;
     case "REMINDER":
-      return <Calendar className="h-5 w-5" style={{ color: "#9B84EE" }} />;
+      return <Calendar {...iconProps} />;
     case "UPDATE":
-      return <Info className="h-5 w-5" style={{ color: "#F5B4E8" }} />;
+      return <Info {...iconProps} />;
     default:
-      return <Info className="h-5 w-5" style={{ color: "#020102" }} />;
+      return <Info {...iconProps} />;
   }
 };
 
 /**
  * Couleur du badge selon le type de notification
  */
-const getNotificationBadgeColor = (type: Notification["notificationType"]) => {
-  switch (type) {
-    case "SUCCESS":
-      return "bg-blue-600 text-white";
-    case "WARNING":
-      return "bg-purple-600 text-white";
-    case "ERROR":
-      return "bg-red-600 text-white";
-    case "INVITATION":
-      return "bg-pink-400 text-[#020102]";
-    case "REMINDER":
-      return "bg-indigo-400 text-[#020102]";
-    case "UPDATE":
-      return "bg-green-400 text-[#020102]";
-    default:
-      return "bg-gray-200 text-[#020102]";
-  }
+const getNotificationBadgeColor = () => {
+  return "bg-[#7C3AED] text-white";
 };
 
 export default function NotificationsPage() {
@@ -106,6 +94,7 @@ export default function NotificationsPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [markingAsRead, setMarkingAsRead] = useState(false);
+  const isMobile = useIsMobile();
 
   /**
    * Récupère les notifications de l'utilisateur
@@ -252,11 +241,13 @@ export default function NotificationsPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-8 px-4 lg:px-6">
-        <div className="flex items-center justify-center min-h-[400px]">
+      <div className="container mx-auto py-4 px-3 sm:py-8 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-center min-h-[300px] sm:min-h-[400px]">
           <div className="text-center">
-            <Bell className="h-8 w-8 animate-spin mx-auto mb-4" />
-            <p>Chargement des notifications...</p>
+            <Bell className="h-6 w-6 sm:h-8 sm:w-8 animate-spin mx-auto mb-3 sm:mb-4" />
+            <p className="text-sm sm:text-base">
+              Chargement des notifications...
+            </p>
           </div>
         </div>
       </div>
@@ -265,7 +256,7 @@ export default function NotificationsPage() {
 
   return (
     <main>
-      <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+      <header className="flex h-14 sm:h-16 shrink-0 items-center gap-2 px-3 sm:px-4">
         <SidebarTrigger className="-ml-1" />
         <Breadcrumb>
           <BreadcrumbList>
@@ -274,16 +265,18 @@ export default function NotificationsPage() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="hidden md:block" />
             <BreadcrumbItem>
-              <BreadcrumbPage>Notifications</BreadcrumbPage>
+              <BreadcrumbPage className="text-sm sm:text-base">
+                Notifications
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </header>
-      <div className="container mx-auto py-8 px-4 lg:px-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold">Notifications</h1>
-            <p className="text-muted-foreground">
+      <div className="container mx-auto py-4 px-3 sm:py-8 sm:px-4 lg:px-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold">Notifications</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">
               {unreadCount > 0
                 ? `${unreadCount} notification${
                     unreadCount > 1 ? "s" : ""
@@ -296,22 +289,28 @@ export default function NotificationsPage() {
               onClick={markAllAsRead}
               disabled={markingAsRead}
               variant="outline"
-              className="flex items-center gap-2"
+              size={isMobile ? "sm" : "default"}
+              className="flex items-center gap-2 w-full sm:w-auto"
             >
               <Check className="h-4 w-4" />
-              {markingAsRead ? "Marquage..." : "Tout marquer comme lu"}
+              <span className="hidden sm:inline">
+                {markingAsRead ? "Marquage..." : "Tout marquer comme lu"}
+              </span>
+              <span className="sm:hidden">
+                {markingAsRead ? "Marquage..." : "Marquer tout"}
+              </span>
             </Button>
           )}
         </div>
 
         {notifications.length === 0 ? (
           <Card>
-            <CardContent className="flex flex-col items-center justify-center py-12">
-              <Bell className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">
+            <CardContent className="flex flex-col items-center justify-center py-8 sm:py-12 px-4 sm:px-6">
+              <Bell className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground mb-3 sm:mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2 text-center">
                 Aucune notification
               </h3>
-              <p className="text-muted-foreground text-center">
+              <p className="text-muted-foreground text-center text-sm sm:text-base max-w-md">
                 Vous n'avez pas encore de notifications. Elles apparaîtront ici
                 lorsque des événements ou des organisations seront créés ou
                 modifiés.
@@ -319,88 +318,98 @@ export default function NotificationsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {notifications.map((notification) => (
               <Card
                 key={notification.id}
                 className={`transition-all duration-200 ${
-                  !notification.isRead
-                    ? "border-l-4 border-l-indigo-400 bg-background"
-                    : ""
+                  !notification.isRead ? " bg-background" : ""
                 }`}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4 flex-1">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 sm:gap-4 flex-1 min-w-0">
                       <div className="flex-shrink-0 mt-1">
                         {getNotificationIcon(notification.notificationType)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-lg">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-base sm:text-lg leading-tight">
                             {notification.notificationName}
                           </h3>
-                          <Badge
-                            className={getNotificationBadgeColor(
-                              notification.notificationType
-                            )}
-                          >
-                            {notification.notificationType}
-                          </Badge>
-                          {!notification.isRead && (
+                          <div className="flex flex-wrap items-center gap-2">
                             <Badge
-                              variant="secondary"
-                              className="bg-blue-100 text-blue-800"
+                              className={`${getNotificationBadgeColor()} text-xs`}
                             >
-                              Non lu
+                              {notification.notificationType}
                             </Badge>
-                          )}
+                            {!notification.isRead && (
+                              <Badge
+                                variant="secondary"
+                                className="bg-[#7C3AED] text-white text-xs"
+                              >
+                                Non lu
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-muted-foreground mb-3">
+                        <p className="text-muted-foreground mb-3 text-sm sm:text-base leading-relaxed">
                           {notification.notificationDescription}
                         </p>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
+                            <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                             {formatDate(notification.createdAt)}
                           </span>
                           {notification.event && (
                             <Link
                               href={`/dashboard/events/details/${notification.event.publicId}`}
-                              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+                              className="flex items-center gap-1 hover:underline"
+                              style={{ color: "#7C3AED" }}
                             >
-                              <Calendar className="h-4 w-4" />
-                              {notification.event.title}
+                              <Calendar
+                                className="h-3 w-3 sm:h-4 sm:w-4"
+                                style={{ color: "#7C3AED" }}
+                              />
+                              <span className="truncate">
+                                {notification.event.title}
+                              </span>
                             </Link>
                           )}
                           {notification.organization && (
                             <Link
                               href={`/dashboard/organizations/${notification.organization.publicId}`}
-                              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 transition-colors"
+                              className="flex items-center gap-1 hover:underline"
+                              style={{ color: "#7C3AED" }}
                             >
-                              <Building2 className="h-4 w-4" />
-                              {notification.organization.name}
+                              <Building2
+                                className="h-3 w-3 sm:h-4 sm:w-4"
+                                style={{ color: "#7C3AED" }}
+                              />
+                              <span className="truncate">
+                                {notification.organization.name}
+                              </span>
                             </Link>
                           )}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                       {!notification.isRead && (
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size={isMobile ? "sm" : "sm"}
                           onClick={() => markAsRead(notification.id)}
-                          className="text-[#020102] hover:text-[#312e31]"
+                          className="text-[#020102] hover:text-[#312e31] p-2"
                         >
                           <Check className="h-4 w-4" />
                         </Button>
                       )}
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size={isMobile ? "sm" : "sm"}
                         onClick={() => deleteNotification(notification.id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 p-2"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

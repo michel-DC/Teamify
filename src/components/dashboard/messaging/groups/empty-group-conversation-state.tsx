@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { Users } from "lucide-react";
 
 interface EmptyGroupConversationStateProps {
   onCreateConversation?: () => void;
@@ -19,24 +18,22 @@ export const EmptyGroupConversationState = ({
         <div className="mb-6 flex items-center justify-center">
           <div className="relative">
             <Image
-              src="/images/svg/empty.svg"
+              src="/images/illustration/empty-conversation.svg"
               alt="Aucune conversation de groupe affichée"
               width={320}
               height={320}
               priority
               className="max-w-[80vw] h-auto"
             />
-            <div className="absolute -top-2 -right-2 bg-primary/10 rounded-full p-2">
-              <Users className="h-6 w-6 text-primary" />
-            </div>
           </div>
         </div>
         <h2 className="text-xl font-semibold mb-2">
           Bienvenue dans votre groupe de discussion
         </h2>
+
         <p className="text-muted-foreground mb-4">
-          Cette conversation de groupe permet à tous les membres de votre
-          organisation de communiquer ensemble en temps réel.
+          Si rien n&apos;est affiché ici, cliquez sur une conversation dans la
+          liste pour l&apos;ouvrir.
         </p>
       </div>
     </div>

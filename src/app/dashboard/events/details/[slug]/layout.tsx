@@ -18,7 +18,7 @@ export async function generateMetadata({
       eventName
         ? ` : ${eventName.charAt(0).toLowerCase() + eventName.slice(1)}`
         : ""
-    } - Teamify`,
+    } • Teamify`,
     description: "Page de détails d'un événement sur Teamify",
   };
 }
