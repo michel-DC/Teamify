@@ -142,11 +142,11 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     setError(null);
 
     try {
-      // En production, utiliser la même URL que l'application Next.js
+      // En production, utiliser Railway pour Socket.IO
       // En développement, utiliser localhost:3000 (même port que Next.js)
       const socketUrl =
         process.env.NODE_ENV === "production"
-          ? window.location.origin
+          ? "https://teamify-pre-production.up.railway.app"
           : "http://localhost:3000";
 
       const socket = io(socketUrl, {
