@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LoadingScreen } from "@/components/ui/Loader";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
@@ -221,8 +220,6 @@ export const LoginForm = ({
           {/* Section gauche - Formulaire de connexion */}
           <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12">
             <div className="w-full max-w-lg mx-auto">
-              <ThemeToggle />
-
               {/* Logo Teamify */}
               <div className="flex justify-center mb-6">
                 <Link href="/">

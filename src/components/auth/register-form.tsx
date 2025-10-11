@@ -7,13 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "../ui/label";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { Eye, EyeOff } from "lucide-react";
-import { IconBrandGoogle } from "@tabler/icons-react";
-import { ThemeToggle } from "../ui/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -130,8 +127,6 @@ export const RegisterForm = () => {
         {/* Section droite - Formulaire d'inscription */}
         <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 xl:px-12">
           <div className="w-full max-w-lg sm:max-w-xl mx-auto">
-            <ThemeToggle />
-
             {/* Logo Teamify */}
             <div className="flex justify-center mb-6">
               <Link href="/">

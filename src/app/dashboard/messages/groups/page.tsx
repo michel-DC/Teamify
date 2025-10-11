@@ -10,7 +10,6 @@ import {
   EmptyGroupConversationState,
   GroupConnectionStatus,
 } from "@/components/dashboard/messaging/groups";
-import { SocketDebug } from "@/components/dashboard/messaging/socket-debug";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Menu } from "lucide-react";
 
@@ -159,9 +158,6 @@ export default function MessagesGroupsPage() {
           )}
         </div>
       </div>
-
-      {/* Composant de débogage Socket.IO */}
-      <SocketDebug />
     </div>
   );
 }

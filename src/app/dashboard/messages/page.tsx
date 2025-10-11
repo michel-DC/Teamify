@@ -158,14 +158,6 @@ export default function MessagesPage() {
           )}
         </div>
       </div>
-
-      {/* Composant de débogage Socket.IO */}
-      <SocketDebug />
-
-      {/* Composant de test Socket.IO */}
-      <div className="fixed bottom-4 left-4 z-50">
-        <SocketTest />
-      </div>
     </div>
   );
 }
