@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSocket } from "@/hooks/useSocket";
+import { usePusher } from "@/hooks/usePusher";
 import { useMessages } from "@/hooks/useMessages";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { MessageList } from "./message-list";
@@ -47,33 +47,31 @@ export const ConversationView = ({
 
   const {
     isConnected,
-    sendMessage,
     isConnecting,
-    error: socketError,
-    joinConversation,
-    leaveConversation,
-  } = useSocket({
-    currentUserId: user?.uid,
+    error: pusherError,
+    connectToChannel,
+    disconnect,
+  } = usePusher({
     onMessage: (message) => {
       addMessage(message);
     },
     onError: (error) => {
-      console.error("❌ Erreur Socket.IO dans ConversationView:", error);
+      console.error("❌ Erreur Pusher dans ConversationView:", error);
     },
   });
 
   // Rejoindre la conversation quand elle change
   useEffect(() => {
     if (conversationId && isConnected) {
-      joinConversation(conversationId);
+      connectToChannel(`conversation-${conversationId}`);
     }
 
     return () => {
       if (conversationId && isConnected) {
-        leaveConversation(conversationId);
+        disconnect();
       }
     };
-  }, [conversationId, isConnected, joinConversation, leaveConversation]);
+  }, [conversationId, isConnected, connectToChannel, disconnect]);
 
   /**
    * Obtenir le nom d'affichage d'une conversation
@@ -166,7 +164,7 @@ export const ConversationView = ({
   /**
    * Envoyer un message
    */
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) {
       return;
     }
@@ -175,13 +173,26 @@ export const ConversationView = ({
       return;
     }
 
-    const success = sendMessage({
-      conversationId,
-      content: newMessage.trim(),
-    });
+    try {
+      // Envoyer le message via l'API
+      const response = await fetch("/api/messages/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          conversationId: conversationId,
+          content: newMessage.trim(),
+          senderId: user?.uid || "unknown",
+        }),
+      });
 
-    if (success) {
-      setNewMessage("");
+      if (response.ok) {
+        setNewMessage("");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
     }
   };
 

@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useSocket, MessageData, MessageReadData } from "@/hooks/useSocket";
+import {
+  usePusher,
+  PusherMessageEvent,
+  PusherMessageReadEvent,
+} from "@/hooks/usePusher";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
@@ -60,37 +64,30 @@ export const ChatInterface = ({
 }: ChatInterfaceProps) => {
   const { checkAuth } = useAuth();
   const [user, setUser] = useState<any>(null);
-  const [messages, setMessages] = useState<MessageData[]>([]);
+  const [messages, setMessages] = useState<PusherMessageEvent[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [readReceipts, setReadReceipts] = useState<
-    Map<string, MessageReadData>
+    Map<string, PusherMessageReadEvent>
   >(new Map());
 
-  // Initialiser Socket.IO
+  // Initialiser Pusher
   const {
     isConnected,
     isConnecting,
-    error: socketError,
-    sendMessage,
-    markMessageAsRead,
-    joinConversation,
-    leaveConversation,
-  } = useSocket({
-    onMessage: (message: MessageData) => {
+    error: pusherError,
+    connectToChannel,
+    disconnect,
+  } = usePusher({
+    onMessage: (message: PusherMessageEvent) => {
       setMessages((prev) => [...prev, message]);
-
-      // Marquer automatiquement comme lu si c'est la conversation active
-      if (message.conversationId === selectedConversationId) {
-        markMessageAsRead(message.id);
-      }
     },
-    onMessageRead: (data: MessageReadData) => {
+    onMessageRead: (data: PusherMessageReadEvent) => {
       setReadReceipts((prev) => new Map(prev.set(data.messageId, data)));
     },
     onError: (error) => {
-      console.error("Erreur Socket.IO:", error);
+      console.error("Erreur Pusher:", error);
     },
   });
 
@@ -124,20 +121,15 @@ export const ChatInterface = ({
    */
   useEffect(() => {
     if (selectedConversationId && isConnected) {
-      joinConversation(selectedConversationId);
+      connectToChannel(`conversation-${selectedConversationId}`);
     }
 
     return () => {
       if (selectedConversationId) {
-        leaveConversation(selectedConversationId);
+        disconnect();
       }
     };
-  }, [
-    selectedConversationId,
-    isConnected,
-    joinConversation,
-    leaveConversation,
-  ]);
+  }, [selectedConversationId, isConnected, connectToChannel, disconnect]);
 
   /**
    * Envoi d'un nouveau message
@@ -147,14 +139,27 @@ export const ChatInterface = ({
       return;
     }
 
-    const success = sendMessage({
-      conversationId: selectedConversationId,
-      content: newMessage.trim(),
-    });
+    try {
+      // Envoyer le message via l'API
+      const response = await fetch("/api/messages/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          conversationId: selectedConversationId,
+          content: newMessage.trim(),
+          senderId: user?.uid || "unknown",
+        }),
+      });
 
-    if (success) {
-      setNewMessage("");
-      setIsTyping(false);
+      if (response.ok) {
+        setNewMessage("");
+        setIsTyping(false);
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
     }
   };
 
@@ -211,7 +216,7 @@ export const ChatInterface = ({
             <MessageCircle className="h-5 w-5" />
             Messages
           </h2>
-          {socketError && (
+          {pusherError && (
             <Badge variant="destructive" className="mt-2">
               Erreur de connexion
             </Badge>
