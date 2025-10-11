@@ -25,5 +25,30 @@
     "env": {
       "VERCEL_LOG_LEVEL": "info"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/socket.io/(.*)",
+      "destination": "https://teamify-pre-production.up.railway.app/socket.io/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/images/signed-url",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    }
+  ]
 }
