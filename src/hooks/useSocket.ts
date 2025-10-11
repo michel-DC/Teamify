@@ -134,7 +134,7 @@ export const useSocket = (options: UseSocketOptions = {}) => {
    * Initialise la connexion Socket.IO
    */
   const connect = useCallback(() => {
-    if (!token || !isAuthenticated || socketRef.current?.connected) {
+    if (socketRef.current?.connected) {
       return;
     }
 
@@ -150,8 +150,9 @@ export const useSocket = (options: UseSocketOptions = {}) => {
           : "http://localhost:3000";
 
       const socket = io(socketUrl, {
+        path: "/socket.io",
         withCredentials: true,
-        transports: ["websocket", "polling"],
+        transports: ["polling"],
         autoConnect: true,
         reconnection: true,
         reconnectionAttempts: 5,
