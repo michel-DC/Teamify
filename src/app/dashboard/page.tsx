@@ -1,6 +1,5 @@
 "use client";
 
-import { Toaster } from "sonner";
 import { MainDashboardStats } from "@/components/dashboard/main-dashboard-stats";
 import { RecentActivities } from "@/components/dashboard/recent-activities";
 import { QuickActions } from "@/components/dashboard/quick-actions";
@@ -10,6 +9,8 @@ import { EventCategoriesChart } from "@/components/dashboard/event-categories-ch
 import { NotificationCenter } from "@/components/dashboard/notification-center";
 import { TeamOverview } from "@/components/dashboard/team-overview";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
+import { useOnboarding } from "@/hooks/useOnboarding";
+import { OnboardingModal } from "@/components/onboarding/onboarding-modal";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
 import {
@@ -20,9 +21,19 @@ import {
 } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@radix-ui/react-separator";
+import { useEffect } from "react";
 
 export default function Page() {
   const { activeOrganization } = useActiveOrganization();
+  const { shouldShowOnboarding, hideOnboarding } = useOnboarding();
+
+  // Déclencher l'onboarding si l'utilisateur a une organisation active et n'a pas encore vu l'onboarding
+  useEffect(() => {
+    if (activeOrganization && shouldShowOnboarding) {
+      // L'onboarding se déclenche automatiquement via le hook useOnboarding
+      // qui vérifie le cookie hasSeenTheOnboardingPresentation
+    }
+  }, [activeOrganization, shouldShowOnboarding]);
 
   return (
     <div className="flex flex-1 flex-col gap-6 px-6">
@@ -49,7 +60,9 @@ export default function Page() {
           {activeOrganization ? (
             <>
               Bienvenue dans votre espace de gestion pour{" "}
-              <span className="font-bold">{activeOrganization.name}</span>
+              <span className="font-bold text-[#7C3AED]">
+                {activeOrganization.name}
+              </span>
             </>
           ) : (
             "Sélectionnez une organisation pour commencer"
@@ -101,6 +114,9 @@ export default function Page() {
 
       {/* Activités récentes */}
       <RecentActivities />
+
+      {/* Modal d'onboarding */}
+      <OnboardingModal isOpen={shouldShowOnboarding} onClose={hideOnboarding} />
     </div>
   );
 }

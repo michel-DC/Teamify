@@ -94,37 +94,6 @@ export function getPersistedDataStatus() {
  *
  * Affiche dans la console l'état actuel de toutes les données persistées
  */
-export function logPersistedDataStatus() {
-  const status = getPersistedDataStatus();
-
-  console.group("📊 État des données persistées");
-
-  console.group("🏪 Stores Zustand");
-  Object.entries(status.stores).forEach(([store, hasData]) => {
-    console.log(`${store}: ${hasData ? "✅" : "❌"}`);
-  });
-  console.groupEnd();
-
-  console.group("💾 localStorage");
-  Object.entries(status.localStorage).forEach(([key, value]) => {
-    console.log(`${key}:`, value);
-  });
-  console.groupEnd();
-
-  console.group("🗂️ sessionStorage");
-  Object.entries(status.sessionStorage).forEach(([key, value]) => {
-    console.log(`${key}:`, value);
-  });
-  console.groupEnd();
-
-  console.group("🍪 Cookies");
-  Object.entries(status.cookies).forEach(([key, value]) => {
-    console.log(`${key}: ${value}`);
-  });
-  console.groupEnd();
-
-  console.groupEnd();
-}
 
 /**
  * @param Test de la fonctionnalité de persistance
@@ -133,8 +102,6 @@ export function logPersistedDataStatus() {
  */
 export function testDataPersistence() {
   console.group("🧪 Test de la persistance des données");
-
-  logPersistedDataStatus();
 
   // Simulation du vidage
   try {
@@ -165,8 +132,6 @@ export function testDataPersistence() {
     cookiesToRemove.forEach((cookieName) => {
       document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
     });
-
-    logPersistedDataStatus();
   } catch (error) {
     console.error("❌ Erreur lors du test:", error);
   }

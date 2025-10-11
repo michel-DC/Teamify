@@ -17,7 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         style={{
           background: useMotionTemplate`radial-gradient(${
             visible ? radius + "px" : "0px"
-          } circle at ${mouseX}px ${mouseY}px, #4527A0, transparent 80%)`,
+          } circle at ${mouseX}px ${mouseY}px, #7C3AED, transparent 80%)`,
         }}
         onMouseMove={(e) => {
           const { left, top } = e.currentTarget.getBoundingClientRect();

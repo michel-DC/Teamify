@@ -201,7 +201,11 @@ export function SummaryStep({
           <Button type="button" variant="outline" onClick={onCancel}>
             Annuler
           </Button>
-          <Button type="button" onClick={() => onComplete(formData)}>
+          <Button
+            type="button"
+            onClick={() => onComplete(formData)}
+            className="bg-[#7C3AED] hover:bg-[#7C3AED]/90 text-white border border-[#7C3AED] shadow-lg"
+          >
             Créer l'événement
           </Button>
         </div>

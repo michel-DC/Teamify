@@ -10,12 +10,16 @@ import {
   MessageCircle,
   Users,
   GalleryVerticalEnd,
+  MoreHorizontal,
+  Settings,
+  HelpCircle,
+  Download,
+  Upload,
+  FileText,
+  Trash2,
+  BriefcaseBusiness,
 } from "lucide-react";
 
-import { NavGroups } from "@/components/nav-groups";
-import { NavEvents } from "@/components/nav-events";
-import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -24,7 +28,11 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { useSidebarData } from "@/hooks/useSidebarData";
-// import Image from "next/image";
+import { NavMain } from "./nav-main";
+import { NavUser } from "./nav-user";
+import { SidebarSearch } from "./sidebar-search";
+import { TeamSwitcher } from "./team-switcher";
+import { SidebarStatsCard } from "./sidebar-stats-card";
 
 // Mapping des icônes pour les éléments de navigation
 const iconMap = {
@@ -36,45 +44,54 @@ const iconMap = {
   MessageCircle,
   Users,
   GalleryVerticalEnd,
+  MoreHorizontal,
+  Settings,
+  HelpCircle,
+  Download,
+  Upload,
+  FileText,
+  Trash2,
+  BriefcaseBusiness,
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Utilisation du hook personnalisé pour les données de la sidebar
   const { data } = useSidebarData();
 
-  // Transformation des données pour les équipes avec icônes
-  const teamsWithIcons = data.teams.map((team) => ({
-    ...team,
-    logo: iconMap[team.logo as keyof typeof iconMap] || GalleryVerticalEnd,
-  }));
-
-  // Transformation des données pour les événements avec icônes
-  const eventsWithIcons = data.events.map((event) => ({
-    name: event.title,
-    url: event.url,
-    icon: iconMap[event.icon as keyof typeof iconMap] || Calendar,
+  // Transformation des données pour NavMain (groupes avec sous-groupes)
+  const navMainItems = data.navGroups.map((group) => ({
+    title: group.title,
+    url: "#",
+    icon: iconMap[group.icon as keyof typeof iconMap] || LayoutDashboard,
+    isActive: group.items.some((item) => item.isActive),
+    items: group.items.map((item) => ({
+      title: item.title,
+      url: item.url,
+    })),
   }));
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      {/* <div className="flex justify-center items-center">
-        <Image
-          src="/images/logo/favicon.svg"
-          alt="Logo"
-          width={32}
-          height={32}
-        />
-      </div> */}
       <SidebarHeader>
-        <TeamSwitcher teams={teamsWithIcons} />
+        <TeamSwitcher
+          teams={data.teams.map((team) => ({
+            ...team,
+            logo:
+              iconMap[team.logo as keyof typeof iconMap] || GalleryVerticalEnd,
+          }))}
+        />
       </SidebarHeader>
-      <SidebarContent className="mt-4">
-        <NavGroups groups={data.navGroups} iconMap={iconMap} />
-        <NavEvents events={eventsWithIcons} />
+
+      <SidebarContent>
+        <SidebarSearch />
+        <NavMain items={navMainItems} />
+        <SidebarStatsCard />
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   );

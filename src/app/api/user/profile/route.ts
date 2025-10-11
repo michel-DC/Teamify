@@ -11,8 +11,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { firstname, lastname, bio, phone, location, website, dateOfBirth } =
-      body;
+    const { firstname, lastname, bio, location } = body;
 
     // Validation des données
     if (firstname && typeof firstname !== "string") {
@@ -32,20 +31,6 @@ export async function PUT(request: NextRequest) {
     if (bio && typeof bio !== "string") {
       return NextResponse.json(
         { error: "La biographie doit être une chaîne de caractères" },
-        { status: 400 }
-      );
-    }
-
-    if (phone && typeof phone !== "string") {
-      return NextResponse.json(
-        { error: "Le téléphone doit être une chaîne de caractères" },
-        { status: 400 }
-      );
-    }
-
-    if (website && typeof website !== "string") {
-      return NextResponse.json(
-        { error: "Le site web doit être une chaîne de caractères" },
         { status: 400 }
       );
     }
@@ -72,36 +57,12 @@ export async function PUT(request: NextRequest) {
       }
     }
 
-    // Validation de la date de naissance
-    let parsedDateOfBirth: Date | undefined;
-    if (dateOfBirth) {
-      if (typeof dateOfBirth === "string") {
-        parsedDateOfBirth = new Date(dateOfBirth);
-        if (isNaN(parsedDateOfBirth.getTime())) {
-          return NextResponse.json(
-            { error: "Format de date invalide" },
-            { status: 400 }
-          );
-        }
-      } else if (dateOfBirth instanceof Date) {
-        parsedDateOfBirth = dateOfBirth;
-      } else {
-        return NextResponse.json(
-          { error: "Format de date invalide" },
-          { status: 400 }
-        );
-      }
-    }
-
     // Mise à jour du profil
     const updateData = {
       firstname: firstname || undefined,
       lastname: lastname || undefined,
       bio: bio || undefined,
-      phone: phone || undefined,
       location: location || undefined,
-      website: website || undefined,
-      dateOfBirth: parsedDateOfBirth || undefined,
     };
 
     const updatedUser = await prisma.user.update({

@@ -52,10 +52,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
    * Vide tous les stores Zustand, localStorage, sessionStorage et cookies
    */
   const clearPersistedData = useCallback(() => {
-    if (debug) {
-      console.log("[DataPersistence] Vidage des données persistées");
-    }
-
     // Vidage des stores Zustand
     resetSidebar();
     resetOrganizations();
@@ -78,9 +74,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
 
       keysToRemove.forEach((key) => {
         localStorage.removeItem(key);
-        if (debug) {
-          console.log(`[DataPersistence] localStorage supprimé: ${key}`);
-        }
       });
     } catch (error) {
       console.warn(
@@ -92,9 +85,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
     // Vidage de la sessionStorage
     try {
       sessionStorage.clear();
-      if (debug) {
-        console.log("[DataPersistence] sessionStorage vidé");
-      }
     } catch (error) {
       console.warn(
         "[DataPersistence] Erreur lors du vidage de la sessionStorage:",
@@ -118,9 +108,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
 
       cookiesToRemove.forEach((cookieName) => {
         document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-        if (debug) {
-          console.log(`[DataPersistence] Cookie supprimé: ${cookieName}`);
-        }
       });
     } catch (error) {
       console.warn(
@@ -134,7 +121,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
     resetEvents,
     clearActiveOrganization,
     clearAuthCookies,
-    debug,
   ]);
 
   useEffect(() => {
@@ -145,24 +131,15 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
      */
     // Ne rien faire si la fonctionnalité est désactivée
     if (!enabled) {
-      if (debug) {
-        console.log("[DataPersistence] Fonctionnalité désactivée");
-      }
       return;
     }
 
     const hasRequiredSegment = pathname.includes(requiredPathSegment);
 
-    if (debug) {
-      console.log(
-        `[DataPersistence] URL: ${pathname}, Segment requis: ${requiredPathSegment}, Présent: ${hasRequiredSegment}`
-      );
-    }
-
     if (!hasRequiredSegment) {
       clearPersistedData();
     }
-  }, [pathname, requiredPathSegment, clearPersistedData, debug, enabled]);
+  }, [pathname, requiredPathSegment, clearPersistedData, enabled]);
 
   return {
     clearPersistedData,

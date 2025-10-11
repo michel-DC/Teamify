@@ -31,11 +31,18 @@ const nextConfig: NextConfig = {
   },
   compress: true,
   poweredByHeader: false,
+  output: "standalone",
+  experimental: {
+    serverComponentsExternalPackages: ["@prisma/client"],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL,
   },
 };
 

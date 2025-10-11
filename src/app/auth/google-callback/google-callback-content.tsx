@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { LoadingScreen } from "@/components/ui/loader-google";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -110,17 +111,5 @@ export function GoogleCallbackContent() {
     );
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="max-w-md w-full space-y-8 p-6">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <h2 className="text-2xl font-bold mb-2">Connexion en cours...</h2>
-          <p className="text-muted-foreground">
-            Nous traitons votre authentification Google
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  return <LoadingScreen />;
 }

@@ -200,7 +200,7 @@ export default function EventDetailsPage() {
                 <div className="flex gap-4 flex-wrap justify-center">
                   {canModifyEvent && (
                     <Button
-                      className="bg-green-700 hover:bg-green-800 text-white"
+                      className="bg-[#7C3AED] hover:bg-[#c1a3f4] text-white"
                       onClick={() =>
                         router.push(`/dashboard/events/edit/${params.slug}`)
                       }

@@ -47,6 +47,7 @@ export const useAuth = () => {
     try {
       // Nettoyer localStorage
       localStorage.removeItem("isLoggedIn");
+      localStorage.removeItem("hasOrganization");
 
       // Déconnexion JWT (votre système existant)
       await fetch("/api/auth/logout", {
@@ -64,6 +65,7 @@ export const useAuth = () => {
         duration: 3000,
       });
     } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
       toast.error("Erreur lors de la déconnexion");
     }
   }, [router]);
@@ -75,12 +77,6 @@ export const useAuth = () => {
     try {
       // Vérifier d'abord le localStorage pour une vérification rapide
       const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
-
-      // Vérifier les cookies
-      const cookies = document.cookie.split(";");
-      const tokenCookie = cookies.find((cookie) =>
-        cookie.trim().startsWith("token=")
-      );
 
       if (!isLoggedIn) {
         return { isAuthenticated: false, user: null };

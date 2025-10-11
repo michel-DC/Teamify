@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AutoSignedImage } from "@/components/ui/auto-signed-image";
+import Image from "next/image";
 
 export type PreparationTodoGroup = {
   id: number;
@@ -380,52 +381,53 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center h-48 sm:h-64">
+        <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* En-tête avec progression globale */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Tableau Kanban</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl sm:text-2xl font-bold">Tableau Kanban</h2>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Progression globale: {getTotalProgress()}%
           </p>
         </div>
       </div>
 
       {/* Input pour nouveau groupe */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         <Input
           placeholder="Nom du nouveau groupe..."
           value={newGroupName}
           onChange={(e) => setNewGroupName(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && addGroup()}
-          className="max-w-xs"
+          className="w-full sm:max-w-md sm:w-80 bg-white"
         />
         <Button
           onClick={addGroup}
           disabled={!newGroupName.trim()}
-          className="flex items-center"
+          className="flex items-center justify-center bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg min-h-[40px] sm:min-h-auto"
         >
           <Plus className="mr-2" />
-          Nouveau groupe
+          <span className="hidden sm:inline">Nouveau groupe</span>
+          <span className="sm:hidden">Ajouter</span>
         </Button>
       </div>
 
       {/* Grille Kanban */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {groups.map((group) => (
-          <Card key={group.id} className="flex flex-col h-fit">
-            <CardHeader className="pb-3">
+          <Card key={group.id} className="flex flex-col h-fit w-full">
+            <CardHeader className="pb-3 px-3 sm:px-6">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
                   <div
-                    className="w-3 h-3 rounded-full"
+                    className="w-3 h-3 rounded-full flex-shrink-0"
                     style={{ backgroundColor: group.color }}
                   />
                   {editingGroup === group.id ? (
@@ -444,12 +446,12 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                         e.key === "Enter" &&
                         updateGroup(group.id, group.name, group.color)
                       }
-                      className="h-6 text-sm"
+                      className="h-6 text-sm min-w-0"
                       autoFocus
                     />
                   ) : (
                     <CardTitle
-                      className="text-sm font-medium cursor-pointer"
+                      className="text-sm font-medium cursor-pointer truncate"
                       onClick={() => setEditingGroup(group.id)}
                     >
                       {group.name}
@@ -458,7 +460,11 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 flex-shrink-0"
+                    >
                       <MoreVertical className="h-3 w-3" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -477,7 +483,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
                 <span>
                   {group.todos.length} tâche{group.todos.length > 1 ? "s" : ""}
                 </span>
@@ -486,12 +492,12 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 space-y-2">
+            <CardContent className="flex-1 space-y-2 px-3 sm:px-6">
               {/* Tâches du groupe */}
               {group.todos.map((todo) => (
                 <div
                   key={todo.id}
-                  className="flex items-start gap-2 p-3 rounded-md border border-border hover:bg-accent/50 transition-colors cursor-pointer group"
+                  className="flex items-start gap-2 p-2 sm:p-3 rounded-md border border-border hover:bg-accent/50 transition-colors cursor-pointer group"
                   onClick={() => openEditModal(todo)}
                 >
                   <Checkbox
@@ -499,41 +505,41 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                     onCheckedChange={(checked) => {
                       toggleTodo(todo.id, Boolean(checked));
                     }}
-                    className="mt-0.5"
+                    className="mt-0.5 flex-shrink-0"
                     onClick={(e) => e.stopPropagation()}
                   />
                   <div className="flex-1 min-w-0">
                     <p
-                      className={`text-sm font-medium ${
+                      className={`text-sm font-medium break-words ${
                         todo.done ? "line-through text-muted-foreground" : ""
                       }`}
                     >
                       {todo.title}
                     </p>
                     {todo.description && (
-                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2 break-words">
                         {todo.description}
                       </p>
                     )}
                     {todo.assignedTo && (
                       <div className="flex items-center gap-2 mt-2">
-                        <Avatar className="h-6 w-6">
+                        <Avatar className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0">
                           <AutoSignedImage
                             src={getUserProfileImage(todo.assignedTo)}
                             alt={getAssignedMemberName(todo.assignedTo)}
-                            className="h-6 w-6 rounded-full object-cover"
+                            className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover"
                             fallbackSrc={undefined}
                             loadingComponent={
-                              <div className="h-6 w-6 rounded-full bg-muted animate-pulse" />
+                              <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-muted animate-pulse" />
                             }
                             errorComponent={
-                              <AvatarFallback className="text-xs bg-primary text-primary-foreground h-6 w-6">
+                              <AvatarFallback className="text-xs bg-primary text-primary-foreground h-5 w-5 sm:h-6 sm:w-6">
                                 {getAssignedMemberInitials(todo.assignedTo)}
                               </AvatarFallback>
                             }
                           />
                         </Avatar>
-                        <span className="text-xs text-muted-foreground">
+                        <span className="text-xs text-muted-foreground truncate">
                           {getAssignedMemberName(todo.assignedTo)}
                         </span>
                       </div>
@@ -546,7 +552,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                       e.stopPropagation();
                       deleteTodo(todo.id);
                     }}
-                    className="h-6 w-6 p-0 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="h-6 w-6 p-0 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -570,13 +576,13 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                       addTodo(group.id);
                     }
                   }}
-                  className="text-sm min-h-[60px] resize-none flex-1 rounded-md border border-input bg-background px-3 py-2 ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="text-sm min-h-[50px] sm:min-h-[60px] resize-none flex-1 rounded-md border border-input bg-background px-2 sm:px-3 py-2 ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
                 <Button
                   onClick={() => addTodo(group.id)}
                   disabled={!(newTodoTitles[group.id] || "").trim()}
                   size="sm"
-                  className="h-8 w-8 p-0 flex items-center justify-center"
+                  className="h-8 w-8 p-0 flex items-center justify-center bg-[#7C3AED] text-white hover:bg-[#7C3AED]/80 border border-[#7C3AED] shadow-lg mt-1 sm:mt-3 flex-shrink-0"
                 >
                   <Plus className="h-3 w-3" />
                 </Button>
@@ -588,32 +594,36 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
 
       {/* Message si aucun groupe */}
       {groups.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">
+        <div className="text-center py-8 sm:py-12 px-4">
+          <Image
+            src="/images/illustration/empty-kanban.svg"
+            alt="Kanban"
+            width={150}
+            height={150}
+            className="mx-auto sm:w-[200px] sm:h-[200px]"
+            priority
+          />
+          <p className="text-muted-foreground mb-4 text-sm sm:text-base px-2">
             Aucun groupe de tâches créé. Commencez par créer votre premier
             groupe.
           </p>
-          <Button onClick={addGroup} disabled={!newGroupName.trim()}>
-            <Plus className="h-4 w-4 mr-2" />
-            Créer le premier groupe
-          </Button>
         </div>
       )}
 
       {/* Modal d'édition de tâche (style Trello) */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Tag className="h-5 w-5 text-primary" />
+        <DialogContent className="w-[95vw] max-w-[600px] max-h-[90vh] sm:max-h-[80vh] overflow-y-auto mx-2 sm:mx-0">
+          <DialogHeader className="px-1 sm:px-0">
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Tag className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               Modifier la tâche
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-sm">
               Modifiez les détails de cette tâche de préparation.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
+          <div className="space-y-4 sm:space-y-6 py-2 sm:py-4 px-1 sm:px-0">
             {/* Titre de la tâche */}
             <div className="space-y-2">
               <Label htmlFor="todo-title" className="text-sm font-medium">
@@ -624,7 +634,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                 value={editTodoTitle}
                 onChange={(e) => setEditTodoTitle(e.target.value)}
                 placeholder="Titre de la tâche"
-                className="text-lg font-medium"
+                className="text-base sm:text-lg font-medium"
               />
             </div>
 
@@ -642,8 +652,8 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                 value={editTodoDescription}
                 onChange={(e) => setEditTodoDescription(e.target.value)}
                 placeholder="Décrivez cette tâche en détail..."
-                rows={4}
-                className="resize-none"
+                rows={3}
+                className="resize-none text-sm"
               />
             </div>
 
@@ -662,15 +672,15 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                   setEditTodoAssignedTo(value === "none" ? "" : value)
                 }
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Sélectionner un membre" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="w-full">
                   <SelectItem value="none">Aucune assignation</SelectItem>
                   {organizationMembers.map((member) => (
                     <SelectItem key={member.userUid} value={member.userUid}>
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-6 w-6">
+                      <div className="flex items-center gap-2 w-full">
+                        <Avatar className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0">
                           <AutoSignedImage
                             src={profileImages[member.userUid] || null}
                             alt={
@@ -678,13 +688,13 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                                 ? `${member.user.firstname} ${member.user.lastname}`.trim()
                                 : member.userUid
                             }
-                            className="h-6 w-6 rounded-full object-cover"
+                            className="h-5 w-5 sm:h-6 sm:w-6 rounded-full object-cover"
                             fallbackSrc={undefined}
                             loadingComponent={
-                              <div className="h-6 w-6 rounded-full bg-muted animate-pulse" />
+                              <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-muted animate-pulse" />
                             }
                             errorComponent={
-                              <AvatarFallback className="text-xs bg-primary text-primary-foreground h-6 w-6">
+                              <AvatarFallback className="text-xs bg-primary text-primary-foreground h-5 w-5 sm:h-6 sm:w-6">
                                 {member.user &&
                                 member.user.firstname &&
                                 member.user.lastname
@@ -698,16 +708,18 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
                             }
                           />
                         </Avatar>
-                        <span>
-                          {member.user
-                            ? `${member.user.firstname} ${member.user.lastname}`.trim()
-                            : member.userUid}
-                        </span>
-                        {member.user && member.user.email && (
-                          <span className="text-muted-foreground text-xs">
-                            ({member.user.email})
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="truncate text-sm">
+                            {member.user
+                              ? `${member.user.firstname} ${member.user.lastname}`.trim()
+                              : member.userUid}
                           </span>
-                        )}
+                          {member.user && member.user.email && (
+                            <span className="text-muted-foreground text-xs truncate">
+                              {member.user.email}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </SelectItem>
                   ))}
@@ -716,7 +728,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
             </div>
 
             {/* Informations supplémentaires */}
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
                 <span>Créée récemment</span>
@@ -724,7 +736,7 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
               {editTodoAssignedTo && (
                 <div className="flex items-center gap-1">
                   <User className="h-4 w-4" />
-                  <span>
+                  <span className="truncate">
                     Assignée à {getAssignedMemberName(editTodoAssignedTo)}
                   </span>
                 </div>
@@ -732,11 +744,19 @@ export default function KanbanBoard({ eventCode, onChange }: KanbanBoardProps) {
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 px-1 sm:px-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsEditModalOpen(false)}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
               Annuler
             </Button>
-            <Button onClick={saveTodoEdit} disabled={!editTodoTitle.trim()}>
+            <Button
+              onClick={saveTodoEdit}
+              disabled={!editTodoTitle.trim()}
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
               Sauvegarder
             </Button>
           </DialogFooter>

@@ -35,6 +35,8 @@ export const ConversationSidebar = ({
     conversations,
     isLoading: conversationsLoading,
     error: conversationsError,
+    createConversation,
+    fetchConversations,
   } = useConversations({ autoFetch: true });
 
   /**
@@ -179,7 +181,7 @@ export const ConversationSidebar = ({
         {/* Bouton créer conversation */}
         <Button
           onClick={() => setIsCreateDialogOpen(true)}
-          className="w-full mt-3"
+          className="w-full mt-3 bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg"
           size="sm"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -226,10 +228,10 @@ export const ConversationSidebar = ({
                   key={conversation.id}
                   onClick={() => onConversationSelect(conversation.id)}
                   className={`
-                    p-2 rounded-lg cursor-pointer transition-colors border
+                    p-2 rounded-lg cursor-pointer transition-colors border bg-white
                     ${
                       selectedConversationId === conversation.id
-                        ? "bg-muted/50 border-2 border-accent"
+                        ? "bg-white border-2 border-accent"
                         : "border-border hover:bg-muted"
                     }
                   `}
@@ -275,6 +277,7 @@ export const ConversationSidebar = ({
           onConversationSelect(conversationId);
           setIsCreateDialogOpen(false);
         }}
+        onConversationCreatedCallback={fetchConversations}
       />
     </>
   );

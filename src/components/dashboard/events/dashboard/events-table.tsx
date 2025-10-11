@@ -221,7 +221,7 @@ export function DataTable({ data }: { data: Event[] }) {
   });
 
   return (
-    <Card className="pt-0">
+    <Card className="pt-0" id="events-table">
       <CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
         <div className="grid flex-1 gap-1">
           <CardTitle>Tableau d&apos;événements</CardTitle>

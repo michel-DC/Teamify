@@ -5,10 +5,11 @@ import { Server } from "socket.io";
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = process.env.HOSTNAME || "localhost";
-const port = process.env.SOCKET_PORT || process.env.PORT || 3001;
+// En production, utiliser le port Railway automatique. En dev, utiliser 3000
+const port = process.env.PORT || (dev ? 3000 : 3000);
 const appUrl =
   process.env.NEXT_PUBLIC_APP_URL ||
-  (dev ? "http://localhost:3000" : "http://localhost:3000");
+  (dev ? "http://localhost:3000" : `http://${hostname}:${port}`);
 
 // Validation de la configuration
 if (!dev && !process.env.NEXT_PUBLIC_APP_URL) {
@@ -18,7 +19,7 @@ if (!dev && !process.env.NEXT_PUBLIC_APP_URL) {
   process.exit(1);
 }
 
-console.log("🚀 Démarrage du serveur Socket.IO...");
+console.log("🚀 Démarrage du serveur Next.js + Socket.IO...");
 console.log(`📊 Environnement: ${dev ? "développement" : "production"}`);
 console.log(`🌐 URL de l'application: ${appUrl}`);
 console.log(`🔌 Port du serveur: ${port}`);
@@ -272,9 +273,10 @@ app
         console.error("❌ Erreur de démarrage:", err);
         throw err;
       }
-      console.log(`🚀 Serveur Socket.IO démarré sur le port ${port}`);
+      console.log(`🚀 Serveur Next.js + Socket.IO démarré sur le port ${port}`);
       console.log(`🔗 URL: http://${hostname}:${port}`);
       console.log(`🌐 Application: ${appUrl}`);
+      console.log(`🔌 Socket.IO disponible sur: ${appUrl}`);
 
       // En production, afficher des informations de santé
       if (!dev) {

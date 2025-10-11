@@ -96,7 +96,7 @@ export default function PreparationBanner({
         </div>
         <div className="mt-4">
           <Link href={`/dashboard/events/todo/${eventCode}`}>
-            <Button>
+            <Button className="bg-[#7C3AED] hover:bg-[#c1a3f4] text-white">
               {percentage <= 0
                 ? "Commencer la progression"
                 : "Continuer la progression"}

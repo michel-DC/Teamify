@@ -277,9 +277,13 @@ export function GeneralSettings({
           </div>
 
           {canModify && (
-            <Button onClick={handleSave} disabled={loading} className="w-full">
+            <Button
+              onClick={handleSave}
+              disabled={loading}
+              className="w-full bg-[#7C3AED] hover:bg-[#7C3AED] text-white border border-[#7C3AED] shadow-lg"
+            >
               <Save className="h-4 w-4 mr-2" />
-              {loading ? "Sauvegarde..." : "Sauvegarder les modifications 🤩​"}
+              {loading ? "Sauvegarde..." : "Sauvegarder les modifications​"}
             </Button>
           )}
         </CardContent>

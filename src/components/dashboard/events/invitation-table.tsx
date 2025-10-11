@@ -48,6 +48,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useActiveOrganization } from "@/hooks/useActiveOrganization";
+import Image from "next/image";
 
 interface Invitation {
   id: number;
@@ -368,40 +369,49 @@ export default function InvitationTable() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Invitations envoyées
+            <span className="text-lg sm:text-xl">Invitations envoyées</span>
           </CardTitle>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <RefreshCw
-                className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
-              />
-              {refreshing ? "Actualisation..." : "Actualiser"}
-            </Button>
-            <Button
-              onClick={handleExportCSV}
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Export CSV
-            </Button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="flex gap-2">
+              <Button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                variant="outline"
+                size="sm"
+                className="flex items-center justify-center gap-2 flex-1 sm:flex-none"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`}
+                />
+                <span className="hidden sm:inline">
+                  {refreshing ? "Actualisation..." : "Actualiser"}
+                </span>
+                <span className="sm:hidden">
+                  {refreshing ? "..." : "Actualiser"}
+                </span>
+              </Button>
+              <Button
+                onClick={handleExportCSV}
+                variant="outline"
+                size="sm"
+                className="flex items-center justify-center gap-2 flex-1 sm:flex-none"
+              >
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">Export CSV</span>
+                <span className="sm:hidden">Export</span>
+              </Button>
+            </div>
             <Button
               onClick={() => setInviteDialogOpen(true)}
               size="sm"
-              className="gap-2"
+              className="gap-2 bg-[#7C3AED] hover:bg-[#7C3AED]/90 text-white border border-[#7C3AED] shadow-lg w-full sm:w-auto"
             >
               <UserPlus className="h-4 w-4" />
-              Envoyer une invitation
+              <span className="hidden sm:inline">Envoyer une invitation</span>
+              <span className="sm:hidden">Inviter</span>
             </Button>
           </div>
         </div>
@@ -411,39 +421,55 @@ export default function InvitationTable() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-muted/30 rounded-lg">
-            <div className="text-2xl font-bold text-primary">{stats.total}</div>
-            <div className="text-sm text-muted-foreground">Total</div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="text-center p-3 sm:p-4 bg-muted/30 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-primary">
+              {stats.total}
+            </div>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              Total
+            </div>
           </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-green-600">
               {stats.accepted}
             </div>
-            <div className="text-sm text-muted-foreground">Acceptées</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              Acceptées
+            </div>
           </div>
-          <div className="text-center p-4 bg-yellow-50 rounded-lg">
-            <div className="text-2xl font-bold text-yellow-600">
+          <div className="text-center p-3 sm:p-4 bg-yellow-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-yellow-600">
               {stats.pending}
             </div>
-            <div className="text-sm text-muted-foreground">En attente</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              En attente
+            </div>
           </div>
-          <div className="text-center p-4 bg-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-red-600">
+          <div className="text-center p-3 sm:p-4 bg-red-50 rounded-lg">
+            <div className="text-xl sm:text-2xl font-bold text-red-600">
               {stats.declined}
             </div>
-            <div className="text-sm text-muted-foreground">Refusées</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">
+              Refusées
+            </div>
           </div>
         </div>
 
         {invitations.length === 0 ? (
           <div className="text-center py-8">
-            <Users className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+            <Image
+              src="/images/illustration/no-invitation-send.svg"
+              alt="Aucune invitation envoyée"
+              width={100}
+              height={100}
+              className="mx-auto"
+            />
             <p className="text-muted-foreground">
-              Aucune invitation envoyée pour votre organisation
+              Aucune invitation envoyée pour vos événements
             </p>
             <Button
-              className="mt-4 gap-2"
+              className="mt-4 gap-2 bg-[#7C3AED] hover:bg-[#7C3AED]/90 text-white border border-[#7C3AED] shadow-lg"
               onClick={() => setInviteDialogOpen(true)}
             >
               <UserPlus className="h-4 w-4" />
@@ -451,48 +477,83 @@ export default function InvitationTable() {
             </Button>
           </div>
         ) : (
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nom</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Événement</TableHead>
-                  <TableHead>Statut</TableHead>
-                  <TableHead>Envoyée le</TableHead>
-                  <TableHead>Réponse le</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invitations.map((invitation) => (
-                  <TableRow key={invitation.id}>
-                    <TableCell className="font-medium">
+          <>
+            {/* Version mobile - Cards */}
+            <div className="block sm:hidden space-y-3">
+              {invitations.map((invitation) => (
+                <div
+                  key={invitation.id}
+                  className="border rounded-lg p-4 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-sm">
                       {invitation.receiverName}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {invitation.receiverEmail}
-                    </TableCell>
-                    <TableCell>{invitation.eventTitle || "N/A"}</TableCell>
-                    <TableCell>{getStatusBadge(invitation.status)}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(invitation.sentAt)}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {invitation.respondedAt
-                        ? formatDate(invitation.respondedAt)
-                        : "-"}
-                    </TableCell>
+                    </div>
+                    {getStatusBadge(invitation.status)}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {invitation.receiverEmail}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>Événement:</strong> {invitation.eventTitle || "N/A"}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    <strong>Envoyée:</strong> {formatDate(invitation.sentAt)}
+                  </div>
+                  {invitation.respondedAt && (
+                    <div className="text-xs text-muted-foreground">
+                      <strong>Réponse:</strong>{" "}
+                      {formatDate(invitation.respondedAt)}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Version desktop - Table */}
+            <div className="hidden sm:block rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nom</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Événement</TableHead>
+                    <TableHead>Statut</TableHead>
+                    <TableHead>Envoyée le</TableHead>
+                    <TableHead>Réponse le</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {invitations.map((invitation) => (
+                    <TableRow key={invitation.id}>
+                      <TableCell className="font-medium">
+                        {invitation.receiverName}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {invitation.receiverEmail}
+                      </TableCell>
+                      <TableCell>{invitation.eventTitle || "N/A"}</TableCell>
+                      <TableCell>{getStatusBadge(invitation.status)}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(invitation.sentAt)}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {invitation.respondedAt
+                          ? formatDate(invitation.respondedAt)
+                          : "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </CardContent>
 
       {/* Dialog d'envoi d'invitation */}
       <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Envoyer une invitation</DialogTitle>
           </DialogHeader>
@@ -508,6 +569,7 @@ export default function InvitationTable() {
                   setFormData((prev) => ({ ...prev, email: e.target.value }))
                 }
                 required
+                className="w-full"
               />
             </div>
 
@@ -530,7 +592,7 @@ export default function InvitationTable() {
                   }));
                 }}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Sélectionnez un événement" />
                 </SelectTrigger>
                 <SelectContent>
@@ -543,15 +605,20 @@ export default function InvitationTable() {
               </Select>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setInviteDialogOpen(false)}
+                className="w-full sm:w-auto order-2 sm:order-1"
               >
                 Annuler
               </Button>
-              <Button type="submit" disabled={sending}>
+              <Button
+                type="submit"
+                disabled={sending}
+                className="bg-[#7C3AED] hover:bg-[#7C3AED]/90 text-white border border-[#7C3AED] shadow-lg w-full sm:w-auto order-1 sm:order-2"
+              >
                 {sending ? "Envoi en cours..." : "Envoyer l'invitation"}
               </Button>
             </DialogFooter>

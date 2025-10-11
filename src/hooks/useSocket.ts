@@ -142,25 +142,12 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     setError(null);
 
     try {
-      // Déterminer l'URL du serveur Socket.IO
-      const isProduction = process.env.NODE_ENV === "production";
-      const isLocalhost =
-        typeof window !== "undefined" &&
-        window.location.hostname === "localhost";
-
+      // En production, utiliser la même URL que l'application Next.js
+      // En développement, utiliser localhost:3000 (même port que Next.js)
       const socketUrl =
-        process.env.NEXT_PUBLIC_SOCKET_URL ||
-        "https://teamify-socket-server.up.railway.app";
-
-      // Log pour le débogage
-      if (process.env.NODE_ENV === "development") {
-        console.log("🔌 Connexion Socket.IO:", {
-          environment: process.env.NODE_ENV,
-          socketUrl,
-          isProduction,
-          hasEnvVar: !!process.env.NEXT_PUBLIC_SOCKET_URL,
-        });
-      }
+        process.env.NODE_ENV === "production"
+          ? window.location.origin
+          : "http://localhost:3000";
 
       const socket = io(socketUrl, {
         path: "/socket.io",

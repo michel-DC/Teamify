@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { useConversations } from "@/hooks/useConversations";
 import { useSocket } from "@/hooks/useSocket";
 import { useAuth } from "@/hooks/useAuth";
-import { ConversationSidebar } from "@/components/dashboard/messaging/conversation-sidebar";
-import { ConversationView } from "@/components/dashboard/messaging/conversation-view";
-import { EmptyConversationState } from "@/components/dashboard/messaging/empty-conversation-state";
-import { SocketDebug } from "@/components/dashboard/messaging/socket-debug";
-import { SocketTest } from "@/components/dashboard/messaging/socket-test";
+import {
+  ConversationSidebar,
+  ConversationView,
+  EmptyConversationState,
+  UserConnectionStatus,
+} from "@/components/dashboard/messaging";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Menu } from "lucide-react";
 
@@ -136,6 +137,13 @@ export default function MessagesPage() {
 
         {/* Zone de conversation */}
         <div className="flex-1 flex flex-col w-full">
+          {/* Indicateur de statut de connexion */}
+          <UserConnectionStatus
+            isConnected={isConnected}
+            isConnecting={isConnecting}
+            participantCount={selectedConversation?.members?.length || 0}
+          />
+
           {selectedConversationId && selectedConversation ? (
             <ConversationView
               conversationId={selectedConversationId}
@@ -150,43 +158,6 @@ export default function MessagesPage() {
           )}
         </div>
       </div>
-
-      {/* Composant de débogage Socket.IO */}
-      <SocketDebug />
-
-      {/* Composant de test Socket.IO */}
-      <div className="fixed bottom-4 left-4 z-50">
-        <SocketTest />
-      </div>
     </div>
   );
-}
-
-/**
- * Composant de statut de connexion
- */
-function ConnectionStatus({
-  isConnected,
-  isConnecting,
-}: {
-  isConnected: boolean;
-  isConnecting: boolean;
-}) {
-  if (isConnecting) {
-    return (
-      <div className="p-2 text-center text-sm text-muted-foreground">
-        Connexion en cours...
-      </div>
-    );
-  }
-
-  if (!isConnected) {
-    return (
-      <div className="p-2 text-center text-sm text-destructive">
-        Connexion perdue
-      </div>
-    );
-  }
-
-  return <div className="p-2 text-center text-sm text-green-600">Connecté</div>;
 }

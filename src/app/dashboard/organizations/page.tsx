@@ -33,7 +33,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Toaster } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
@@ -320,8 +319,11 @@ export default function OrganizationsDashboardPage() {
               Gérez vos organisations et leurs événements
             </p>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button onClick={() => router.push("/dashboard/organizations/new")}>
+          <div className="flex items-center space-x-2 ">
+            <Button
+              onClick={() => router.push("/dashboard/organizations/new")}
+              className="bg-violet-600 hover:bg-violet-700 text-white border border-violet-600 shadow-lg"
+            >
               <Plus className="mr-2 h-4 w-4" />
               Nouvelle organisation
             </Button>
