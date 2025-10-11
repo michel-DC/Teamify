@@ -26,6 +26,12 @@
       "VERCEL_LOG_LEVEL": "info"
     }
   },
+  "rewrites": [
+    {
+      "source": "/socket.io/(.*)",
+      "destination": "https://teamify-pre-production.up.railway.app/socket.io/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/api/images/signed-url",
