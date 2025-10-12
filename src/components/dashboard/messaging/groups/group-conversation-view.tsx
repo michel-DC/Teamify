@@ -62,18 +62,24 @@ export const GroupConversationView = ({
     },
   });
 
-  // Rejoindre la conversation quand elle change
+  // Rejoindre la conversation quand elle change - LOGIQUE CORRIGÉE
   useEffect(() => {
-    if (conversationId && isConnected) {
-      connectToChannel(`conversation-${conversationId}`);
+    if (conversationId) {
+      const channelName = `conversation-${conversationId}`;
+      console.log(`🔌 Connexion à la conversation de groupe: ${channelName}`);
+      connectToChannel(channelName);
+    } else {
+      console.log("🔌 Aucune conversation de groupe sélectionnée, déconnexion");
+      disconnect();
     }
 
     return () => {
-      if (conversationId && isConnected) {
+      if (conversationId) {
+        console.log("🔌 Nettoyage de la connexion de groupe");
         disconnect();
       }
     };
-  }, [conversationId, isConnected, connectToChannel, disconnect]);
+  }, [conversationId, connectToChannel, disconnect]);
 
   /**
    * Obtenir le nom d'affichage d'une conversation de groupe

@@ -10,6 +10,7 @@ import {
   EmptyConversationState,
   UserConnectionStatus,
 } from "@/components/dashboard/messaging";
+import { ConnectionDebug } from "@/components/dashboard/messaging/connection-debug";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Menu } from "lucide-react";
 
@@ -137,6 +138,9 @@ export default function MessagesPage() {
 
         {/* Zone de conversation */}
         <div className="flex-1 flex flex-col w-full">
+          {/* Debug de connexion - temporaire */}
+          <ConnectionDebug conversationId={selectedConversationId} />
+
           {/* Indicateur de statut de connexion */}
           <UserConnectionStatus
             isConnected={isConnected}

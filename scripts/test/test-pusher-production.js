@@ -170,6 +170,9 @@ async function testEventTrigger() {
 async function main() {
   console.log("🚀 Test de configuration Pusher en production\n");
   console.log(`🌐 URL de production: ${PRODUCTION_URL}\n`);
+  console.log(
+    `📡 Endpoint test: ${PRODUCTION_URL}${API_ENDPOINTS.pusherTest}\n`
+  );
 
   await testPusherConfiguration();
   await testEventTrigger();

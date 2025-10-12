@@ -60,18 +60,24 @@ export const ConversationView = ({
     },
   });
 
-  // Rejoindre la conversation quand elle change
+  // Rejoindre la conversation quand elle change - LOGIQUE CORRIGÉE
   useEffect(() => {
-    if (conversationId && isConnected) {
-      connectToChannel(`conversation-${conversationId}`);
+    if (conversationId) {
+      const channelName = `conversation-${conversationId}`;
+      console.log(`🔌 Connexion à la conversation: ${channelName}`);
+      connectToChannel(channelName);
+    } else {
+      console.log("🔌 Aucune conversation sélectionnée, déconnexion");
+      disconnect();
     }
 
     return () => {
-      if (conversationId && isConnected) {
+      if (conversationId) {
+        console.log("🔌 Nettoyage de la connexion");
         disconnect();
       }
     };
-  }, [conversationId, isConnected, connectToChannel, disconnect]);
+  }, [conversationId, connectToChannel, disconnect]);
 
   /**
    * Obtenir le nom d'affichage d'une conversation
