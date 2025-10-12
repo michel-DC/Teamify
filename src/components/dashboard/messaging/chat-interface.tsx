@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useSocket, MessageData, MessageReadData } from "@/hooks/useSocket";
+import {
+  usePusherFixed as usePusher,
+  PusherMessageEvent,
+  PusherMessageReadEvent,
+} from "@/hooks/usePusherFixed";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
@@ -60,37 +64,33 @@ export const ChatInterface = ({
 }: ChatInterfaceProps) => {
   const { checkAuth } = useAuth();
   const [user, setUser] = useState<any>(null);
-  const [messages, setMessages] = useState<MessageData[]>([]);
+  const [messages, setMessages] = useState<PusherMessageEvent[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [readReceipts, setReadReceipts] = useState<
-    Map<string, MessageReadData>
+    Map<string, PusherMessageReadEvent>
   >(new Map());
 
-  // Initialiser Socket.IO
+  // Initialiser Pusher avec le hook corrigé
   const {
     isConnected,
     isConnecting,
-    error: socketError,
-    sendMessage,
-    markMessageAsRead,
-    joinConversation,
-    leaveConversation,
-  } = useSocket({
-    onMessage: (message: MessageData) => {
+    error: pusherError,
+    connectToChannel,
+    disconnect,
+    currentChannel,
+  } = usePusher({
+    autoConnect: false, // Désactiver la connexion automatique
+    onMessage: (message: PusherMessageEvent) => {
+      console.log("📨 Message reçu dans ChatInterface:", message);
       setMessages((prev) => [...prev, message]);
-
-      // Marquer automatiquement comme lu si c'est la conversation active
-      if (message.conversationId === selectedConversationId) {
-        markMessageAsRead(message.id);
-      }
     },
-    onMessageRead: (data: MessageReadData) => {
+    onMessageRead: (data: PusherMessageReadEvent) => {
       setReadReceipts((prev) => new Map(prev.set(data.messageId, data)));
     },
     onError: (error) => {
-      console.error("Erreur Socket.IO:", error);
+      console.error("❌ Erreur Pusher dans ChatInterface:", error);
     },
   });
 
@@ -120,41 +120,69 @@ export const ChatInterface = ({
   }, [messages]);
 
   /**
-   * Rejoindre la conversation sélectionnée
+   * Rejoindre la conversation sélectionnée - LOGIQUE CORRIGÉE
    */
   useEffect(() => {
-    if (selectedConversationId && isConnected) {
-      joinConversation(selectedConversationId);
+    if (selectedConversationId) {
+      const channelName = `conversation-${selectedConversationId}`;
+      console.log(`🔌 Connexion à la conversation: ${channelName}`);
+      connectToChannel(channelName);
+    } else {
+      console.log("🔌 Aucune conversation sélectionnée, déconnexion");
+      disconnect();
     }
 
     return () => {
       if (selectedConversationId) {
-        leaveConversation(selectedConversationId);
+        console.log("🔌 Nettoyage de la connexion");
+        disconnect();
       }
     };
-  }, [
-    selectedConversationId,
-    isConnected,
-    joinConversation,
-    leaveConversation,
-  ]);
+  }, [selectedConversationId, connectToChannel, disconnect]);
 
   /**
    * Envoi d'un nouveau message
    */
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedConversationId || !isConnected) {
+      console.log("❌ Impossible d'envoyer le message:", {
+        hasMessage: !!newMessage.trim(),
+        hasConversation: !!selectedConversationId,
+        isConnected,
+      });
       return;
     }
 
-    const success = sendMessage({
-      conversationId: selectedConversationId,
-      content: newMessage.trim(),
-    });
+    try {
+      console.log("📤 Envoi du message:", {
+        conversationId: selectedConversationId,
+        content: newMessage.trim(),
+        senderId: user?.uid,
+      });
 
-    if (success) {
-      setNewMessage("");
-      setIsTyping(false);
+      // Envoyer le message via l'API
+      const response = await fetch("/api/messages/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          conversationId: selectedConversationId,
+          content: newMessage.trim(),
+          senderId: user?.uid || "unknown",
+        }),
+      });
+
+      if (response.ok) {
+        console.log("✅ Message envoyé avec succès");
+        setNewMessage("");
+        setIsTyping(false);
+      } else {
+        console.error("❌ Erreur lors de l'envoi du message:", response.status);
+      }
+    } catch (error) {
+      console.error("❌ Erreur lors de l'envoi du message:", error);
     }
   };
 
@@ -211,7 +239,7 @@ export const ChatInterface = ({
             <MessageCircle className="h-5 w-5" />
             Messages
           </h2>
-          {socketError && (
+          {pusherError && (
             <Badge variant="destructive" className="mt-2">
               Erreur de connexion
             </Badge>
@@ -223,7 +251,7 @@ export const ChatInterface = ({
           )}
           {isConnected && (
             <Badge variant="default" className="mt-2">
-              En ligne
+              En ligne ({currentChannel})
             </Badge>
           )}
         </div>
@@ -396,11 +424,15 @@ export const ChatInterface = ({
                   }}
                   onKeyPress={handleKeyPress}
                   placeholder="Tapez votre message..."
-                  disabled={!isConnected}
+                  disabled={!isConnected || !selectedConversationId}
                 />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim() || !isConnected}
+                  disabled={
+                    !newMessage.trim() ||
+                    !isConnected ||
+                    !selectedConversationId
+                  }
                   size="icon"
                 >
                   <Send className="h-4 w-4" />
@@ -409,6 +441,11 @@ export const ChatInterface = ({
               {!isConnected && (
                 <p className="text-xs text-muted-foreground mt-2">
                   Connexion en cours...
+                </p>
+              )}
+              {!selectedConversationId && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Sélectionnez une conversation
                 </p>
               )}
             </div>

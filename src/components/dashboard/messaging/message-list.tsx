@@ -75,8 +75,20 @@ export const MessageList = ({
   /**
    * Formater l'heure d'un message
    */
-  const formatMessageTime = (date: Date) => {
-    return format(new Date(date), "HH:mm", { locale: fr });
+  const formatMessageTime = (date: Date | string) => {
+    try {
+      const dateObj = typeof date === "string" ? new Date(date) : date;
+
+      // Vérifier si la date est valide
+      if (isNaN(dateObj.getTime())) {
+        return "Invalid date";
+      }
+
+      return format(dateObj, "HH:mm", { locale: fr });
+    } catch (error) {
+      console.error("Erreur de formatage de date:", error);
+      return "Invalid date";
+    }
   };
 
   /**

@@ -52,12 +52,13 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
 
     try {
       const response = await fetch(
-        `/api/conversations/${conversationId}/messages`,
+        `/api/messages?conversationId=${conversationId}`,
         {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
         }
       );
 
@@ -66,7 +67,7 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
       }
 
       const data = await response.json();
-      setMessages(data.messages || []);
+      setMessages(data.data || []);
     } catch (err) {
       console.error(
         "[useMessages] Erreur lors de la récupération des messages:",
@@ -84,6 +85,12 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
    */
   const addMessage = useCallback((message: Message) => {
     setMessages((prev) => {
+      // Vérifier si le message existe déjà (éviter les doublons)
+      const messageExists = prev.some((msg) => msg.id === message.id);
+      if (messageExists) {
+        return prev;
+      }
+
       // Si c'est un message optimiste (ID commence par "temp_"), le remplacer
       if (message.id.startsWith("temp_")) {
         return [...prev, message];

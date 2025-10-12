@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useConversations } from "@/hooks/useConversations";
-import { useSocket } from "@/hooks/useSocket";
+import { usePusher } from "@/hooks/usePusher";
 import { useAuth } from "@/hooks/useAuth";
 import {
   ConversationSidebar,
@@ -28,10 +28,10 @@ export default function MessagesPage() {
 
   const { conversations } = useConversations({ autoFetch: true });
 
-  // Hook Socket.IO pour la messagerie temps réel
-  const { isConnected, isConnecting } = useSocket({
+  // Hook Pusher pour la messagerie temps réel
+  const { isConnected, isConnecting } = usePusher({
     onError: (error) => {
-      console.error("Erreur Socket.IO:", error);
+      console.error("Erreur Pusher:", error);
     },
   });
 
