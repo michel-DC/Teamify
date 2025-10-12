@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePusher } from "@/hooks/usePusher";
+import { usePusherFixed as usePusher } from "@/hooks/usePusherFixed";
 import { useMessages } from "@/hooks/useMessages";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { MessageList } from "../message-list";

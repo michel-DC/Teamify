@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import {
-  usePusher,
+  usePusherFixed as usePusher,
   PusherMessageEvent,
   PusherMessageReadEvent,
-} from "@/hooks/usePusher";
+} from "@/hooks/usePusherFixed";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
@@ -72,22 +72,25 @@ export const ChatInterface = ({
     Map<string, PusherMessageReadEvent>
   >(new Map());
 
-  // Initialiser Pusher
+  // Initialiser Pusher avec le hook corrigé
   const {
     isConnected,
     isConnecting,
     error: pusherError,
     connectToChannel,
     disconnect,
+    currentChannel,
   } = usePusher({
+    autoConnect: false, // Désactiver la connexion automatique
     onMessage: (message: PusherMessageEvent) => {
+      console.log("📨 Message reçu dans ChatInterface:", message);
       setMessages((prev) => [...prev, message]);
     },
     onMessageRead: (data: PusherMessageReadEvent) => {
       setReadReceipts((prev) => new Map(prev.set(data.messageId, data)));
     },
     onError: (error) => {
-      console.error("Erreur Pusher:", error);
+      console.error("❌ Erreur Pusher dans ChatInterface:", error);
     },
   });
 
@@ -117,29 +120,46 @@ export const ChatInterface = ({
   }, [messages]);
 
   /**
-   * Rejoindre la conversation sélectionnée
+   * Rejoindre la conversation sélectionnée - LOGIQUE CORRIGÉE
    */
   useEffect(() => {
-    if (selectedConversationId && isConnected) {
-      connectToChannel(`conversation-${selectedConversationId}`);
+    if (selectedConversationId) {
+      const channelName = `conversation-${selectedConversationId}`;
+      console.log(`🔌 Connexion à la conversation: ${channelName}`);
+      connectToChannel(channelName);
+    } else {
+      console.log("🔌 Aucune conversation sélectionnée, déconnexion");
+      disconnect();
     }
 
     return () => {
       if (selectedConversationId) {
+        console.log("🔌 Nettoyage de la connexion");
         disconnect();
       }
     };
-  }, [selectedConversationId, isConnected, connectToChannel, disconnect]);
+  }, [selectedConversationId, connectToChannel, disconnect]);
 
   /**
    * Envoi d'un nouveau message
    */
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !selectedConversationId || !isConnected) {
+      console.log("❌ Impossible d'envoyer le message:", {
+        hasMessage: !!newMessage.trim(),
+        hasConversation: !!selectedConversationId,
+        isConnected,
+      });
       return;
     }
 
     try {
+      console.log("📤 Envoi du message:", {
+        conversationId: selectedConversationId,
+        content: newMessage.trim(),
+        senderId: user?.uid,
+      });
+
       // Envoyer le message via l'API
       const response = await fetch("/api/messages/send", {
         method: "POST",
@@ -155,11 +175,14 @@ export const ChatInterface = ({
       });
 
       if (response.ok) {
+        console.log("✅ Message envoyé avec succès");
         setNewMessage("");
         setIsTyping(false);
+      } else {
+        console.error("❌ Erreur lors de l'envoi du message:", response.status);
       }
     } catch (error) {
-      console.error("Erreur lors de l'envoi du message:", error);
+      console.error("❌ Erreur lors de l'envoi du message:", error);
     }
   };
 
@@ -228,7 +251,7 @@ export const ChatInterface = ({
           )}
           {isConnected && (
             <Badge variant="default" className="mt-2">
-              En ligne
+              En ligne ({currentChannel})
             </Badge>
           )}
         </div>
@@ -401,11 +424,15 @@ export const ChatInterface = ({
                   }}
                   onKeyPress={handleKeyPress}
                   placeholder="Tapez votre message..."
-                  disabled={!isConnected}
+                  disabled={!isConnected || !selectedConversationId}
                 />
                 <Button
                   onClick={handleSendMessage}
-                  disabled={!newMessage.trim() || !isConnected}
+                  disabled={
+                    !newMessage.trim() ||
+                    !isConnected ||
+                    !selectedConversationId
+                  }
                   size="icon"
                 >
                   <Send className="h-4 w-4" />
@@ -414,6 +441,11 @@ export const ChatInterface = ({
               {!isConnected && (
                 <p className="text-xs text-muted-foreground mt-2">
                   Connexion en cours...
+                </p>
+              )}
+              {!selectedConversationId && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Sélectionnez une conversation
                 </p>
               )}
             </div>
