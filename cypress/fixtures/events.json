@@ -1,0 +1,32 @@
+{
+  "testEvent": {
+    "title": "Test Event",
+    "description": "Un événement de test pour les tests E2E",
+    "startDate": "2025-12-25T10:00:00.000Z",
+    "endDate": "2025-12-25T18:00:00.000Z",
+    "location": "Paris, France",
+    "locationCoords": {
+      "lat": 48.8566,
+      "lon": 2.3522
+    },
+    "capacity": 50,
+    "budget": 1000,
+    "category": "REUNION",
+    "isPublic": true
+  },
+  "testConference": {
+    "title": "Test Conference",
+    "description": "Une conférence de test",
+    "startDate": "2025-12-30T09:00:00.000Z",
+    "endDate": "2025-12-30T17:00:00.000Z",
+    "location": "Lyon, France",
+    "locationCoords": {
+      "lat": 45.764,
+      "lon": 4.8357
+    },
+    "capacity": 200,
+    "budget": 5000,
+    "category": "CONFERENCE",
+    "isPublic": false
+  }
+}
