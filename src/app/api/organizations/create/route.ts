@@ -22,7 +22,6 @@ export async function POST(req: Request) {
   const imageUrl = formData.get("imageUrl") as string | null;
   const locationRaw = formData.get("location") as string | null;
 
-  // Parse location JSON si fourni
   let location: unknown = null;
   if (locationRaw) {
     try {

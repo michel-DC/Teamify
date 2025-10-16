@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-// Types pour les données de la sidebar
 interface User {
   name: string;
   email: string;
@@ -44,20 +43,17 @@ interface SidebarData {
 }
 
 interface SidebarStore {
-  // État
   data: SidebarData;
   loading: boolean;
   initialized: boolean;
   lastFetch: number | null;
   error: string | null;
 
-  // Actions
   fetchSidebarData: () => Promise<void>;
   setLoading: (loading: boolean) => void;
   resetStore: () => void;
 }
 
-// Données initiales
 const initialData: SidebarData = {
   user: {
     name: "",

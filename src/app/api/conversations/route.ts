@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * Récupère les conversations de l'utilisateur connecté
- */
 export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
@@ -15,7 +12,6 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const organizationId = searchParams.get("organizationId");
 
-    // Construire les filtres
     const whereClause: any = {
       members: {
         some: {

@@ -1,9 +1,6 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-/**
- * @param Configuration du client S3 pour Cloudflare R2
- */
 const s3Client = new S3Client({
   region: "auto",
   endpoint: process.env.R2_ENDPOINT,
@@ -14,35 +11,25 @@ const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
-/**
- * @param Types pour les URLs signées
- */
 export interface SignedUrlOptions {
-  expiresIn?: number; // Durée de validité en secondes (défaut: 15 minutes)
-  contentType?: string; // Type de contenu pour les headers
-  responseContentType?: string; // Type de réponse forcé
-  responseContentDisposition?: string; // Disposition de la réponse
+  expiresIn?: number;
+  contentType?: string;
+  responseContentType?: string;
+  responseContentDisposition?: string;
 }
 
-/**
- * @param Génération d'une URL signée pour un objet R2
- *
- * Crée une URL temporaire permettant d'accéder à un fichier privé
- * dans le bucket R2. L'URL est valide pour la durée spécifiée.
- */
 export async function generateSignedUrl(
   bucketName: string,
   key: string,
   options: SignedUrlOptions = {}
 ): Promise<string> {
   const {
-    expiresIn = 15 * 60, // 15 minutes par défaut
+    expiresIn = 15 * 60,
     contentType,
     responseContentType,
     responseContentDisposition,
   } = options;
 
-  // Vérification des variables d'environnement
   if (
     !process.env.R2_ACCESS_KEY_ID ||
     !process.env.R2_SECRET_ACCESS_KEY ||
@@ -116,50 +103,42 @@ export async function objectExists(
   }
 }
 
-/**
- * @param Extraction du nom de fichier depuis une URL R2
- */
-export function extractKeyFromR2Url(url: string): string | null {
+function parseUrlPath(url: string): string[] | null {
   try {
     const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split("/");
-
-    // Supprimer le bucket name et récupérer le reste du chemin
-    if (pathParts.length > 2) {
-      const extractedParts = pathParts.slice(2);
-
-      // Si la première partie est le même nom que le bucket par défaut, la supprimer
-      const defaultBucket = process.env.R2_BUCKET;
-      if (defaultBucket && extractedParts[0] === defaultBucket) {
-        return extractedParts.slice(1).join("/");
-      }
-
-      return extractedParts.join("/");
-    }
-
-    return null;
+    return urlObj.pathname.split("/");
   } catch {
     return null;
   }
 }
 
-/**
- * @param Extraction du bucket name depuis une URL R2
- */
-export function extractBucketFromR2Url(url: string): string | null {
-  try {
-    const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split("/");
+function removeDefaultBucketFromPath(pathParts: string[]): string[] {
+  const defaultBucket = process.env.R2_BUCKET;
+  if (defaultBucket && pathParts[0] === defaultBucket) {
+    return pathParts.slice(1);
+  }
+  return pathParts;
+}
 
-    // Le bucket est généralement le premier élément du path
-    if (pathParts.length > 1) {
-      return pathParts[1];
-    }
-
-    return null;
-  } catch {
+export function extractKeyFromR2Url(url: string): string | null {
+  const pathParts = parseUrlPath(url);
+  if (!pathParts || pathParts.length <= 2) {
     return null;
   }
+
+  const extractedParts = pathParts.slice(2);
+  const finalParts = removeDefaultBucketFromPath(extractedParts);
+
+  return finalParts.join("/");
+}
+
+export function extractBucketFromR2Url(url: string): string | null {
+  const pathParts = parseUrlPath(url);
+  if (!pathParts || pathParts.length <= 1) {
+    return null;
+  }
+
+  return pathParts[1];
 }
 
 /**

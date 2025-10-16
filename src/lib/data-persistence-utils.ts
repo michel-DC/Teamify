@@ -1,29 +1,6 @@
-/**
- * @param Utilitaires pour la gestion de persistance des données
- *
- * Fonctions utilitaires pour tester, déboguer et gérer
- * la persistance des données dans l'application
- */
+function getLocalStorageData() {
+  const data = {} as Record<string, any>;
 
-/**
- * @param Vérification de l'état des données persistées
- *
- * Retourne un objet avec l'état actuel de toutes les données persistées
- */
-export function getPersistedDataStatus() {
-  const status = {
-    localStorage: {} as Record<string, any>,
-    sessionStorage: {} as Record<string, any>,
-    cookies: {} as Record<string, string>,
-    stores: {
-      sidebar: false,
-      organizations: false,
-      events: false,
-      tasks: false,
-    },
-  };
-
-  // Vérification localStorage
   try {
     const keysToCheck = [
       "sidebar-storage",
@@ -38,9 +15,9 @@ export function getPersistedDataStatus() {
       const value = localStorage.getItem(key);
       if (value) {
         try {
-          status.localStorage[key] = JSON.parse(value);
+          data[key] = JSON.parse(value);
         } catch {
-          status.localStorage[key] = value;
+          data[key] = value;
         }
       }
     });
@@ -48,7 +25,12 @@ export function getPersistedDataStatus() {
     console.warn("Erreur lors de la vérification du localStorage:", error);
   }
 
-  // Vérification sessionStorage
+  return data;
+}
+
+function getSessionStorageData() {
+  const data = {} as Record<string, any>;
+
   try {
     for (let i = 0; i < sessionStorage.length; i++) {
       const key = sessionStorage.key(i);
@@ -56,9 +38,9 @@ export function getPersistedDataStatus() {
         const value = sessionStorage.getItem(key);
         if (value) {
           try {
-            status.sessionStorage[key] = JSON.parse(value);
+            data[key] = JSON.parse(value);
           } catch {
-            status.sessionStorage[key] = value;
+            data[key] = value;
           }
         }
       }
@@ -67,71 +49,83 @@ export function getPersistedDataStatus() {
     console.warn("Erreur lors de la vérification de la sessionStorage:", error);
   }
 
-  // Vérification cookies
+  return data;
+}
+
+function getCookiesData() {
+  const data = {} as Record<string, string>;
+
   try {
     const cookies = document.cookie.split(";");
     cookies.forEach((cookie) => {
       const [name, value] = cookie.trim().split("=");
       if (name && value) {
-        status.cookies[name] = value;
+        data[name] = value;
       }
     });
   } catch (error) {
     console.warn("Erreur lors de la vérification des cookies:", error);
   }
 
-  // Vérification des stores (approximative via localStorage)
-  status.stores.sidebar = !!status.localStorage["sidebar-storage"];
-  status.stores.organizations = !!status.localStorage["organizations-storage"];
-  status.stores.events = !!status.localStorage["events-storage"];
-  status.stores.tasks = !!status.localStorage["tasks-storage"];
-
-  return status;
+  return data;
 }
 
-/**
- * @param Affichage de l'état des données persistées
- *
- * Affiche dans la console l'état actuel de toutes les données persistées
- */
+export function getPersistedDataStatus() {
+  const localStorageData = getLocalStorageData();
+  const sessionStorageData = getSessionStorageData();
+  const cookiesData = getCookiesData();
 
-/**
- * @param Test de la fonctionnalité de persistance
- *
- * Simule le vidage des données et vérifie le résultat
- */
+  return {
+    localStorage: localStorageData,
+    sessionStorage: sessionStorageData,
+    cookies: cookiesData,
+    stores: {
+      sidebar: !!localStorageData["sidebar-storage"],
+      organizations: !!localStorageData["organizations-storage"],
+      events: !!localStorageData["events-storage"],
+      tasks: !!localStorageData["tasks-storage"],
+    },
+  };
+}
+
+function clearLocalStorageData() {
+  const keysToRemove = [
+    "sidebar-storage",
+    "organizations-storage",
+    "events-storage",
+    "tasks-storage",
+  ];
+
+  keysToRemove.forEach((key) => {
+    localStorage.removeItem(key);
+  });
+}
+
+function clearSessionStorageData() {
+  sessionStorage.clear();
+}
+
+function clearCookiesData() {
+  const cookiesToRemove = [
+    "sidebar-data",
+    "organizations-data",
+    "events-data",
+    "user-preferences",
+    "tasks-data",
+  ];
+
+  cookiesToRemove.forEach((cookieName) => {
+    document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+  });
+}
+
 export function testDataPersistence() {
   console.group("🧪 Test de la persistance des données");
 
-  // Simulation du vidage
   try {
-    // Vidage localStorage
-    const keysToRemove = [
-      "sidebar-storage",
-      "organizations-storage",
-      "events-storage",
-      "tasks-storage",
-    ];
-
-    keysToRemove.forEach((key) => {
-      localStorage.removeItem(key);
-    });
-
-    // Vidage sessionStorage
-    sessionStorage.clear();
-
-    // Vidage cookies de données
-    const cookiesToRemove = [
-      "sidebar-data",
-      "organizations-data",
-      "events-data",
-      "user-preferences",
-      "tasks-data",
-    ];
-
-    cookiesToRemove.forEach((cookieName) => {
-      document.cookie = `${cookieName}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-    });
+    clearLocalStorageData();
+    clearSessionStorageData();
+    clearCookiesData();
   } catch (error) {
     console.error("❌ Erreur lors du test:", error);
   }
@@ -139,21 +133,11 @@ export function testDataPersistence() {
   console.groupEnd();
 }
 
-/**
- * @param Vérification de la présence d'un segment dans l'URL
- *
- * Vérifie si l'URL actuelle contient un segment spécifique
- */
 export function checkUrlSegment(segment: string): boolean {
   if (typeof window === "undefined") return false;
   return window.location.pathname.includes(segment);
 }
 
-/**
- * @param Obtention de l'URL actuelle
- *
- * Retourne l'URL actuelle de manière sécurisée
- */
 export function getCurrentUrl(): string {
   if (typeof window === "undefined") return "";
   return window.location.pathname;

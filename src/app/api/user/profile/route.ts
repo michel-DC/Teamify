@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(request: NextRequest) {
   try {
-    // Vérifier l'authentification
     const currentUser = await getCurrentUser();
     if (!currentUser) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
@@ -13,7 +12,6 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { firstname, lastname, bio, location } = body;
 
-    // Validation des données
     if (firstname && typeof firstname !== "string") {
       return NextResponse.json(
         { error: "Le prénom doit être une chaîne de caractères" },
@@ -35,7 +33,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Validation de la localisation
     if (location && typeof location === "object") {
       if (!location.city || !location.coordinates) {
         return NextResponse.json(

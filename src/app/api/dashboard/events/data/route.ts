@@ -4,9 +4,6 @@ import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    /**
-     * Récupération de l'utilisateur connecté
-     */
     const user = await getCurrentUser();
 
     if (!user) {
@@ -16,9 +13,6 @@ export async function GET(request: Request) {
       );
     }
 
-    /**
-     * Récupération du paramètre d'organisation depuis l'URL
-     */
     const { searchParams } = new URL(request.url);
     const organizationPublicId = searchParams.get("organizationId");
 

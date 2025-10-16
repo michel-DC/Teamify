@@ -8,22 +8,17 @@ import { generateOrganizationInvitationEmail } from "../templates/organization-i
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export class OrganizationInvitationService {
-  /**
-   * Envoie une invitation par email pour rejoindre une organisation
-   */
   static async sendInvitation(
     email: string,
     receiverName: string,
     data: OrganizationInvitationData
   ): Promise<EmailServiceResponse> {
     try {
-      // Génération du HTML de l'email
       const htmlContent = generateOrganizationInvitationEmail(
         data,
         receiverName
       );
 
-      // Envoi via Resend
       const { data: resendData, error } = await resend.emails.send({
         from: "Teamify - Gestion d'événements <contact@onlinemichel.dev>",
         to: [email],

@@ -1,8 +1,8 @@
-# 📧 Services d'Email - Teamify
+# Services d'Email - Teamify
 
 Ce dossier contient tous les services d'envoi d'email de l'application Teamify, organisés de manière modulaire et réutilisable.
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 /emails
@@ -19,7 +19,7 @@ Ce dossier contient tous les services d'envoi d'email de l'application Teamify, 
 └── README.md          # Cette documentation
 ```
 
-## 🚀 Utilisation
+## Utilisation
 
 ### 1. Import des services
 
@@ -76,7 +76,7 @@ const result = await OrganizationInvitationService.sendInvitation(
 );
 ```
 
-## 🎨 Templates
+## Templates
 
 ### Template de base
 
@@ -94,7 +94,7 @@ Chaque type d'email a son propre template qui étend le template de base :
 - `event-invitation.html.ts` : Invitations aux événements
 - `organization-invitation.html.ts` : Invitations aux organisations
 
-## 🔧 Configuration
+## Configuration
 
 ### Variables d'environnement requises
 
@@ -148,7 +148,7 @@ export class NewEmailService {
 export { NewEmailService } from "./new-email.service";
 ```
 
-## 🧪 Tests
+## Tests
 
 Les services d'email peuvent être testés indépendamment :
 
@@ -156,20 +156,20 @@ Les services d'email peuvent être testés indépendamment :
 - Tests d'intégration avec Resend
 - Tests de validation des données
 
-## 🔒 Sécurité
+## Sécurité
 
 - Validation des données d'entrée
 - Gestion des erreurs centralisée
 - Logs d'erreur sans exposition de données sensibles
 - Rate limiting recommandé au niveau des routes API
 
-## 📚 Dépendances
+## Dépendances
 
 - `resend` : Service d'envoi d'email
 - `@/lib/prisma` : Base de données
 - `@/lib/auth` : Authentification
 
-## 🤝 Contribution
+## Contribution
 
 Pour ajouter de nouveaux types d'email :
 

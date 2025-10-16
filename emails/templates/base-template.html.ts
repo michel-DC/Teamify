@@ -9,7 +9,6 @@ export const baseEmailStyles = `
   table { border-spacing: 0; border-collapse: collapse; }
   img { display: block; border: 0; }
   a { text-decoration: none; }
-  /* Typo + spacings proches de Malt */
   h1 { font-size: 26px; line-height: 1.3; margin: 0; }
   p  { font-size: 16px; line-height: 1.6; margin: 0; color:#4b5563; }
   @media screen and (max-width: 600px) {
@@ -20,10 +19,6 @@ export const baseEmailStyles = `
   }
 `;
 
-/**
- * Logo en-dehors de la carte, aligné à gauche.
- * Puis ouverture de la carte (fond #fff) pour le contenu.
- */
 export const baseEmailHeader = `
   <table role="presentation" width="100%" bgcolor="#f9f9f9">
     <!-- Bandeau logo hors carte -->

@@ -23,9 +23,6 @@ interface ConversationViewProps {
   onBackToConversations?: () => void;
 }
 
-/**
- * Vue d'une conversation responsive avec zone de messages et saisie
- */
 export const ConversationView = ({
   conversationId,
   conversation,
@@ -34,7 +31,6 @@ export const ConversationView = ({
 }: ConversationViewProps) => {
   const [newMessage, setNewMessage] = useState("");
 
-  // Hook pour gérer les messages de la conversation
   const {
     messages,
     isLoading: messagesLoading,

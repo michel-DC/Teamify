@@ -4,11 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { createNotificationForOrganizationOwnersAndAdmins } from "@/lib/notification-service";
 
-/**
- * Route pour traiter une invitation d'organisation via le code d'invitation
- * Si l'utilisateur est connecté : ajoute à l'organisation et marque l'invitation comme acceptée
- * Si l'utilisateur n'est pas connecté : redirige vers l'inscription avec le code d'invitation
- */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
@@ -23,7 +18,6 @@ export async function GET(
       );
     }
 
-    // Recherche de l'invitation par le code
     const invitation = await prisma.organizationInvite.findUnique({
       where: { inviteCode: code },
       include: {

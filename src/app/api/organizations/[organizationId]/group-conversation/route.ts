@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * Récupère ou crée la conversation de groupe pour une organisation
- */
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ organizationId: string }> }

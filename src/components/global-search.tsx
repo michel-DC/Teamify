@@ -19,15 +19,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-/**
- * Composant de recherche globale pour le dashboard
- * S'affiche au centre de l'écran avec Ctrl+K
- */
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  // Données de recherche - toutes les pages et fonctionnalités disponibles
   const searchItems = [
     {
       title: "Tableau de bord",

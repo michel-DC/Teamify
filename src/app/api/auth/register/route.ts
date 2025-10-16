@@ -37,7 +37,6 @@ export async function POST(req: Request) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(passwordHash, saltRounds);
 
-    // Création de l'utilisateur
     const newUser = await prisma.user.create({
       data: {
         email,
@@ -47,10 +46,8 @@ export async function POST(req: Request) {
       },
     });
 
-    // Traitement de l'invitation si un code est fourni
     if (inviteCode) {
       try {
-        // Recherche de l'invitation par le code
         const invitation = await prisma.organizationInvite.findUnique({
           where: { inviteCode },
           include: {

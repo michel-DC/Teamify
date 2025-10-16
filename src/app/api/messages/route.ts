@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 
-/**
- * API route pour récupérer les messages d'une conversation
- * GET /api/messages?conversationId=xxx
- */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -18,7 +14,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Vérifier l'authentification via les cookies
     const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
     const token = cookieStore.get("token")?.value;
@@ -35,7 +30,6 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Token invalide" }, { status: 401 });
     }
 
-    // Vérifier que la conversation existe et que l'utilisateur en est membre
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
       include: {
@@ -58,7 +52,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Vérifier que l'utilisateur est membre de la conversation
     const isMember = conversation.members.some(
       (member) => member.user.uid === decoded.userUid
     );
@@ -70,7 +63,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Récupérer les messages
     const messages = await prisma.message.findMany({
       where: { conversationId },
       include: {
@@ -94,7 +86,7 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("❌ Erreur API get-messages:", error);
+    console.error("Erreur API get-messages:", error);
     return NextResponse.json(
       { error: "Erreur lors de la récupération des messages" },
       { status: 500 }

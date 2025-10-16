@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { generateSignedImageUrl } from "@/lib/r2-utils";
 
-// Configuration du client S3 pour Cloudflare R2
 const s3Client = new S3Client({
   region: "auto",
   endpoint: process.env.R2_ENDPOINT,
@@ -17,13 +16,11 @@ const s3Client = new S3Client({
 
 export async function POST(request: NextRequest) {
   try {
-    // Vérifier l'authentification
     const currentUser = await getCurrentUser();
     if (!currentUser) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    // Vérification des variables d'environnement R2
     if (
       !process.env.R2_ACCESS_KEY_ID ||
       !process.env.R2_SECRET_ACCESS_KEY ||
@@ -46,7 +43,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validation du fichier
     if (!file.type.startsWith("image/")) {
       return NextResponse.json(
         { error: "Le fichier doit être une image" },
@@ -61,18 +57,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upload direct vers R2
-    // Générer un nom de fichier unique
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 15);
     const extension = file.name.split(".").pop();
     const fileName = `users/${currentUser.uid}/profile-${timestamp}-${randomId}.${extension}`;
 
-    // Convertir le fichier en buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Upload vers R2
     const uploadCommand = new PutObjectCommand({
       Bucket: process.env.R2_BUCKET!,
       Key: fileName,
@@ -82,14 +74,12 @@ export async function POST(request: NextRequest) {
 
     await s3Client.send(uploadCommand);
 
-    // Générer l'URL signée
     const signedUrl = await generateSignedImageUrl(
       process.env.R2_BUCKET!,
       fileName,
       15 * 60
     );
 
-    // Mettre à jour le profil utilisateur avec la nouvelle image
     const updatedUser = await prisma.user.update({
       where: { uid: currentUser.uid },
       data: {
@@ -97,7 +87,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Retourner la réponse
     return NextResponse.json({
       message: "Photo de profil mise à jour avec succès",
       profileImage: signedUrl,

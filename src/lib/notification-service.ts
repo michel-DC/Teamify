@@ -4,9 +4,6 @@ import { prisma } from "./prisma";
 import { NotificationType } from "@prisma/client";
 import { NotificationEmailService } from "../../emails/services/notification.service";
 
-/**
- * Interface pour les données de notification
- */
 interface NotificationData {
   notificationName: string;
   notificationDescription: string;
@@ -16,9 +13,6 @@ interface NotificationData {
   userUid: string;
 }
 
-/**
- * Crée une notification pour un utilisateur
- */
 export async function createNotification(data: NotificationData) {
   try {
     const notification = await prisma.notification.create({
@@ -32,7 +26,6 @@ export async function createNotification(data: NotificationData) {
       },
     });
 
-    // Envoyer un email de notification en arrière-plan
     try {
       await sendNotificationEmail(notification);
     } catch (emailError) {
@@ -40,7 +33,6 @@ export async function createNotification(data: NotificationData) {
         "Erreur lors de l'envoi de l'email de notification:",
         emailError
       );
-      // Ne pas faire échouer la création de la notification si l'email échoue
     }
 
     return notification;
@@ -58,7 +50,6 @@ export async function createNotificationForOrganizationMembers(
   notificationData: Omit<NotificationData, "userUid">
 ) {
   try {
-    // Récupérer l'organisation avec son publicId
     const organization = await prisma.organization.findUnique({
       where: { id: organizationId },
       select: { ownerUid: true, publicId: true },
@@ -68,18 +59,15 @@ export async function createNotificationForOrganizationMembers(
       throw new Error("Organisation non trouvée");
     }
 
-    // Récupérer tous les membres de l'organisation
     const members = await prisma.organizationMember.findMany({
       where: { organizationId },
       select: { userUid: true },
     });
 
-    // Créer un ensemble unique d'utilisateurs
     const userIds = new Set<string>();
     members.forEach((member) => userIds.add(member.userUid));
     userIds.add(organization.ownerUid);
 
-    // Créer les notifications pour chaque utilisateur
     const notifications = await Promise.all(
       Array.from(userIds).map((userUid) =>
         createNotification({
@@ -100,15 +88,11 @@ export async function createNotificationForOrganizationMembers(
   }
 }
 
-/**
- * Crée des notifications pour les OWNER et ADMIN d'une organisation
- */
 export async function createNotificationForOrganizationOwnersAndAdmins(
   organizationId: number,
   notificationData: Omit<NotificationData, "userUid">
 ) {
   try {
-    // Récupérer l'organisation avec son publicId
     const organization = await prisma.organization.findUnique({
       where: { id: organizationId },
       select: { ownerUid: true, publicId: true },
@@ -118,7 +102,6 @@ export async function createNotificationForOrganizationOwnersAndAdmins(
       throw new Error("Organisation non trouvée");
     }
 
-    // Récupérer les OWNER et ADMIN de l'organisation
     const admins = await prisma.organizationMember.findMany({
       where: {
         organizationId,
@@ -127,12 +110,9 @@ export async function createNotificationForOrganizationOwnersAndAdmins(
       select: { userUid: true },
     });
 
-    // Créer un ensemble unique d'utilisateurs (OWNER + ADMIN)
     const userIds = new Set<string>();
     admins.forEach((admin) => userIds.add(admin.userUid));
-    userIds.add(organization.ownerUid); // S'assurer que le propriétaire est inclus
-
-    // Créer les notifications pour chaque OWNER/ADMIN
+    userIds.add(organization.ownerUid);
     const notifications = await Promise.all(
       Array.from(userIds).map((userUid) =>
         createNotification({

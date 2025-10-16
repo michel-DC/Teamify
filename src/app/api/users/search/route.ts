@@ -2,12 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * Rechercher un utilisateur par email (SÉCURISÉE)
- */
 export async function GET(request: NextRequest) {
   try {
-    // Vérification de l'authentification
     const currentUser = await getCurrentUser();
     if (!currentUser) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
@@ -24,7 +20,6 @@ export async function GET(request: NextRequest) {
       `[API] Recherche utilisateur par email: ${email} (par ${currentUser.email})`
     );
 
-    // Rechercher l'utilisateur par email
     const user = await prisma.user.findUnique({
       where: {
         email: email.toLowerCase().trim(),

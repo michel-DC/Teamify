@@ -9,10 +9,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-/**
- * Composant d'aide pour expliquer le raccourci de recherche
- * Affiche un bouton avec tooltip expliquant Ctrl+K
- */
 export function SearchHelp() {
   return (
     <TooltipProvider>

@@ -1,9 +1,6 @@
 import { baseEmailStructure } from "./base-template.html";
 import { NotificationEmailData } from "../types/email.types";
 
-/**
- * Génère l'email HTML pour une notification
- */
 export function generateNotificationEmail(
   data: NotificationEmailData,
   recipientName: string
@@ -61,9 +58,6 @@ export function generateNotificationEmail(
   return baseEmailStructure(content);
 }
 
-/**
- * Génère les informations contextuelles selon le type de notification
- */
 function generateContextualInfo(data: NotificationEmailData): string {
   let contextualInfo = "";
 
@@ -82,9 +76,6 @@ function generateContextualInfo(data: NotificationEmailData): string {
   return contextualInfo;
 }
 
-/**
- * Retourne le label du type de notification
- */
 function getNotificationTypeLabel(
   type: NotificationEmailData["notificationType"]
 ): string {
@@ -106,9 +97,6 @@ function getNotificationTypeLabel(
   }
 }
 
-/**
- * Formate la date de notification
- */
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleDateString("fr-FR", {
@@ -121,9 +109,6 @@ function formatDate(dateString: string): string {
   });
 }
 
-/**
- * Retourne l'URL du dashboard
- */
 function getDashboardUrl(): string {
   return process.env.NEXT_PUBLIC_APP_URL || "https://teamify.onlinemichel.dev";
 }

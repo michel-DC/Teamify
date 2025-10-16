@@ -5,26 +5,21 @@ import { generateWelcomeEmail } from "../templates/welcome.html";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export class WelcomeEmailService {
-  /**
-   * Envoie un email de bienvenue
-   */
   static async sendWelcomeEmail(
     email: string,
     recipientName: string,
     data: WelcomeEmailData
   ): Promise<EmailServiceResponse> {
     try {
-      // Génération du HTML de l'email
       const htmlContent = generateWelcomeEmail(data, recipientName);
 
-      // Envoi via Resend
       const { data: resendData, error } = await resend.emails.send({
         from: "Teamify - Bienvenue <welcome@onlinemichel.dev>",
         to: [email],
         subject: `🎉 Bienvenue sur Teamify, ${recipientName} !`,
         html: htmlContent,
         headers: {
-          "X-Priority": "2", // Priorité normale
+          "X-Priority": "2",
         },
       });
 
@@ -53,15 +48,11 @@ export class WelcomeEmailService {
     }
   }
 
-  /**
-   * Envoie un email de bienvenue en arrière-plan (non bloquant)
-   */
   static async sendWelcomeEmailAsync(
     email: string,
     recipientName: string,
     data: WelcomeEmailData
   ): Promise<void> {
-    // Exécution en arrière-plan sans attendre le résultat
     setImmediate(async () => {
       try {
         const result = await this.sendWelcomeEmail(email, recipientName, data);

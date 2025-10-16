@@ -2,9 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-/**
- * Types pour les messages
- */
 export interface Message {
   id: string;
   conversationId: string;
@@ -20,17 +17,11 @@ export interface Message {
   };
 }
 
-/**
- * Options pour le hook useMessages
- */
 interface UseMessagesOptions {
   conversationId?: string;
   autoFetch?: boolean;
 }
 
-/**
- * Hook pour gérer les messages d'une conversation
- */
 export const useMessages = (options: UseMessagesOptions = {}) => {
   const { conversationId, autoFetch = true } = options;
 
@@ -38,9 +29,6 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Récupérer les messages d'une conversation
-   */
   const fetchMessages = useCallback(async () => {
     if (!conversationId) {
       setMessages([]);
@@ -80,23 +68,17 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
     }
   }, [conversationId]);
 
-  /**
-   * Ajouter un nouveau message à la liste avec gestion des messages optimistes
-   */
   const addMessage = useCallback((message: Message) => {
     setMessages((prev) => {
-      // Vérifier si le message existe déjà (éviter les doublons)
       const messageExists = prev.some((msg) => msg.id === message.id);
       if (messageExists) {
         return prev;
       }
 
-      // Si c'est un message optimiste (ID commence par "temp_"), le remplacer
       if (message.id.startsWith("temp_")) {
         return [...prev, message];
       }
 
-      // Si c'est un message du serveur, vérifier s'il y a un message optimiste à remplacer
       const hasOptimisticMessage = prev.some(
         (msg) =>
           msg.id.startsWith("temp_") &&
@@ -115,14 +97,10 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
         );
       }
 
-      // Sinon, ajouter le message normalement
       return [...prev, message];
     });
   }, []);
 
-  /**
-   * Mettre à jour un message existant
-   */
   const updateMessage = useCallback(
     (messageId: string, updates: Partial<Message>) => {
       setMessages((prev) =>
@@ -132,16 +110,10 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
     []
   );
 
-  /**
-   * Supprimer un message
-   */
   const removeMessage = useCallback((messageId: string) => {
     setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
   }, []);
 
-  /**
-   * Supprimer un message via l'API
-   */
   const deleteMessage = useCallback(
     async (messageId: string) => {
       if (!conversationId) {
@@ -163,7 +135,6 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
           throw new Error(`Erreur ${response.status}: ${response.statusText}`);
         }
 
-        // Supprimer le message de la liste locale
         removeMessage(messageId);
         return true;
       } catch (err) {

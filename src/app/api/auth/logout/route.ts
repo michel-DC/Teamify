@@ -6,7 +6,6 @@ export async function POST() {
     { status: 200 }
   );
 
-  // Supprime le cookie httpOnly 'token'
   res.cookies.set({
     name: "token",
     value: "",
@@ -17,7 +16,6 @@ export async function POST() {
     maxAge: 0,
   });
 
-  // Supprime les cookies non httpOnly côté client via la réponse
   res.cookies.set({ name: "isLoggedIn", value: "", path: "/", maxAge: 0 });
   res.cookies.set({ name: "hasOrganization", value: "", path: "/", maxAge: 0 });
 

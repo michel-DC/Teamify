@@ -12,12 +12,8 @@ import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-// import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Users, MessageCircle } from "lucide-react";
 
-/**
- * Interface pour les conversations
- */
 interface Conversation {
   id: string;
   type: "PRIVATE" | "GROUP";
@@ -45,9 +41,6 @@ interface Conversation {
   unreadCount: number;
 }
 
-/**
- * Props du composant ChatInterface
- */
 interface ChatInterfaceProps {
   conversations?: Conversation[];
   onConversationSelect?: (conversationId: string) => void;

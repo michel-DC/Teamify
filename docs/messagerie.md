@@ -34,25 +34,25 @@ Le système de messagerie de Teamify est une solution complète de communication
 
 ### Fonctionnalités
 
-#### 🚀 Création Automatique
+#### Création Automatique
 
 - **Création automatique** : Une conversation de groupe est créée automatiquement lors de la création d'une organisation
 - **Ajout automatique des membres** : Les nouveaux membres rejoignant l'organisation sont automatiquement ajoutés à la conversation de groupe
 - **Synchronisation** : Les membres sont synchronisés automatiquement entre l'organisation et la conversation de groupe
 
-#### 💬 Messagerie Temps Réel
+#### Messagerie Temps Réel
 
 - **Messages instantanés** : Communication en temps réel via Pusher
 - **Interface responsive** : Optimisée pour mobile et desktop
 - **Gestion des états** : Indicateurs de connexion et de statut
 
-#### 👥 Gestion des Membres
+#### Gestion des Membres
 
 - **Liste des membres** : Affichage de tous les participants avec leurs rôles
 - **Rôles** : Distinction entre administrateurs et membres
 - **Informations détaillées** : Nom, avatar, date d'adhésion
 
-#### 🎨 Interface Utilisateur
+#### Interface Utilisateur
 
 - **Design cohérent** : Même esthétique que la messagerie privée
 - **Composants modulaires** : Architecture réutilisable et maintenable

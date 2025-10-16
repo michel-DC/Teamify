@@ -2,9 +2,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { getPusherClient } from "@/lib/pusher";
 import type { Channel } from "pusher-js";
 
-/**
- * Types pour les événements Pusher
- */
 export interface PusherMessageEvent {
   id: string;
   content: string;
@@ -28,9 +25,6 @@ export interface PusherConversationJoinedEvent {
   timestamp: string;
 }
 
-/**
- * Options pour le hook usePusher
- */
 export interface UsePusherOptions {
   autoConnect?: boolean;
   onMessage?: (data: PusherMessageEvent) => void;
@@ -39,9 +33,6 @@ export interface UsePusherOptions {
   onError?: (error: any) => void;
 }
 
-/**
- * Hook pour gérer la connexion Pusher
- */
 export const usePusher = (options: UsePusherOptions = {}) => {
   const {
     autoConnect = true,

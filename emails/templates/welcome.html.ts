@@ -1,9 +1,6 @@
 import { baseEmailStructure } from "./base-template.html";
 import { WelcomeEmailData } from "../types/email.types";
 
-/**
- * Génère l'email HTML de bienvenue
- */
 export function generateWelcomeEmail(
   data: WelcomeEmailData,
   recipientName: string
@@ -51,9 +48,6 @@ export function generateWelcomeEmail(
   return baseEmailStructure(content);
 }
 
-/**
- * Génère le contenu pour les utilisateurs qui ont déjà une organisation
- */
 function generateExistingUserContent(data: WelcomeEmailData): string {
   return `
     <p style="margin:0 0 8px;"><strong>Organisation :</strong> ${data.organizationName}</p>
@@ -61,9 +55,6 @@ function generateExistingUserContent(data: WelcomeEmailData): string {
   `;
 }
 
-/**
- * Génère le contenu pour les nouveaux utilisateurs (tutoriel)
- */
 function generateNewUserContent(): string {
   return `
     <p style="margin:0 0 16px;"><strong>Guide de démarrage :</strong></p>
@@ -124,9 +115,6 @@ function generateNewUserContent(): string {
   `;
 }
 
-/**
- * Retourne l'URL du dashboard
- */
 function getDashboardUrl(): string {
   return process.env.NEXT_PUBLIC_APP_URL || "https://teamify.onlinemichel.dev";
 }

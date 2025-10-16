@@ -3,9 +3,6 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getCurrentUser } from "@/lib/auth";
 import { generateSignedImageUrl } from "@/lib/r2-utils";
 
-/**
- * @param Configuration du client S3 pour Cloudflare R2
- */
 const s3Client = new S3Client({
   region: "auto",
   endpoint: process.env.R2_ENDPOINT,
@@ -16,17 +13,11 @@ const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
-/**
- * @param Validation du type de fichier image
- */
 const validateImageFile = (file: File): boolean => {
   const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
   return allowedTypes.includes(file.type);
 };
 
-/**
- * @param Validation de la taille du fichier (max 10MB)
- */
 const validateFileSize = (file: File, maxSizeMB: number = 10): boolean => {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   return file.size <= maxSizeBytes;
