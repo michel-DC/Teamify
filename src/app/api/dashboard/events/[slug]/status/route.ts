@@ -20,14 +20,10 @@ export async function PATCH(
     const { slug } = await params;
     const { status } = await request.json();
 
-    // Validation du statut
     if (!Object.values(EventStatus).includes(status)) {
       return NextResponse.json({ error: "Statut invalide" }, { status: 400 });
     }
 
-    /**
-     * Recherche par eventCode ou publicId
-     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
@@ -41,9 +37,6 @@ export async function PATCH(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -53,7 +46,6 @@ export async function PATCH(
       );
     }
 
-    // Mettre à jour le statut
     const updatedEvent = await prisma.event.update({
       where: {
         id: event.id,

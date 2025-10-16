@@ -14,7 +14,6 @@ export async function GET(
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    // Vérifier que l'utilisateur est membre de l'organisation
     const membership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -31,7 +30,6 @@ export async function GET(
       );
     }
 
-    // Chercher une conversation de groupe existante pour cette organisation
     let conversation = await prisma.conversation.findFirst({
       where: {
         type: "GROUP",
@@ -72,9 +70,7 @@ export async function GET(
       },
     });
 
-    // Si aucune conversation de groupe n'existe, en créer une
     if (!conversation) {
-      // Récupérer tous les membres de l'organisation
       const organizationMembers = await prisma.organizationMember.findMany({
         where: {
           organizationId: parseInt(organizationId),
@@ -98,7 +94,6 @@ export async function GET(
 
       const memberIds = organizationMembers.map((member) => member.user.uid);
 
-      // Créer la conversation de groupe
       conversation = await prisma.conversation.create({
         data: {
           type: "GROUP",
@@ -147,7 +142,6 @@ export async function GET(
       });
     }
 
-    // Formater la réponse
     const formattedConversation = {
       id: conversation.id,
       type: conversation.type,
@@ -170,7 +164,6 @@ export async function GET(
             sender: conversation.messages[0].sender,
           }
         : null,
-      unreadCount: 0, // Simplifié pour l'instant
     };
 
     return NextResponse.json({
@@ -182,9 +175,6 @@ export async function GET(
   }
 }
 
-/**
- * Met à jour la conversation de groupe (titre, etc.)
- */
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ organizationId: string }> }
@@ -198,7 +188,6 @@ export async function PATCH(
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    // Vérifier que l'utilisateur est membre de l'organisation
     const membership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -215,7 +204,6 @@ export async function PATCH(
       );
     }
 
-    // Trouver la conversation de groupe
     const conversation = await prisma.conversation.findFirst({
       where: {
         type: "GROUP",
@@ -230,7 +218,6 @@ export async function PATCH(
       );
     }
 
-    // Mettre à jour la conversation
     const updatedConversation = await prisma.conversation.update({
       where: {
         id: conversation.id,

@@ -37,9 +37,6 @@ export async function GET(request: Request) {
   }
 }
 
-/**
- * Marque toutes les notifications comme lues
- */
 export async function PATCH(request: Request) {
   try {
     const user = await getCurrentUser();

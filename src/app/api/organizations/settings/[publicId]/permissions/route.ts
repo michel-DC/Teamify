@@ -15,9 +15,6 @@ export async function GET(
 
     const { publicId } = params;
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -29,14 +26,8 @@ export async function GET(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur est propriétaire de l'organisation
-     */
-    // Vérifier d'abord si l'utilisateur est le propriétaire direct
     if (organization.ownerUid === user.uid) {
-      // L'utilisateur est le propriétaire, il a tous les droits
     } else {
-      // Vérifier si l'utilisateur est membre avec le rôle OWNER
       const userMembership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userUid: {
@@ -54,9 +45,6 @@ export async function GET(
       }
     }
 
-    /**
-     * Récupération des permissions de l'organisation
-     */
     const permissions = await prisma.organizationPermissions.findUnique({
       where: { organizationId: organization.id },
     });
@@ -86,9 +74,6 @@ export async function POST(
 
     const { publicId } = params;
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -100,14 +85,8 @@ export async function POST(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur est propriétaire de l'organisation
-     */
-    // Vérifier d'abord si l'utilisateur est le propriétaire direct
     if (organization.ownerUid === user.uid) {
-      // L'utilisateur est le propriétaire, il a tous les droits
     } else {
-      // Vérifier si l'utilisateur est membre avec le rôle OWNER
       const userMembership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userUid: {
@@ -136,9 +115,6 @@ export async function POST(
       membersCanInviteMembers,
     } = body;
 
-    /**
-     * Création des permissions
-     */
     const permissions = await prisma.organizationPermissions.create({
       data: {
         organizationId: organization.id,
@@ -179,9 +155,6 @@ export async function PUT(
 
     const { publicId } = params;
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -193,14 +166,8 @@ export async function PUT(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur est propriétaire de l'organisation
-     */
-    // Vérifier d'abord si l'utilisateur est le propriétaire direct
     if (organization.ownerUid === user.uid) {
-      // L'utilisateur est le propriétaire, il a tous les droits
     } else {
-      // Vérifier si l'utilisateur est membre avec le rôle OWNER
       const userMembership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userUid: {
@@ -229,9 +196,6 @@ export async function PUT(
       membersCanInviteMembers,
     } = body;
 
-    /**
-     * Mise à jour des permissions
-     */
     const permissions = await prisma.organizationPermissions.update({
       where: { organizationId: organization.id },
       data: {

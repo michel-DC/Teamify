@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-// Types pour les événements
 interface Event {
   id: string;
   title: string;
@@ -25,14 +24,12 @@ interface Event {
 }
 
 interface EventsStore {
-  // État
   events: Event[];
   loading: boolean;
   initialized: boolean;
   lastFetch: number | null;
   error: string | null;
 
-  // Actions
   fetchEvents: (organizationId?: string) => Promise<void>;
   addEvent: (event: Event) => void;
   updateEvent: (eventId: string, updates: Partial<Event>) => void;
@@ -41,29 +38,25 @@ interface EventsStore {
   resetStore: () => void;
 }
 
-// Durée de validité du cache (2 minutes pour les événements)
 const CACHE_DURATION = 2 * 60 * 1000;
 
 export const useEventsStore = create<EventsStore>()(
   persist(
     (set, get) => ({
-      // État initial
       events: [],
       loading: false,
       initialized: false,
       lastFetch: null,
       error: null,
 
-      // Action pour récupérer les événements
       fetchEvents: async (organizationId?: string) => {
         const { initialized, lastFetch } = get();
 
-        // Vérifier si les données sont déjà initialisées et récentes
         if (
           initialized &&
           lastFetch &&
           Date.now() - lastFetch < CACHE_DURATION &&
-          !organizationId // Ne pas utiliser le cache si on change d'organisation
+          !organizationId
         ) {
           return;
         }
@@ -71,11 +64,9 @@ export const useEventsStore = create<EventsStore>()(
         set({ loading: true, error: null });
 
         try {
-          // Si pas d'organisation spécifiée, essayer de récupérer depuis le store actif
           let targetOrgPublicId = organizationId;
 
           if (!targetOrgPublicId) {
-            // Récupérer l'organisation active depuis le localStorage
             try {
               const activeOrgStorage = localStorage.getItem(
                 "active-organization-storage"
@@ -125,14 +116,12 @@ export const useEventsStore = create<EventsStore>()(
         }
       },
 
-      // Action pour ajouter un événement
       addEvent: (event: Event) => {
         set((state) => ({
           events: [event, ...state.events],
         }));
       },
 
-      // Action pour mettre à jour un événement
       updateEvent: (eventId: string, updates: Partial<Event>) => {
         set((state) => ({
           events: state.events.map((event) =>
@@ -141,19 +130,16 @@ export const useEventsStore = create<EventsStore>()(
         }));
       },
 
-      // Action pour supprimer un événement
       deleteEvent: (eventId: string) => {
         set((state) => ({
           events: state.events.filter((event) => event.id !== eventId),
         }));
       },
 
-      // Action pour définir l'état de chargement
       setLoading: (loading: boolean) => {
         set({ loading });
       },
 
-      // Action pour réinitialiser le store
       resetStore: () => {
         set({
           events: [],

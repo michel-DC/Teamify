@@ -185,24 +185,20 @@ const initialData: SidebarData = {
   ],
 };
 
-// Durée de validité du cache (5 minutes)
 const CACHE_DURATION = 5 * 60 * 1000;
 
 export const useSidebarStore = create<SidebarStore>()(
   persist(
     (set, get) => ({
-      // État initial
       data: initialData,
       loading: false as boolean,
       initialized: false as boolean,
       lastFetch: null as number | null,
       error: null as string | null,
 
-      // Action pour récupérer les données de la sidebar
       fetchSidebarData: async () => {
         const { initialized, lastFetch } = get();
 
-        // Vérifier si les données sont déjà initialisées et récentes
         if (
           initialized &&
           lastFetch &&
@@ -214,7 +210,6 @@ export const useSidebarStore = create<SidebarStore>()(
         set({ loading: true });
 
         try {
-          // Récupérer l'organisation active
           let activeOrgPublicId: string | null = null;
           try {
             const activeOrgStorage = localStorage.getItem(
@@ -231,7 +226,6 @@ export const useSidebarStore = create<SidebarStore>()(
             );
           }
 
-          // Récupérer les données utilisateur et événements en parallèle
           const [userResponse, eventsResponse] = await Promise.all([
             fetch("/api/dashboard"),
             activeOrgPublicId
@@ -253,7 +247,6 @@ export const useSidebarStore = create<SidebarStore>()(
           const userData = await userResponse.json();
           const eventsData = await eventsResponse.json();
 
-          // Traiter les données utilisateur
           let processedUserData = initialData;
           if (userData && userData[0]) {
             const user = userData[0];
@@ -273,7 +266,6 @@ export const useSidebarStore = create<SidebarStore>()(
             };
           }
 
-          // Traiter les données d'événements
           let processedEvents: Event[] = [];
           if (eventsData && eventsData.events) {
             processedEvents = eventsData.events
@@ -306,12 +298,10 @@ export const useSidebarStore = create<SidebarStore>()(
         }
       },
 
-      // Action pour définir l'état de chargement
       setLoading: (loading: boolean) => {
         set({ loading });
       },
 
-      // Action pour réinitialiser le store
       resetStore: () => {
         set({
           data: initialData,

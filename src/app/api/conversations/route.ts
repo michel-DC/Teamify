@@ -24,7 +24,6 @@ export async function GET(req: NextRequest) {
       whereClause.organizationId = parseInt(organizationId);
     }
 
-    // Récupérer les conversations avec les informations nécessaires (version simplifiée)
     const conversations = await prisma.conversation.findMany({
       where: whereClause,
       include: {
@@ -65,7 +64,6 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Formater les données de réponse
     const formattedConversations = conversations.map((conv) => ({
       id: conv.id,
       type: conv.type,
@@ -88,7 +86,7 @@ export async function GET(req: NextRequest) {
             sender: conv.messages[0].sender,
           }
         : null,
-      unreadCount: 0, // Simplifié pour l'instant
+      unreadCount: 0,
     }));
 
     return NextResponse.json({
@@ -100,9 +98,6 @@ export async function GET(req: NextRequest) {
   }
 }
 
-/**
- * Crée une nouvelle conversation
- */
 export async function POST(req: NextRequest) {
   try {
     const user = await getCurrentUser();
@@ -119,12 +114,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Vérifier que l'utilisateur est dans la liste des membres
     if (!memberIds.includes(user.uid)) {
       memberIds.push(user.uid);
     }
 
-    // Vérifier que tous les membres existent
     const existingUsers = await prisma.user.findMany({
       where: {
         uid: {
@@ -141,7 +134,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Créer la conversation avec ses membres
     const conversation = await prisma.conversation.create({
       data: {
         type,

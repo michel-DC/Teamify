@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-/**
- * Route API pour supprimer un message
- */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ conversationId: string; messageId: string }> }
@@ -19,7 +16,6 @@ export async function DELETE(
       conversationId
     );
 
-    // Vérifier l'authentification
     const user = await getCurrentUser();
     if (!user) {
       console.log(
@@ -28,7 +24,6 @@ export async function DELETE(
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    // Vérifier que l'utilisateur est membre de la conversation
     const membership = await prisma.conversationMember.findUnique({
       where: {
         conversationId_userId: {
@@ -48,7 +43,6 @@ export async function DELETE(
       );
     }
 
-    // Vérifier que le message existe et appartient à l'utilisateur
     const message = await prisma.message.findUnique({
       where: {
         id: messageId,
@@ -64,7 +58,6 @@ export async function DELETE(
       );
     }
 
-    // Vérifier que l'utilisateur est l'expéditeur du message
     if (message.senderId !== user.uid) {
       console.log(
         "[conversations/messages/delete] L'utilisateur n'est pas l'expéditeur du message"
@@ -75,7 +68,6 @@ export async function DELETE(
       );
     }
 
-    // Supprimer le message
     await prisma.message.delete({
       where: {
         id: messageId,

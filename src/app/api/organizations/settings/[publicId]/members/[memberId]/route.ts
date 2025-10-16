@@ -30,9 +30,6 @@ export async function PATCH(
       return NextResponse.json({ error: "Rôle invalide" }, { status: 400 });
     }
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -44,13 +41,8 @@ export async function PATCH(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a les permissions pour modifier les rôles
-     */
     if (organization.ownerUid === user.uid) {
-      // L'utilisateur est le propriétaire, il peut modifier les rôles
     } else {
-      // Vérifier si l'utilisateur est membre avec le rôle OWNER
       const userMembership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userUid: {
@@ -68,9 +60,6 @@ export async function PATCH(
       }
     }
 
-    /**
-     * Vérification que le membre existe
-     */
     const member = await prisma.organizationMember.findUnique({
       where: { id: memberIdInt },
     });
@@ -86,9 +75,6 @@ export async function PATCH(
       );
     }
 
-    /**
-     * Mise à jour du rôle
-     */
     const updatedMember = await prisma.organizationMember.update({
       where: { id: memberIdInt },
       data: { role },
@@ -144,9 +130,6 @@ export async function DELETE(
       );
     }
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -158,13 +141,8 @@ export async function DELETE(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a les permissions (OWNER ou ADMIN)
-     */
     if (organization.ownerUid === user.uid) {
-      // L'utilisateur est le propriétaire, il peut supprimer des membres
     } else {
-      // Vérifier si l'utilisateur est membre avec un rôle approprié
       const userMembership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userUid: {
@@ -185,9 +163,6 @@ export async function DELETE(
       }
     }
 
-    /**
-     * Vérification que le membre existe
-     */
     const member = await prisma.organizationMember.findUnique({
       where: { id: memberIdInt },
     });
@@ -203,16 +178,10 @@ export async function DELETE(
       );
     }
 
-    /**
-     * Suppression du membre
-     */
     await prisma.organizationMember.delete({
       where: { id: memberIdInt },
     });
 
-    /**
-     * Mise à jour du nombre de membres dans l'organisation
-     */
     const memberCount = await prisma.organizationMember.count({
       where: { organizationId: organization.id },
     });

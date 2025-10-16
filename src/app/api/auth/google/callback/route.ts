@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-/**
- * Route de callback pour Google OAuth
- * Récupère le code d'autorisation et redirige vers le frontend
- */
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
@@ -23,7 +19,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(noCodeRedirectUrl);
   }
 
-  // Rediriger vers une page de traitement avec le code
   const redirectUrl = `${
     process.env.NEXTAUTH_URL || "http://localhost:3000"
   }/auth/google-callback?code=${encodeURIComponent(code)}`;

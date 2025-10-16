@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { decodeInvitationCode } from "@/lib/invitation-utils";
 
-/**
- * @param Validation du code d'invitation
- *
- * Décode le code d'invitation et récupère les détails de l'événement et de l'invitation
- */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -19,10 +14,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Corriger le problème du + qui devient un espace
     const correctedCode = code.replace(/\s/g, "+");
 
-    // Décoder le code d'invitation
     const decodedCode = decodeInvitationCode(correctedCode);
 
     if (!decodedCode) {
@@ -34,7 +27,6 @@ export async function GET(request: NextRequest) {
 
     const { invitationId, eventCode } = decodedCode;
 
-    // Récupérer l'invitation avec les détails de l'événement
     const invitation = await prisma.invitation.findFirst({
       where: {
         invitationId,
@@ -60,7 +52,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Vérifier que l'événement existe et est actif
     if (!invitation.event || invitation.event.isCancelled) {
       return NextResponse.json(
         { error: "Cet événement n'est plus disponible" },
@@ -68,7 +59,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Formater les données de réponse
     const eventDetails = {
       id: invitation.event.id,
       title: invitation.event.title,

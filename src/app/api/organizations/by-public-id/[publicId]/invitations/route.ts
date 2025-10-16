@@ -37,7 +37,6 @@ export async function GET(
       );
     }
 
-    // Vérification que l'utilisateur a accès à l'organisation (propriétaire OU membre)
     const hasAccess = await hasOrganizationAccess(user.uid, organization.id);
 
     if (!hasAccess) {
@@ -47,7 +46,6 @@ export async function GET(
       );
     }
 
-    // Récupération des invitations de l'organisation
     const invitations = await prisma.organizationInvite.findMany({
       where: { organizationId: organization.id },
       include: {

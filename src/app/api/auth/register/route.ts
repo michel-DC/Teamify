@@ -56,7 +56,6 @@ export async function POST(req: Request) {
         });
 
         if (invitation && invitation.status === "PENDING") {
-          // Vérification que l'utilisateur n'est pas déjà membre
           const existingMember = await prisma.organizationMember.findUnique({
             where: {
               organizationId_userUid: {
@@ -67,9 +66,7 @@ export async function POST(req: Request) {
           });
 
           if (!existingMember) {
-            // Transaction pour ajouter le membre et marquer l'invitation comme acceptée
             await prisma.$transaction([
-              // Ajout du membre à l'organisation
               prisma.organizationMember.create({
                 data: {
                   userUid: newUser.uid,
@@ -77,12 +74,10 @@ export async function POST(req: Request) {
                   role: "MEMBER",
                 },
               }),
-              // Mise à jour du statut de l'invitation
               prisma.organizationInvite.update({
                 where: { id: invitation.id },
                 data: { status: "ACCEPTED" },
               }),
-              // Mise à jour du nombre de membres de l'organisation
               prisma.organization.update({
                 where: { id: invitation.organizationId },
                 data: {
@@ -93,7 +88,6 @@ export async function POST(req: Request) {
               }),
             ]);
 
-            // Créer des notifications pour les OWNER et ADMIN
             try {
               await createNotificationForOrganizationOwnersAndAdmins(
                 invitation.organizationId,
@@ -116,7 +110,6 @@ export async function POST(req: Request) {
                 "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
                 notificationError
               );
-              // Ne pas faire échouer l'inscription si les notifications échouent
             }
 
             console.log(
@@ -129,17 +122,14 @@ export async function POST(req: Request) {
           "Erreur lors du traitement de l'invitation:",
           invitationError
         );
-        // On ne fait pas échouer l'inscription si l'invitation échoue
       }
     }
 
-    // Envoyer un email de bienvenue
     try {
       const hasOrganization = !!inviteCode;
       let organizationName: string | undefined;
       let organizationPublicId: string | undefined;
 
-      // Si l'utilisateur a une organisation, récupérer ses informations
       if (hasOrganization) {
         const userOrganizations = await prisma.organizationMember.findMany({
           where: { userUid: newUser.uid },
@@ -174,14 +164,13 @@ export async function POST(req: Request) {
         "Erreur lors de l'envoi de l'email de bienvenue:",
         welcomeEmailError
       );
-      // Ne pas faire échouer la création du compte si l'email échoue
     }
 
     return NextResponse.json({
       message: "Compte créé !",
       user: newUser,
       hasInvitation: !!inviteCode,
-      hasOrganization: !!inviteCode, // Si il y a une invitation, l'utilisateur aura une organisation
+      hasOrganization: !!inviteCode,
     });
   } catch (error) {
     console.error(

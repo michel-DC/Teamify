@@ -11,12 +11,8 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    /**
-     * Récupère l'utilisateur actuellement authentifié
-     */
     const user = await getCurrentUser();
 
-    // Vérifie si l'utilisateur est authentifié
     if (!user) {
       return NextResponse.json(
         { error: "Non autorisé. Veuillez vous connecter." },
@@ -24,19 +20,14 @@ export async function GET(
       );
     }
 
-    // Récupère les paramètres
     const { slug } = await params;
 
-    /**
-     * Recherche l'événement correspondant au slug
-     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
       },
     });
 
-    // Si l'événement n'existe pas
     if (!event) {
       return NextResponse.json(
         { error: "Événement non trouvé" },
@@ -44,9 +35,6 @@ export async function GET(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -56,9 +44,6 @@ export async function GET(
       );
     }
 
-    /**
-     * Récupère les groupes avec leurs tâches organisées
-     */
     const groups = await prisma.preparationTodoGroup.findMany({
       where: {
         eventId: event.id,
@@ -77,7 +62,6 @@ export async function GET(
 
     return NextResponse.json({ groups }, { status: 200 });
   } catch (error) {
-    // Gestion des erreurs serveur lors de la récupération des tâches
     console.error(
       "Une erreur est survenue lors de la récupération des groupes",
       error
@@ -118,9 +102,6 @@ export async function POST(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -154,16 +135,13 @@ export async function POST(
         },
       });
 
-      // Créer une notification si la tâche est assignée dès sa création
       if (body.data.assignedTo) {
         try {
-          // Récupérer les informations de l'organisation
           const organization = await prisma.organization.findUnique({
             where: { id: event.orgId },
             select: { publicId: true },
           });
 
-          // Créer la notification pour l'utilisateur assigné
           await createNotification({
             notificationName: "Nouvelle tâche assignée",
             notificationDescription: `Vous avez été assigné(e) à la tâche "${body.data.title}" pour l'événement "${event.title}".`,
@@ -181,7 +159,6 @@ export async function POST(
             "Erreur lors de la création de la notification d'assignation:",
             notificationError
           );
-          // Ne pas faire échouer la création de la tâche si la notification échoue
         }
       }
 
@@ -230,9 +207,6 @@ export async function PATCH(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -268,7 +242,6 @@ export async function PATCH(
         },
       });
 
-      // Mettre à jour le pourcentage de préparation de l'événement
       const allTodos = await prisma.preparationTodo.findMany({
         where: { eventId: event.id },
       });
@@ -287,7 +260,6 @@ export async function PATCH(
     }
 
     if (body.type === "todo_edit") {
-      // Récupérer la tâche actuelle pour vérifier si l'assignation a changé
       const currentTodo = await prisma.preparationTodo.findUnique({
         where: {
           id: body.data.todoId,
@@ -310,19 +282,16 @@ export async function PATCH(
         },
       });
 
-      // Créer une notification si une tâche est assignée à un utilisateur
       if (
         body.data.assignedTo &&
         body.data.assignedTo !== currentTodo?.assignedTo
       ) {
         try {
-          // Récupérer les informations de l'organisation
           const organization = await prisma.organization.findUnique({
             where: { id: event.orgId },
             select: { publicId: true },
           });
 
-          // Créer la notification pour l'utilisateur assigné
           await createNotification({
             notificationName: "Nouvelle tâche assignée",
             notificationDescription: `Vous avez été assigné(e) à la tâche "${body.data.title}" pour l'événement "${event.title}".`,
@@ -340,7 +309,6 @@ export async function PATCH(
             "Erreur lors de la création de la notification d'assignation:",
             notificationError
           );
-          // Ne pas faire échouer la mise à jour de la tâche si la notification échoue
         }
       }
 
@@ -389,9 +357,6 @@ export async function DELETE(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -420,7 +385,6 @@ export async function DELETE(
         },
       });
 
-      // Mettre à jour le pourcentage de préparation de l'événement
       const allTodos = await prisma.preparationTodo.findMany({
         where: { eventId: event.id },
       });

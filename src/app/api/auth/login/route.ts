@@ -50,19 +50,15 @@ export async function POST(req: Request) {
       );
     }
 
-    /**
-     * Génération du token avec l'UID utilisateur
-     */
     const token = await generateToken(user.uid);
 
     const cookie = serialize("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 jours
+      maxAge: 60 * 60 * 24 * 7,
     });
 
-    // Calcule si l'utilisateur possède déjà une organisation
     let hasOrganization = false;
     try {
       const countStart = Date.now();

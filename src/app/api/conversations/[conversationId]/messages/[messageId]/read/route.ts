@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * Marque un message comme lu
- */
 export async function POST(
   req: NextRequest,
   { params }: { params: { conversationId: string; messageId: string } }
@@ -17,7 +14,6 @@ export async function POST(
 
     const { conversationId, messageId } = params;
 
-    // Vérifier que l'utilisateur est membre de la conversation
     const membership = await prisma.conversationMember.findUnique({
       where: {
         conversationId_userId: {
@@ -34,7 +30,6 @@ export async function POST(
       );
     }
 
-    // Vérifier que le message existe dans cette conversation
     const message = await prisma.message.findFirst({
       where: {
         id: messageId,
@@ -49,7 +44,6 @@ export async function POST(
       );
     }
 
-    // Mettre à jour ou créer le reçu de message
     const receipt = await prisma.messageReceipt.upsert({
       where: {
         messageId_userId: {

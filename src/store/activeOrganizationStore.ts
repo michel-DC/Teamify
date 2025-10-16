@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-interface Organization {
+interface Organization 
+{
   id: number;
   publicId: string;
   name: string;
@@ -19,14 +20,13 @@ interface Organization {
   createdAt: string;
 }
 
-interface ActiveOrganizationStore {
-  // État
+interface ActiveOrganizationStore 
+{
   activeOrganization: Organization | null;
   loading: boolean;
   error: string | null;
   lastChangeTimestamp: number | null;
 
-  // Actions
   setActiveOrganization: (organization: Organization | null) => void;
   clearActiveOrganization: () => void;
   setLoading: (loading: boolean) => void;
@@ -34,12 +34,7 @@ interface ActiveOrganizationStore {
   forceRefreshAllStores: () => void;
 }
 
-/**
- * Fonction utilitaire pour forcer le refresh de tous les stores
- * Cette fonction doit être appelée lors du changement d'organisation
- */
 export const forceRefreshAllStores = () => {
-  // Forcer le refresh du localStorage pour tous les stores
   const storesToRefresh = [
     "events-storage",
     "organizations-storage",
@@ -55,30 +50,23 @@ export const forceRefreshAllStores = () => {
     }
   });
 
-  // Émettre un événement personnalisé pour notifier les composants
   window.dispatchEvent(
     new CustomEvent("organization-changed", {
       detail: { timestamp: Date.now() },
     })
   );
 
-  // Note: Le rechargement de la page a été supprimé pour une meilleure UX
-  // Les stores se rechargeront automatiquement lors de leur prochaine utilisation
 };
 
 export const useActiveOrganizationStore = create<ActiveOrganizationStore>()(
   persist(
     (set) => ({
-      // État initial
       activeOrganization: null,
       loading: false,
       error: null,
       lastChangeTimestamp: null,
 
-      // Actions
       setActiveOrganization: (organization) => {
-        // Supprimer le localStorage sidebar-storage pour plus de cohérence
-        // lors de tout changement d'organisation
         try {
           localStorage.removeItem("sidebar-storage");
         } catch (error) {
