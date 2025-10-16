@@ -7,7 +7,6 @@ export function useOrganization() {
   const { organizations, loading, error, initialized, fetchOrganizations } =
     useOrganizationsStore();
 
-  // Chargement automatique des organisations au montage
   useEffect(() => {
     if (!initialized) {
       fetchOrganizations();
@@ -22,20 +21,12 @@ export function useOrganization() {
   };
 }
 
-/**
- * @param Hook pour gérer les permissions d'un utilisateur dans une organisation
- *
- * Fournit des fonctions pour vérifier les rôles et permissions d'un utilisateur
- */
 export const useOrganizationPermissions = () => {
   const [userRole, setUserRole] = useState<"OWNER" | "ADMIN" | "MEMBER" | null>(
     null
   );
   const [loading, setLoading] = useState(false);
 
-  /**
-   * @param Récupère le rôle de l'utilisateur dans une organisation
-   */
   const fetchUserRole = useCallback(async (organizationPublicId: string) => {
     setLoading(true);
     try {
@@ -56,30 +47,18 @@ export const useOrganizationPermissions = () => {
     }
   }, []);
 
-  /**
-   * @param Vérifie si l'utilisateur peut modifier une organisation
-   */
   const canModify = useMemo(() => {
     return userRole === "OWNER" || userRole === "ADMIN";
   }, [userRole]);
 
-  /**
-   * @param Vérifie si l'utilisateur peut supprimer une organisation
-   */
   const canDelete = useMemo(() => {
     return userRole === "OWNER";
   }, [userRole]);
 
-  /**
-   * @param Vérifie si l'utilisateur peut modifier un événement
-   */
   const canModifyEvent = useMemo(() => {
     return userRole === "OWNER" || userRole === "ADMIN";
   }, [userRole]);
 
-  /**
-   * @param Vérifie si l'utilisateur peut supprimer un événement
-   */
   const canDeleteEvent = useMemo(() => {
     return userRole === "OWNER";
   }, [userRole]);

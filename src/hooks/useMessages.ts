@@ -149,9 +149,6 @@ export const useMessages = (options: UseMessagesOptions = {}) => {
     [conversationId, removeMessage]
   );
 
-  /**
-   * Effet pour récupérer les messages automatiquement
-   */
   useEffect(() => {
     if (autoFetch && conversationId) {
       fetchMessages();

@@ -14,12 +14,6 @@ interface UseAutoSignedImageReturn {
   isSigned: boolean;
 }
 
-/**
- * @param Hook pour gérer automatiquement les URLs signées avec régénération
- *
- * Régénère automatiquement l'URL signée à chaque requête pour maintenir
- * l'affichage des images sans interruption due à l'expiration.
- */
 export function useAutoSignedImage(
   imageUrl: string | null,
   options: UseAutoSignedImageOptions = {}
@@ -40,9 +34,6 @@ export function useAutoSignedImage(
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastProcessedUrlRef = useRef<string | null>(null);
 
-  /**
-   * @param Vérification si l'URL est déjà signée
-   */
   const isSignedUrl = useCallback((url: string): boolean => {
     try {
       const urlObj = new URL(url);
@@ -56,9 +47,6 @@ export function useAutoSignedImage(
     }
   }, []);
 
-  /**
-   * @param Régénération d'une URL signée fraîche
-   */
   const generateFreshSignedUrl = useCallback(async () => {
     if (!imageUrl) {
       setSignedUrl(null);
@@ -66,7 +54,6 @@ export function useAutoSignedImage(
       return;
     }
 
-    // Éviter les appels multiples pour la même URL
     if (lastProcessedUrlRef.current === imageUrl && isLoading) {
       return;
     }
@@ -76,7 +63,6 @@ export function useAutoSignedImage(
     lastProcessedUrlRef.current = imageUrl;
 
     try {
-      // Annuler la requête précédente si elle existe
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -104,7 +90,6 @@ export function useAutoSignedImage(
           setIsSigned(true);
           setError(null);
 
-          // Programmer le prochain renouvellement si activé
           if (autoRefresh) {
             scheduleNextRefresh(data.expiresIn);
           }
@@ -115,10 +100,8 @@ export function useAutoSignedImage(
     } catch (err) {
       if (!abortControllerRef.current?.signal.aborted) {
         console.warn("Erreur lors de la génération de l'URL signée:", err);
-        // Ne pas considérer comme une erreur fatale, juste utiliser l'URL originale
         setError(null);
         setIsSigned(false);
-        // Garder l'URL originale si disponible
         if (imageUrl) {
           setSignedUrl(imageUrl);
         }
@@ -130,21 +113,15 @@ export function useAutoSignedImage(
     }
   }, [imageUrl, isLoading, autoRefresh]);
 
-  /**
-   * @param Programmation du prochain renouvellement
-   */
   const scheduleNextRefresh = useCallback(
     (expiresIn: number) => {
-      // Nettoyer le timeout précédent
       if (refreshTimeoutRef.current) {
         clearTimeout(refreshTimeoutRef.current);
       }
 
-      // Calculer le délai avant renouvellement
       const timeUntilExpiration = expiresIn - refreshThreshold;
       const refreshDelay = Math.max(0, timeUntilExpiration) * 1000;
 
-      // Programmer le renouvellement
       refreshTimeoutRef.current = setTimeout(() => {
         generateFreshSignedUrl();
       }, refreshDelay);
@@ -152,16 +129,11 @@ export function useAutoSignedImage(
     [refreshThreshold, generateFreshSignedUrl]
   );
 
-  /**
-   * @param Initialisation de l'URL signée avec debounce
-   */
   const initializeSignedUrl = useCallback(async () => {
-    // Nettoyer le debounce précédent
     if (debounceTimeoutRef.current) {
       clearTimeout(debounceTimeoutRef.current);
     }
 
-    // Appliquer un debounce pour éviter les appels multiples
     debounceTimeoutRef.current = setTimeout(async () => {
       if (!imageUrl) {
         setSignedUrl(null);
@@ -170,19 +142,15 @@ export function useAutoSignedImage(
         return;
       }
 
-      // Vérifier si c'est déjà une URL signée
       if (isSignedUrl(imageUrl)) {
         setIsSigned(true);
-        // Essayer de régénérer pour avoir une URL fraîche, mais ne pas échouer
         try {
           await generateFreshSignedUrl();
         } catch {
-          // En cas d'erreur, utiliser l'URL originale
           setSignedUrl(imageUrl);
           setError(null);
         }
       } else {
-        // URL publique, pas besoin de signature
         setSignedUrl(imageUrl);
         setIsSigned(false);
         setError(null);
@@ -190,19 +158,13 @@ export function useAutoSignedImage(
     }, debounceMs);
   }, [imageUrl, isSignedUrl, generateFreshSignedUrl, debounceMs]);
 
-  /**
-   * @param Renouvellement manuel
-   */
   const refresh = useCallback(async () => {
     await generateFreshSignedUrl();
   }, [generateFreshSignedUrl]);
 
-  // Initialisation au montage et quand imageUrl change
   useEffect(() => {
     initializeSignedUrl();
-  }, [imageUrl]); // Dépendance directe sur imageUrl au lieu de initializeSignedUrl
 
-  // Nettoyage au démontage
   useEffect(() => {
     return () => {
       if (refreshTimeoutRef.current) {

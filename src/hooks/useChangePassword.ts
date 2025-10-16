@@ -19,7 +19,6 @@ export function useChangePassword(): UseChangePasswordReturn {
   const [isGoogleUser, setIsGoogleUser] = useState(false);
   const [isLoadingCheck, setIsLoadingCheck] = useState(true);
 
-  // Vérification si l'utilisateur est un utilisateur Google
   useEffect(() => {
     const checkGoogleUser = async () => {
       try {
@@ -42,7 +41,6 @@ export function useChangePassword(): UseChangePasswordReturn {
   }, []);
 
   const changePassword = async (data: ChangePasswordData) => {
-    // Vérification pour les utilisateurs Google
     if (isGoogleUser) {
       toast.error(
         "Impossible de changer le mot de passe pour un compte Google"
@@ -50,7 +48,6 @@ export function useChangePassword(): UseChangePasswordReturn {
       return;
     }
 
-    // Validation côté client
     if (!data.currentPassword || !data.newPassword || !data.confirmPassword) {
       toast.error("Tous les champs sont requis");
       return;
@@ -90,8 +87,6 @@ export function useChangePassword(): UseChangePasswordReturn {
 
       toast.success("Mot de passe mis à jour avec succès");
 
-      // Réinitialisation des champs (optionnel)
-      // Vous pouvez ajouter une fonction de reset ici si nécessaire
     } catch (error) {
       console.error("Erreur lors du changement de mot de passe:", error);
       toast.error("Erreur de connexion. Veuillez réessayer.");

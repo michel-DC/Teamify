@@ -56,9 +56,6 @@ export interface PusherConversationJoinedEvent {
   timestamp: string;
 }
 
-/**
- * Fonction utilitaire pour déclencher un événement Pusher
- */
 export async function triggerPusherEvent(
   channel: string,
   event: string,
@@ -73,9 +70,6 @@ export async function triggerPusherEvent(
   }
 }
 
-/**
- * Fonction pour déclencher un événement de nouveau message
- */
 export async function triggerNewMessage(
   conversationId: string,
   messageData: PusherMessageEvent
@@ -87,9 +81,6 @@ export async function triggerNewMessage(
   );
 }
 
-/**
- * Fonction pour déclencher un événement de message lu
- */
 export async function triggerMessageRead(
   conversationId: string,
   readData: PusherMessageReadEvent
@@ -101,9 +92,6 @@ export async function triggerMessageRead(
   );
 }
 
-/**
- * Fonction pour déclencher un événement de conversation rejointe
- */
 export async function triggerConversationJoined(
   conversationId: string,
   joinData: PusherConversationJoinedEvent

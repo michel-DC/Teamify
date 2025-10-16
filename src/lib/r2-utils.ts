@@ -38,7 +38,6 @@ export async function generateSignedUrl(
     throw new Error("Configuration R2 manquante");
   }
 
-  // Préparation de la commande GetObject
   const command = new GetObjectCommand({
     Bucket: bucketName,
     Key: key,
@@ -50,7 +49,6 @@ export async function generateSignedUrl(
   });
 
   try {
-    // Génération de l'URL signée
     const signedUrl = await getSignedUrl(s3Client, command, {
       expiresIn,
     });
@@ -66,11 +64,6 @@ export async function generateSignedUrl(
   }
 }
 
-/**
- * @param Génération d'une URL signée pour une image
- *
- * Version spécialisée pour les images avec les headers appropriés
- */
 export async function generateSignedImageUrl(
   bucketName: string,
   key: string,
@@ -83,9 +76,6 @@ export async function generateSignedImageUrl(
   });
 }
 
-/**
- * @param Vérification de l'existence d'un objet dans R2
- */
 export async function objectExists(
   bucketName: string,
   key: string
@@ -141,22 +131,14 @@ export function extractBucketFromR2Url(url: string): string | null {
   return pathParts[1];
 }
 
-/**
- * @param Vérification si une URL est une URL R2 Cloudflare
- *
- * Détermine si une URL provient de Cloudflare R2 et nécessite une signature.
- * Les URLs Google, Gravatar, etc. ne nécessitent pas de signature.
- */
 export function isR2Url(url: string): boolean {
   try {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.toLowerCase();
 
-    // Vérifier si c'est une URL R2 Cloudflare
     return (
       hostname.includes("r2.cloudflarestorage.com") ||
       hostname.includes("r2.dev") ||
-      // Vérifier aussi par le pattern de l'URL R2
       (hostname.includes("cloudflare") && urlObj.pathname.includes("/"))
     );
   } catch {

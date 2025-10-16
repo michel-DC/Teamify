@@ -3,9 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "./useAuth";
 
-/**
- * Interface pour les conversations
- */
 export interface Conversation {
   id: string;
   type: "PRIVATE" | "GROUP";
@@ -41,17 +38,11 @@ export interface Conversation {
   unreadCount: number;
 }
 
-/**
- * Options pour le hook useConversations
- */
 interface UseConversationsOptions {
   autoFetch?: boolean;
   organizationId?: number;
 }
 
-/**
- * Hook pour gérer les conversations
- */
 export const useConversations = (options: UseConversationsOptions = {}) => {
   const { autoFetch = true, organizationId } = options;
   const { checkAuth } = useAuth();
@@ -61,9 +52,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Récupère les conversations de l'utilisateur
-   */
   const fetchConversations = useCallback(async () => {
     if (!isAuthenticated) {
       return;
@@ -78,7 +66,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
         params.append("organizationId", organizationId.toString());
       }
 
-      // Utiliser l'API des conversations
       const response = await fetch(`/api/conversations?${params}`, {
         method: "GET",
         credentials: "include",
@@ -101,9 +88,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
     }
   }, [isAuthenticated, organizationId]);
 
-  /**
-   * Crée une nouvelle conversation
-   */
   const createConversation = useCallback(
     async (data: {
       type: "PRIVATE" | "GROUP";
@@ -131,7 +115,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
 
         const newConversation = await response.json();
 
-        // Rafraîchir la liste des conversations pour s'assurer d'avoir les données complètes
         await fetchConversations();
 
         return newConversation;
@@ -146,9 +129,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
     [isAuthenticated]
   );
 
-  /**
-   * Ajoute un membre à une conversation
-   */
   const addMemberToConversation = useCallback(
     async (conversationId: string, userId: string) => {
       try {
@@ -168,7 +148,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
           throw new Error("Erreur lors de l'ajout du membre");
         }
 
-        // Rafraîchir la liste des conversations
         await fetchConversations();
 
         return true;
@@ -185,9 +164,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
     [fetchConversations]
   );
 
-  /**
-   * Supprime un membre d'une conversation
-   */
   const removeMemberFromConversation = useCallback(
     async (conversationId: string, userId: string) => {
       try {
@@ -203,7 +179,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
           throw new Error("Erreur lors de la suppression du membre");
         }
 
-        // Rafraîchir la liste des conversations
         await fetchConversations();
 
         return true;
@@ -220,9 +195,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
     [fetchConversations]
   );
 
-  /**
-   * Met à jour une conversation
-   */
   const updateConversation = useCallback(
     async (conversationId: string, data: { title?: string }) => {
       try {
@@ -241,7 +213,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
 
         const updatedConversation = await response.json();
 
-        // Mettre à jour la conversation dans la liste
         setConversations((prev) =>
           prev.map((conv) =>
             conv.id === conversationId ? updatedConversation : conv
@@ -262,9 +233,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
     []
   );
 
-  /**
-   * Supprime une conversation
-   */
   const deleteConversation = useCallback(async (conversationId: string) => {
     try {
       const response = await fetch(`/api/conversations/${conversationId}`, {
@@ -276,7 +244,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
         throw new Error("Erreur lors de la suppression de la conversation");
       }
 
-      // Supprimer la conversation de la liste
       setConversations((prev) =>
         prev.filter((conv) => conv.id !== conversationId)
       );
@@ -291,9 +258,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
     }
   }, []);
 
-  /**
-   * Récupère les messages d'une conversation
-   */
   const fetchMessages = useCallback(
     async (conversationId: string, page: number = 1, limit: number = 50) => {
       try {
@@ -330,9 +294,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
     []
   );
 
-  /**
-   * Vérification de l'authentification au montage
-   */
   useEffect(() => {
     const verifyAuth = async () => {
       const authResult = await checkAuth();
@@ -342,9 +303,6 @@ export const useConversations = (options: UseConversationsOptions = {}) => {
     verifyAuth();
   }, [checkAuth]);
 
-  /**
-   * Récupération automatique des conversations
-   */
   useEffect(() => {
     if (autoFetch && isAuthenticated) {
       fetchConversations();

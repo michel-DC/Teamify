@@ -201,12 +201,10 @@ export async function getUserOrganizationRoleByPublicId(
       return null;
     }
 
-    // Vérifier d'abord si l'utilisateur est le propriétaire direct
     if (organization.ownerUid === userUid) {
       return "OWNER";
     }
 
-    // Ensuite, récupérer le rôle de l'utilisateur depuis la table des membres
     const member = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
