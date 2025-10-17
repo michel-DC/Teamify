@@ -17,6 +17,7 @@ export function useSidebarState() {
     try {
       const userPreference = localStorage.getItem(USER_SIDEBAR_PREFERENCE_KEY);
       if (userPreference === "always-collapsed") {
+        return true; 
       }
 
       const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
