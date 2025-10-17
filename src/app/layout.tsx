@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "../styles/globals.css";
 import { DataPersistenceManager } from "@/components/data-persistence-manager";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LenisProvider } from "@/components/lenis-provider";
 
 import { Toaster } from "sonner";
 
@@ -33,9 +34,11 @@ export default function RootLayout({
       </head>
       <body className={poppins.className}>
         <ThemeProvider defaultTheme="light" storageKey="theme">
-          <DataPersistenceManager />
-          {children}
-          <Toaster position="top-left" />
+          <LenisProvider>
+            <DataPersistenceManager />
+            {children}
+            <Toaster position="top-left" />
+          </LenisProvider>
         </ThemeProvider>
       </body>
     </html>
