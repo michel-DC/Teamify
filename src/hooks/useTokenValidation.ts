@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 interface TokenValidationOptions {
   checkInterval?: number;
-  redirectDelay?: number;
+  redirectDelay?: number; 
   customMessage?: string;
 }
 
@@ -17,11 +17,14 @@ export const useTokenValidation = (options: TokenValidationOptions = {}) => {
   const hasRedirectedRef = useRef(false);
 
   const {
+    checkInterval = 5 * 60 * 1000,
+    redirectDelay = 2000,
     customMessage = "Session expirée. Veuillez vous reconnecter 🛡️",
   } = options;
 
   const checkTokenValidity = useCallback(async (): Promise<boolean> => {
     if (isCheckingRef.current) {
+      return true;
     }
 
     try {
@@ -64,6 +67,7 @@ export const useTokenValidation = (options: TokenValidationOptions = {}) => {
 
   const handleTokenExpiration = useCallback(async () => {
     if (hasRedirectedRef.current) {
+      return;
     }
 
     hasRedirectedRef.current = true;

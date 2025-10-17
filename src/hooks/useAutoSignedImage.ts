@@ -164,6 +164,7 @@ export function useAutoSignedImage(
 
   useEffect(() => {
     initializeSignedUrl();
+  }, [imageUrl]);
 
   useEffect(() => {
     return () => {

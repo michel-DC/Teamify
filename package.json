@@ -13,19 +13,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate",
-    "cypress:open": "cypress open",
-    "cypress:run": "cypress run",
-    "cypress:run:headed": "cypress run --headed",
-    "cypress:test": "cross-env NODE_ENV=test cypress run",
-    "cypress:test:headed": "cross-env NODE_ENV=test cypress run --headed",
-    "cypress:test:open": "cross-env NODE_ENV=test cypress open",
-    "test:e2e": "cypress run",
-    "test:e2e:open": "cypress open",
-    "seed:test": "cross-env NODE_ENV=test tsx cypress/support/seed-test-db.ts",
-    "test:setup": "pnpm run seed:test && pnpm run cypress:test:open",
-    "dev:test": "cross-env NODE_ENV=test next dev",
-    "test:full": "pnpm run seed:test && pnpm run dev:test & pnpm run cypress:test:open"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
