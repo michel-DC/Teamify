@@ -14,9 +14,9 @@ export class WelcomeEmailService {
       const htmlContent = generateWelcomeEmail(data, recipientName);
 
       const { data: resendData, error } = await resend.emails.send({
-        from: "Teamify - Bienvenue <welcome@onlinemichel.dev>",
+        from: "L'équipe Teamify <contact@onlinemichel.dev>",
         to: [email],
-        subject: `🎉 Bienvenue sur Teamify, ${recipientName} !`,
+        subject: `Bienvenue sur Teamify, ${recipientName} 🎉`,
         html: htmlContent,
         headers: {
           "X-Priority": "2",

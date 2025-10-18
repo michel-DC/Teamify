@@ -13,7 +13,11 @@
     "start": "next start",
     "lint": "next lint",
     "db:seed": "tsx prisma/seed.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cypress:run:auth": "cypress run --spec 'cypress/e2e/auth/**/*.cy.ts'",
+    "test:e2e": "concurrently \"pnpm dev\" \"pnpm cypress:run:auth\" --kill-others-on-fail"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.864.0",
@@ -88,6 +92,7 @@
     "zustand": "^5.0.6"
   },
   "devDependencies": {
+    "@cypress/webpack-preprocessor": "^7.0.1",
     "@eslint/eslintrc": "^3",
     "@faker-js/faker": "^10.0.0",
     "@tailwindcss/postcss": "^4",

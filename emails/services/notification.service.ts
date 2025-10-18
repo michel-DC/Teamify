@@ -17,9 +17,9 @@ export class NotificationEmailService {
       const htmlContent = generateNotificationEmail(data, recipientName);
 
       const { data: resendData, error } = await resend.emails.send({
-        from: "Teamify - Notifications <notifications@onlinemichel.dev>",
+        from: "L'équipe Teamify <contact@onlinemichel.dev>",
         to: [email],
-        subject: `🔔 ${data.notificationName} - Teamify`,
+        subject: `${data.notificationName}`,
         html: htmlContent,
         headers: {
           "X-Priority": getPriorityHeader(data.notificationType),
