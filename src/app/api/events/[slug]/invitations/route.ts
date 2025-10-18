@@ -4,11 +4,6 @@ import { getCurrentUser } from "@/lib/auth";
 import { encodeInvitationCode } from "@/lib/invitation-utils";
 import { EventInvitationService } from "../../../../../../emails/services";
 
-/**
- * @param Envoi d'une nouvelle invitation
- *
- * Crée une nouvelle invitation et envoie l'email
- */
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -27,7 +22,6 @@ export async function POST(
     const body = await request.json();
     const { email, eventName, eventDate, eventLocation } = body;
 
-    // Validation des données
     if (!email || !eventName) {
       return NextResponse.json(
         { error: "Email et nom d'événement requis" },
@@ -35,7 +29,6 @@ export async function POST(
       );
     }
 
-    // Validation de l'email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -44,7 +37,6 @@ export async function POST(
       );
     }
 
-    // Vérifier que l'événement appartient à l'utilisateur et récupérer les détails
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
@@ -59,7 +51,6 @@ export async function POST(
       );
     }
 
-    // Récupérer le nombre de participants depuis la colonne capacity
     const participantsCount = event.capacity || 0;
     const eventCategory = event.category || "Général";
     const eventDescription = event.description || "";
@@ -68,7 +59,6 @@ export async function POST(
         ? eventDescription.substring(0, 200) + "..."
         : eventDescription;
 
-    // Vérifier si l'invitation existe déjà
     const existingInvitation = await prisma.invitation.findFirst({
       where: {
         eventCode: event.eventCode,
@@ -83,7 +73,6 @@ export async function POST(
       );
     }
 
-    // Extraire le nom du receveur de l'email
     const receiverName = email.split("@")[0];
 
     console.log("[Invitation] Données à créer:", {
@@ -93,7 +82,6 @@ export async function POST(
       status: "PENDING",
     });
 
-    // Créer l'invitation en base de données
     const invitation = await prisma.invitation.create({
       data: {
         eventCode: event.eventCode,
@@ -104,7 +92,6 @@ export async function POST(
       },
     });
 
-    // Générer le code d'invitation unique avec l'invitationId généré automatiquement
     const invitationCode = encodeInvitationCode(
       invitation.invitationId!,
       event.eventCode
@@ -112,9 +99,6 @@ export async function POST(
 
     console.log("[Invitation] Invitation créée:", invitation);
 
-    /**
-     * @param Envoi de l'email d'invitation via le service dédié
-     */
     const emailData = {
       eventName,
       eventCategory,

@@ -15,9 +15,6 @@ export async function GET(
 
     const { publicId } = params;
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -29,9 +26,6 @@ export async function GET(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur est membre de l'organisation
-     */
     const userMembership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -45,9 +39,6 @@ export async function GET(
       return NextResponse.json({ error: "Accès refusé" }, { status: 403 });
     }
 
-    /**
-     * Récupération des membres de l'organisation
-     */
     const members = await prisma.organizationMember.findMany({
       where: { organizationId: organization.id },
       include: {
@@ -61,7 +52,7 @@ export async function GET(
         },
       },
       orderBy: [
-        { role: "asc" }, // OWNER en premier, puis ADMIN, puis MEMBER
+        { role: "asc" },
         { createdAt: "asc" },
       ],
     });

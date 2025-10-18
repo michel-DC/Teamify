@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
 import "../styles/globals.css";
 import { DataPersistenceManager } from "@/components/data-persistence-manager";
 import { ThemeProvider } from "@/components/theme-provider";
+import { LenisProvider } from "@/components/lenis-provider";
 
 import { Toaster } from "sonner";
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
-});
 
 export const metadata: Metadata = {
   title: "Teamify • Gestion d'événements en équipe",
@@ -26,16 +20,18 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${poppins.variable} h-full bg-background text-foreground`}
+      className="h-full bg-background text-foreground"
     >
       <head>
         <link rel="icon" href="/images/logo/favicon.svg" type="image/x-icon" />
       </head>
-      <body className={poppins.className}>
+      <body className="font-quote">
         <ThemeProvider defaultTheme="light" storageKey="theme">
-          <DataPersistenceManager />
-          {children}
-          <Toaster position="top-left" />
+          <LenisProvider>
+            <DataPersistenceManager />
+            {children}
+            <Toaster position="top-left" />
+          </LenisProvider>
         </ThemeProvider>
       </body>
     </html>

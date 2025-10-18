@@ -16,6 +16,18 @@ CREATE TYPE "EventStatus" AS ENUM ('A_VENIR', 'EN_COURS', 'TERMINE', 'ANNULE');
 -- CreateEnum
 CREATE TYPE "EventCategory" AS ENUM ('REUNION', 'SEMINAIRE', 'CONFERENCE', 'FORMATION', 'ATELIER', 'NETWORKING', 'CEREMONIE', 'EXPOSITION', 'CONCERT', 'SPECTACLE', 'AUTRE');
 
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('INFO', 'SUCCESS', 'WARNING', 'ERROR', 'INVITATION', 'REMINDER', 'UPDATE');
+
+-- CreateEnum
+CREATE TYPE "ConversationType" AS ENUM ('PRIVATE', 'GROUP');
+
+-- CreateEnum
+CREATE TYPE "MemberRole" AS ENUM ('MEMBER', 'ADMIN');
+
+-- CreateEnum
+CREATE TYPE "ReceiptStatus" AS ENUM ('DELIVERED', 'READ');
+
 -- CreateTable
 CREATE TABLE "User" (
     "email" TEXT NOT NULL,
@@ -28,6 +40,11 @@ CREATE TABLE "User" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "profileImage" TEXT,
     "googleId" TEXT,
+    "bio" TEXT,
+    "dateOfBirth" TIMESTAMP(3),
+    "location" JSONB,
+    "phone" TEXT,
+    "website" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("uid")
 );
@@ -48,6 +65,7 @@ CREATE TABLE "Organization" (
     "members" JSONB DEFAULT '[]',
     "publicId" TEXT,
     "eventCount" INTEGER NOT NULL DEFAULT 0,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Organization_pkey" PRIMARY KEY ("id")
 );
@@ -191,6 +209,69 @@ CREATE TABLE "OrganizationPermissions" (
     CONSTRAINT "OrganizationPermissions_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Notification" (
+    "id" SERIAL NOT NULL,
+    "publicId" TEXT NOT NULL,
+    "notificationName" TEXT NOT NULL,
+    "notificationDescription" TEXT NOT NULL,
+    "notificationDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "notificationType" "NotificationType" NOT NULL DEFAULT 'INFO',
+    "eventPublicId" TEXT,
+    "organizationPublicId" TEXT,
+    "userUid" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Conversation" (
+    "id" TEXT NOT NULL,
+    "type" "ConversationType" NOT NULL,
+    "title" TEXT,
+    "organizationId" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Conversation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ConversationMember" (
+    "id" TEXT NOT NULL,
+    "conversationId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "role" "MemberRole" NOT NULL DEFAULT 'MEMBER',
+    "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "ConversationMember_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Message" (
+    "id" TEXT NOT NULL,
+    "conversationId" TEXT NOT NULL,
+    "senderId" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "attachments" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MessageReceipt" (
+    "id" TEXT NOT NULL,
+    "messageId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "status" "ReceiptStatus" NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MessageReceipt_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -226,6 +307,18 @@ CREATE UNIQUE INDEX "OrganizationMember_organizationId_userUid_key" ON "Organiza
 
 -- CreateIndex
 CREATE UNIQUE INDEX "OrganizationPermissions_organizationId_key" ON "OrganizationPermissions"("organizationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Notification_publicId_key" ON "Notification"("publicId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ConversationMember_conversationId_userId_key" ON "ConversationMember"("conversationId", "userId");
+
+-- CreateIndex
+CREATE INDEX "Message_conversationId_createdAt_idx" ON "Message"("conversationId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MessageReceipt_messageId_userId_key" ON "MessageReceipt"("messageId", "userId");
 
 -- AddForeignKey
 ALTER TABLE "Organization" ADD CONSTRAINT "Organization_ownerUid_fkey" FOREIGN KEY ("ownerUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -268,3 +361,33 @@ ALTER TABLE "OrganizationMember" ADD CONSTRAINT "OrganizationMember_userUid_fkey
 
 -- AddForeignKey
 ALTER TABLE "OrganizationPermissions" ADD CONSTRAINT "OrganizationPermissions_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_eventPublicId_fkey" FOREIGN KEY ("eventPublicId") REFERENCES "Event"("publicId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_organizationPublicId_fkey" FOREIGN KEY ("organizationPublicId") REFERENCES "Organization"("publicId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userUid_fkey" FOREIGN KEY ("userUid") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Conversation" ADD CONSTRAINT "Conversation_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ConversationMember" ADD CONSTRAINT "ConversationMember_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ConversationMember" ADD CONSTRAINT "ConversationMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Message" ADD CONSTRAINT "Message_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Message" ADD CONSTRAINT "Message_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MessageReceipt" ADD CONSTRAINT "MessageReceipt_messageId_fkey" FOREIGN KEY ("messageId") REFERENCES "Message"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MessageReceipt" ADD CONSTRAINT "MessageReceipt_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("uid") ON DELETE CASCADE ON UPDATE CASCADE;

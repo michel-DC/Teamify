@@ -4,11 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { createNotificationForOrganizationOwnersAndAdmins } from "@/lib/notification-service";
 
-/**
- * Route pour traiter une invitation d'organisation via le code d'invitation
- * Si l'utilisateur est connecté : ajoute à l'organisation et marque l'invitation comme acceptée
- * Si l'utilisateur n'est pas connecté : redirige vers l'inscription avec le code d'invitation
- */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
@@ -23,7 +18,6 @@ export async function GET(
       );
     }
 
-    // Recherche de l'invitation par le code
     const invitation = await prisma.organizationInvite.findUnique({
       where: { inviteCode: code },
       include: {
@@ -39,7 +33,6 @@ export async function GET(
       );
     }
 
-    // Vérification du statut de l'invitation
     if (invitation.status !== "PENDING") {
       return NextResponse.json(
         { error: "Cette invitation a déjà été traitée" },
@@ -47,11 +40,9 @@ export async function GET(
       );
     }
 
-    // Vérification de l'authentification
     const user = await getCurrentUser();
 
     if (!user?.uid) {
-      // Utilisateur non connecté : redirection vers l'inscription avec le code d'invitation
       const signupUrl = `/auth/register?invite=${code}`;
       return NextResponse.json({
         redirect: true,
@@ -60,10 +51,8 @@ export async function GET(
       });
     }
 
-    // Utilisateur connecté : traitement de l'invitation
     const userUid = user.uid;
 
-    // Vérification que l'utilisateur n'est pas déjà membre
     const existingMember = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -80,9 +69,7 @@ export async function GET(
       );
     }
 
-    // Transaction pour ajouter le membre et marquer l'invitation comme acceptée
     await prisma.$transaction(async (tx) => {
-      // Ajout du membre à l'organisation
       await tx.organizationMember.create({
         data: {
           userUid,
@@ -91,13 +78,11 @@ export async function GET(
         },
       });
 
-      // Mise à jour du statut de l'invitation
       await tx.organizationInvite.update({
         where: { id: invitation.id },
         data: { status: "ACCEPTED" },
       });
 
-      // Mise à jour du nombre de membres de l'organisation
       await tx.organization.update({
         where: { id: invitation.organizationId },
         data: {
@@ -107,7 +92,6 @@ export async function GET(
         },
       });
 
-      // Ajouter le nouveau membre à la conversation de groupe de l'organisation
       const groupConversation = await tx.conversation.findFirst({
         where: {
           type: "GROUP",
@@ -126,7 +110,6 @@ export async function GET(
       }
     });
 
-    // Créer des notifications pour les OWNER et ADMIN
     try {
       await createNotificationForOrganizationOwnersAndAdmins(
         invitation.organizationId,
@@ -147,10 +130,8 @@ export async function GET(
         "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
         notificationError
       );
-      // Ne pas faire échouer le processus de rejoindre l'organisation si les notifications échouent
     }
 
-    // Redirection vers le dashboard de l'organisation
     const dashboardUrl = `/dashboard/organizations`;
 
     return NextResponse.json({
@@ -168,10 +149,6 @@ export async function GET(
   }
 }
 
-/**
- * Route pour refuser une invitation d'organisation
- * Marque l'invitation comme refusée
- */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
@@ -191,7 +168,6 @@ export async function POST(
       return NextResponse.json({ error: "Action invalide" }, { status: 400 });
     }
 
-    // Recherche de l'invitation par le code
     const invitation = await prisma.organizationInvite.findUnique({
       where: { inviteCode: code },
       include: {
@@ -206,7 +182,6 @@ export async function POST(
       );
     }
 
-    // Vérification du statut de l'invitation
     if (invitation.status !== "PENDING") {
       return NextResponse.json(
         { error: "Cette invitation a déjà été traitée" },
@@ -214,7 +189,6 @@ export async function POST(
       );
     }
 
-    // Vérification de l'authentification
     const user = await getCurrentUser();
 
     if (!user?.uid) {
@@ -224,7 +198,6 @@ export async function POST(
       );
     }
 
-    // Marquer l'invitation comme refusée
     await prisma.organizationInvite.update({
       where: { id: invitation.id },
       data: { status: "DECLINED" },

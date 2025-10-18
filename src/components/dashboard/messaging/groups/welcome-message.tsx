@@ -9,9 +9,6 @@ interface WelcomeMessageProps {
   onMessageSent?: () => void;
 }
 
-/**
- * Composant pour envoyer automatiquement un message de bienvenue dans la conversation de groupe
- */
 export const WelcomeMessage = ({
   conversationId,
   onMessageSent,
@@ -21,7 +18,6 @@ export const WelcomeMessage = ({
   const [hasSentWelcome, setHasSentWelcome] = useState(false);
   const [user, setUser] = useState<any>(null);
 
-  // Récupérer l'utilisateur actuel
   useEffect(() => {
     const getUser = async () => {
       const authResult = await checkAuth();
@@ -37,7 +33,6 @@ export const WelcomeMessage = ({
       return;
     }
 
-    // Vérifier si c'est une nouvelle organisation (créée récemment)
     const isNewOrganization =
       activeOrganization.createdAt &&
       new Date(activeOrganization.createdAt).getTime() > Date.now() - 60000; // Créée il y a moins d'1 minute
@@ -45,7 +40,6 @@ export const WelcomeMessage = ({
     if (isNewOrganization) {
       const welcomeText = `🎉 Bienvenue dans ${activeOrganization.name} !\n\nCette conversation de groupe permet à tous les membres de l'organisation de communiquer ensemble. N'hésitez pas à partager des informations importantes ou à poser des questions à l'équipe.`;
 
-      // Envoyer le message de bienvenue via l'API
       const sendWelcomeMessage = async () => {
         try {
           const response = await fetch("/api/messages/send", {

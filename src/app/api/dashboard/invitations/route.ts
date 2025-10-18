@@ -2,11 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * @param Récupération de toutes les invitations de l'organisation
- *
- * Retourne toutes les invitations pour tous les événements des organisations de l'utilisateur
- */
 export async function GET(request: Request) {
   try {
     const user = await getCurrentUser();
@@ -18,13 +13,11 @@ export async function GET(request: Request) {
       );
     }
 
-    // Récupérer toutes les organisations dont l'utilisateur est propriétaire
     const ownedOrganizations = await prisma.organization.findMany({
       where: { ownerUid: user.uid },
       select: { id: true },
     });
 
-    // Récupérer toutes les organisations dont l'utilisateur est membre
     const memberOrganizations = await prisma.organization.findMany({
       where: {
         organizationMembers: {
@@ -36,7 +29,6 @@ export async function GET(request: Request) {
       select: { id: true },
     });
 
-    // Combiner les IDs d'organisations
     const allOrganizationIds = [
       ...ownedOrganizations.map((org) => org.id),
       ...memberOrganizations.map((org) => org.id),
@@ -46,7 +38,6 @@ export async function GET(request: Request) {
       return NextResponse.json({ invitations: [] }, { status: 200 });
     }
 
-    // Récupérer tous les événements de ces organisations
     const userEvents = await prisma.event.findMany({
       where: {
         orgId: {
@@ -63,7 +54,6 @@ export async function GET(request: Request) {
       return NextResponse.json({ invitations: [] }, { status: 200 });
     }
 
-    // Récupérer toutes les invitations pour ces événements
     const invitations = await prisma.invitation.findMany({
       where: {
         eventCode: {
@@ -75,7 +65,6 @@ export async function GET(request: Request) {
       },
     });
 
-    // Ajouter le titre de l'événement à chaque invitation
     const invitationsWithEventTitle = invitations.map((invitation) => {
       const event = userEvents.find(
         (e) => e.eventCode === invitation.eventCode

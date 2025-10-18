@@ -1,0 +1,13 @@
+{
+  "user": {
+    "id": "google_user_123",
+    "name": "Google Test User",
+    "email": "google.test@example.com",
+    "image": "https://lh3.googleusercontent.com/a/default-user"
+  },
+  "account": {
+    "provider": "google",
+    "type": "oauth",
+    "providerAccountId": "123456789"
+  }
+}

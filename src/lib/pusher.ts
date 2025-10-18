@@ -1,9 +1,6 @@
 import Pusher from "pusher";
 import PusherClient from "pusher-js";
 
-/**
- * Configuration Pusher côté serveur
- */
 export const pusherServer = new Pusher({
   appId: process.env.PUSHER_APP_ID!,
   key: process.env.PUSHER_KEY!,
@@ -12,9 +9,6 @@ export const pusherServer = new Pusher({
   useTLS: true,
 });
 
-/**
- * Configuration Pusher côté client - initialisation sécurisée
- */
 let pusherClient: PusherClient | null = null;
 
 export function getPusherClient(): PusherClient {
@@ -39,9 +33,6 @@ export function getPusherClient(): PusherClient {
   return pusherClient;
 }
 
-/**
- * Types pour les événements Pusher
- */
 export interface PusherMessageEvent {
   id: string;
   content: string;
@@ -65,9 +56,6 @@ export interface PusherConversationJoinedEvent {
   timestamp: string;
 }
 
-/**
- * Fonction utilitaire pour déclencher un événement Pusher
- */
 export async function triggerPusherEvent(
   channel: string,
   event: string,
@@ -82,9 +70,6 @@ export async function triggerPusherEvent(
   }
 }
 
-/**
- * Fonction pour déclencher un événement de nouveau message
- */
 export async function triggerNewMessage(
   conversationId: string,
   messageData: PusherMessageEvent
@@ -96,9 +81,6 @@ export async function triggerNewMessage(
   );
 }
 
-/**
- * Fonction pour déclencher un événement de message lu
- */
 export async function triggerMessageRead(
   conversationId: string,
   readData: PusherMessageReadEvent
@@ -110,9 +92,6 @@ export async function triggerMessageRead(
   );
 }
 
-/**
- * Fonction pour déclencher un événement de conversation rejointe
- */
 export async function triggerConversationJoined(
   conversationId: string,
   joinData: PusherConversationJoinedEvent

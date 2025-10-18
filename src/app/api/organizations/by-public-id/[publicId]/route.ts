@@ -26,9 +26,6 @@ export async function GET(
     const { publicId } = params;
     console.log("🔍 [API] PublicId reçu:", publicId);
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
       include: {
@@ -58,9 +55,6 @@ export async function GET(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur est membre de l'organisation
-     */
     console.log("🔍 [API] Recherche du membership pour:", {
       organizationId: organization.id,
       userUid: user.uid,
@@ -84,7 +78,6 @@ export async function GET(
     if (!userMembership) {
       console.log("❌ [API] Aucun membership trouvé pour cet utilisateur");
 
-      // Log supplémentaire pour debug - vérifier tous les membres de l'organisation
       const allMembers = await prisma.organizationMember.findMany({
         where: { organizationId: organization.id },
         include: { user: { select: { uid: true, email: true } } },

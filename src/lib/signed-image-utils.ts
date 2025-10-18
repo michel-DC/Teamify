@@ -1,10 +1,3 @@
-/**
- * @param Utilitaires pour la gestion des URLs signées d'images
- */
-
-/**
- * @param Vérification si une URL est déjà signée
- */
 export function isSignedUrl(url: string): boolean {
   try {
     const urlObj = new URL(url);
@@ -18,9 +11,6 @@ export function isSignedUrl(url: string): boolean {
   }
 }
 
-/**
- * @param Extraction du temps restant avant expiration d'une URL signée
- */
 export function getTimeUntilExpiration(url: string): number | null {
   try {
     const urlObj = new URL(url);
@@ -37,9 +27,6 @@ export function getTimeUntilExpiration(url: string): number | null {
   }
 }
 
-/**
- * @param Régénération d'une URL signée pour une image
- */
 export async function refreshSignedImageUrl(imageUrl: string): Promise<string> {
   const response = await fetch("/api/images/signed-url", {
     method: "POST",
@@ -62,9 +49,6 @@ export async function refreshSignedImageUrl(imageUrl: string): Promise<string> {
   return data.signedUrl;
 }
 
-/**
- * @param Vérification si une URL signée est proche de l'expiration
- */
 export function isUrlNearExpiration(
   url: string,
   thresholdSeconds: number = 60
@@ -73,16 +57,12 @@ export function isUrlNearExpiration(
   return timeRemaining !== null && timeRemaining <= thresholdSeconds;
 }
 
-/**
- * @param Génération d'une URL signée avec gestion d'erreur
- */
 export async function getSignedImageUrl(
   imageUrl: string | null,
   fallbackUrl?: string
 ): Promise<string | null> {
   if (!imageUrl) return fallbackUrl || null;
 
-  // Si c'est déjà une URL publique, la retourner directement
   if (!isSignedUrl(imageUrl)) {
     return imageUrl;
   }
@@ -91,6 +71,6 @@ export async function getSignedImageUrl(
     return await refreshSignedImageUrl(imageUrl);
   } catch (error) {
     console.error("Erreur lors de la génération de l'URL signée:", error);
-    return fallbackUrl || imageUrl; // Retourner l'URL originale en cas d'erreur
+    return fallbackUrl || imageUrl;
   }
 }

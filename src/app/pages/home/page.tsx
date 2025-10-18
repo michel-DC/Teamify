@@ -5,8 +5,8 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Spotlight } from "@/components/ui/spotlight";
 import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/_layout/Navbar";
-import { Footer } from "@/components/_layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { Separator } from "@/components/ui/separator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {

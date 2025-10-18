@@ -1,4 +1,3 @@
-// Vérification des variables d'environnement requises
 export function validateEnv() {
   const requiredEnvVars = [
     "DATABASE_URL",
@@ -19,7 +18,6 @@ export function validateEnv() {
   }
 }
 
-// Appel de la validation en mode production
 if (process.env.NODE_ENV === "production") {
   validateEnv();
 }

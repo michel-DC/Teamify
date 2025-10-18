@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * Synchronise les membres de la conversation de groupe avec les membres de l'organisation
- */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ organizationId: string }> }
@@ -17,7 +14,6 @@ export async function POST(
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    // Vérifier que l'utilisateur est membre de l'organisation
     const membership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -34,7 +30,6 @@ export async function POST(
       );
     }
 
-    // Récupérer tous les membres de l'organisation
     const organizationMembers = await prisma.organizationMember.findMany({
       where: {
         organizationId: parseInt(organizationId),
@@ -51,7 +46,6 @@ export async function POST(
       },
     });
 
-    // Trouver ou créer la conversation de groupe
     let conversation = await prisma.conversation.findFirst({
       where: {
         type: "GROUP",
@@ -60,7 +54,6 @@ export async function POST(
     });
 
     if (!conversation) {
-      // Créer la conversation de groupe si elle n'existe pas
       conversation = await prisma.conversation.create({
         data: {
           type: "GROUP",
@@ -70,7 +63,6 @@ export async function POST(
       });
     }
 
-    // Récupérer les membres actuels de la conversation
     const currentConversationMembers = await prisma.conversationMember.findMany(
       {
         where: {
@@ -86,17 +78,14 @@ export async function POST(
       (member) => member.user.uid
     );
 
-    // Identifier les membres à ajouter
     const membersToAdd = organizationMemberIds.filter(
       (id) => !currentMemberIds.includes(id)
     );
 
-    // Identifier les membres à supprimer
     const membersToRemove = currentMemberIds.filter(
       (id) => !organizationMemberIds.includes(id)
     );
 
-    // Ajouter les nouveaux membres
     if (membersToAdd.length > 0) {
       await prisma.conversationMember.createMany({
         data: membersToAdd.map((userId) => {
@@ -112,7 +101,6 @@ export async function POST(
       });
     }
 
-    // Supprimer les membres qui ne sont plus dans l'organisation
     if (membersToRemove.length > 0) {
       await prisma.conversationMember.deleteMany({
         where: {
@@ -124,7 +112,6 @@ export async function POST(
       });
     }
 
-    // Récupérer la conversation mise à jour avec tous les membres
     const updatedConversation = await prisma.conversation.findUnique({
       where: {
         id: conversation!.id,
@@ -164,7 +151,6 @@ export async function POST(
       },
     });
 
-    // Formater la réponse
     const formattedConversation = {
       id: updatedConversation!.id,
       type: updatedConversation!.type,

@@ -1,9 +1,6 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-/**
- * @param Configuration du client S3 pour Cloudflare R2
- */
 const s3Client = new S3Client({
   region: "auto",
   endpoint: process.env.R2_ENDPOINT,
@@ -14,35 +11,25 @@ const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
-/**
- * @param Types pour les URLs signées
- */
 export interface SignedUrlOptions {
-  expiresIn?: number; // Durée de validité en secondes (défaut: 15 minutes)
-  contentType?: string; // Type de contenu pour les headers
-  responseContentType?: string; // Type de réponse forcé
-  responseContentDisposition?: string; // Disposition de la réponse
+  expiresIn?: number;
+  contentType?: string;
+  responseContentType?: string;
+  responseContentDisposition?: string;
 }
 
-/**
- * @param Génération d'une URL signée pour un objet R2
- *
- * Crée une URL temporaire permettant d'accéder à un fichier privé
- * dans le bucket R2. L'URL est valide pour la durée spécifiée.
- */
 export async function generateSignedUrl(
   bucketName: string,
   key: string,
   options: SignedUrlOptions = {}
 ): Promise<string> {
   const {
-    expiresIn = 15 * 60, // 15 minutes par défaut
+    expiresIn = 15 * 60,
     contentType,
     responseContentType,
     responseContentDisposition,
   } = options;
 
-  // Vérification des variables d'environnement
   if (
     !process.env.R2_ACCESS_KEY_ID ||
     !process.env.R2_SECRET_ACCESS_KEY ||
@@ -51,7 +38,6 @@ export async function generateSignedUrl(
     throw new Error("Configuration R2 manquante");
   }
 
-  // Préparation de la commande GetObject
   const command = new GetObjectCommand({
     Bucket: bucketName,
     Key: key,
@@ -63,7 +49,6 @@ export async function generateSignedUrl(
   });
 
   try {
-    // Génération de l'URL signée
     const signedUrl = await getSignedUrl(s3Client, command, {
       expiresIn,
     });
@@ -79,11 +64,6 @@ export async function generateSignedUrl(
   }
 }
 
-/**
- * @param Génération d'une URL signée pour une image
- *
- * Version spécialisée pour les images avec les headers appropriés
- */
 export async function generateSignedImageUrl(
   bucketName: string,
   key: string,
@@ -96,9 +76,6 @@ export async function generateSignedImageUrl(
   });
 }
 
-/**
- * @param Vérification de l'existence d'un objet dans R2
- */
 export async function objectExists(
   bucketName: string,
   key: string
@@ -116,68 +93,52 @@ export async function objectExists(
   }
 }
 
-/**
- * @param Extraction du nom de fichier depuis une URL R2
- */
+function parseUrlPath(url: string): string[] | null {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.pathname.split("/");
+  } catch {
+    return null;
+  }
+}
+
+function removeDefaultBucketFromPath(pathParts: string[]): string[] {
+  const defaultBucket = process.env.R2_BUCKET;
+  if (defaultBucket && pathParts[0] === defaultBucket) {
+    return pathParts.slice(1);
+  }
+  return pathParts;
+}
+
 export function extractKeyFromR2Url(url: string): string | null {
-  try {
-    const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split("/");
-
-    // Supprimer le bucket name et récupérer le reste du chemin
-    if (pathParts.length > 2) {
-      const extractedParts = pathParts.slice(2);
-
-      // Si la première partie est le même nom que le bucket par défaut, la supprimer
-      const defaultBucket = process.env.R2_BUCKET;
-      if (defaultBucket && extractedParts[0] === defaultBucket) {
-        return extractedParts.slice(1).join("/");
-      }
-
-      return extractedParts.join("/");
-    }
-
-    return null;
-  } catch {
+  const pathParts = parseUrlPath(url);
+  if (!pathParts || pathParts.length <= 2) {
     return null;
   }
+
+  const extractedParts = pathParts.slice(2);
+  const finalParts = removeDefaultBucketFromPath(extractedParts);
+
+  return finalParts.join("/");
 }
 
-/**
- * @param Extraction du bucket name depuis une URL R2
- */
 export function extractBucketFromR2Url(url: string): string | null {
-  try {
-    const urlObj = new URL(url);
-    const pathParts = urlObj.pathname.split("/");
-
-    // Le bucket est généralement le premier élément du path
-    if (pathParts.length > 1) {
-      return pathParts[1];
-    }
-
-    return null;
-  } catch {
+  const pathParts = parseUrlPath(url);
+  if (!pathParts || pathParts.length <= 1) {
     return null;
   }
+
+  return pathParts[1];
 }
 
-/**
- * @param Vérification si une URL est une URL R2 Cloudflare
- *
- * Détermine si une URL provient de Cloudflare R2 et nécessite une signature.
- * Les URLs Google, Gravatar, etc. ne nécessitent pas de signature.
- */
 export function isR2Url(url: string): boolean {
   try {
     const urlObj = new URL(url);
     const hostname = urlObj.hostname.toLowerCase();
 
-    // Vérifier si c'est une URL R2 Cloudflare
     return (
       hostname.includes("r2.cloudflarestorage.com") ||
       hostname.includes("r2.dev") ||
-      // Vérifier aussi par le pattern de l'URL R2
       (hostname.includes("cloudflare") && urlObj.pathname.includes("/"))
     );
   } catch {

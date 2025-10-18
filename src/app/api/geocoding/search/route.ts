@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Appel à l'API Nominatim
     const nominatimUrl = new URL("https://nominatim.openstreetmap.org/search");
     nominatimUrl.searchParams.set("q", query);
     nominatimUrl.searchParams.set("format", "json");
@@ -60,12 +59,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ results: [] });
     }
 
-    // Transformer les résultats
     const transformedResults: GeocodingResponse[] = results.map((result) => {
-      // Extraire le nom de la ville
       let city = result.display_name;
 
-      // Essayer d'extraire le nom de la ville des composants d'adresse
       if (
         result.class === "place" ||
         result.type === "city" ||
@@ -73,7 +69,6 @@ export async function GET(request: NextRequest) {
       ) {
         city = result.display_name.split(",")[0];
       } else {
-        // Prendre la première partie de l'adresse
         city = result.display_name.split(",")[0];
       }
 

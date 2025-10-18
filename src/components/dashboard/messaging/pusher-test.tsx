@@ -8,9 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Send, Wifi, WifiOff } from "lucide-react";
 
-/**
- * Composant de test pour vérifier l'intégration Pusher
- */
 export const PusherTest = () => {
   const [testMessage, setTestMessage] = useState("");
   const [receivedMessages, setReceivedMessages] = useState<any[]>([]);
@@ -33,9 +30,6 @@ export const PusherTest = () => {
       },
     });
 
-  /**
-   * Envoyer un message de test
-   */
   const sendTestMessage = async () => {
     if (!testMessage.trim()) return;
 

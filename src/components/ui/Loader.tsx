@@ -38,14 +38,10 @@ interface LoadingScreenProps {
   className?: string;
 }
 
-/**
- * Écran de chargement plein écran avec logo Teamify et spinner violet
- */
 export function LoadingScreen({
   text = "Chargement...",
   className,
 }: LoadingScreenProps) {
-  // Messages de chargement avec des blagues
   const loadingMessages = [
     "Préparation de votre espace de travail... 🚀",
     "Assemblage de votre équipe de rêve... 👥",
@@ -74,9 +70,7 @@ export function LoadingScreen({
       )}
     >
       <div className="flex flex-col items-center justify-center gap-6">
-        {/* Conteneur pour le logo et le spinner */}
         <div className="relative flex items-center justify-center">
-          {/* Spinner violet autour du logo */}
           <div className="absolute w-24 h-24 border-4 border-transparent border-t-[#7C3AED] border-r-[#7C3AED] rounded-full animate-spin"></div>
 
           <div className="w-16 h-16 flex items-center justify-center bg-transparent">
@@ -89,7 +83,6 @@ export function LoadingScreen({
           </div>
         </div>
 
-        {/* Texte de chargement avec blague */}
         <div className="text-center">
           <p className="text-lg font-medium text-foreground mb-2">
             {text === "Chargement..." ? randomMessage : text}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Search, X, Command } from "lucide-react";
+import { Search, X, Command, Calendar, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,15 +19,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-/**
- * Composant de recherche globale pour le dashboard
- * S'affiche au centre de l'écran avec Ctrl+K
- */
+interface Event {
+  id: string;
+  title: string;
+  description?: string;
+  location: string;
+  startDate?: string;
+  endDate?: string;
+  organization: {
+    name: string;
+  };
+  url: string;
+}
+
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(false);
 
-  // Données de recherche - toutes les pages et fonctionnalités disponibles
   const searchItems = [
     {
       title: "Tableau de bord",
@@ -133,6 +143,39 @@ export function GlobalSearch() {
     },
   ];
 
+  // Fonction pour rechercher les événements
+  const searchEvents = useCallback(async (query: string) => {
+    if (!query || query.trim().length < 2) {
+      setEvents([]);
+      return;
+    }
+
+    setLoadingEvents(true);
+    try {
+      const response = await fetch(`/api/search/events?q=${encodeURIComponent(query)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setEvents(data.events || []);
+      } else {
+        setEvents([]);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la recherche d'événements:", error);
+      setEvents([]);
+    } finally {
+      setLoadingEvents(false);
+    }
+  }, []);
+
+  // Recherche d'événements avec debounce
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      searchEvents(searchValue);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchValue, searchEvents]);
+
   // Filtrer les éléments selon la recherche
   const filteredItems = searchItems.filter(
     (item) =>
@@ -158,6 +201,7 @@ export function GlobalSearch() {
 
   const clearSearch = useCallback(() => {
     setSearchValue("");
+    setEvents([]);
   }, []);
 
   // Raccourci clavier pour ouvrir/fermer la recherche (Ctrl+K ou Cmd+K)
@@ -168,12 +212,14 @@ export function GlobalSearch() {
         setOpen((prev) => !prev); // Bascule entre ouvert/fermé
         if (open) {
           setSearchValue(""); // Nettoyer la recherche si on ferme
+          setEvents([]);
         }
       }
       // Échapper pour fermer
       if (event.key === "Escape" && open) {
         setOpen(false);
         setSearchValue("");
+        setEvents([]);
       }
     };
 
@@ -221,7 +267,7 @@ export function GlobalSearch() {
           </div>
 
           <div className="max-h-96 overflow-y-auto">
-            {Object.keys(groupedItems).length === 0 ? (
+            {Object.keys(groupedItems).length === 0 && events.length === 0 && !loadingEvents ? (
               <div className="text-center py-8 text-muted-foreground">
                 <Search className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p>Aucun résultat trouvé</p>
@@ -229,6 +275,53 @@ export function GlobalSearch() {
               </div>
             ) : (
               <div className="space-y-4">
+                {/* Affichage des événements */}
+                {events.length > 0 && (
+                  <div>
+                    <div className="text-sm font-medium text-muted-foreground mb-2 px-2 flex items-center gap-2">
+                      <Calendar className="h-4 w-4" />
+                      Mes événements
+                    </div>
+                    <div className="space-y-1">
+                      {events.map((event) => (
+                        <button
+                          key={event.id}
+                          onClick={() => handleSelect(event.url)}
+                          className="w-full text-left p-3 rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors border border-transparent hover:border-border"
+                        >
+                          <div className="font-medium flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            {event.title}
+                          </div>
+                          <div className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {event.location}
+                            </div>
+                            <div className="text-xs">
+                              {event.organization.name}
+                            </div>
+                          </div>
+                          {event.description && (
+                            <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {event.description}
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Indicateur de chargement pour les événements */}
+                {loadingEvents && (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p className="text-sm">Recherche d'événements...</p>
+                  </div>
+                )}
+
+                {/* Affichage des pages et fonctionnalités */}
                 {Object.entries(groupedItems).map(([category, items]) => (
                   <div key={category}>
                     <div className="text-sm font-medium text-muted-foreground mb-2 px-2">

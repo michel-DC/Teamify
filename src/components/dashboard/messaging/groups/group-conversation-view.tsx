@@ -25,9 +25,6 @@ interface GroupConversationViewProps {
   onBackToConversations?: () => void;
 }
 
-/**
- * Vue d'une conversation de groupe responsive avec zone de messages et saisie
- */
 export const GroupConversationView = ({
   conversationId,
   conversation,
@@ -36,7 +33,6 @@ export const GroupConversationView = ({
 }: GroupConversationViewProps) => {
   const [newMessage, setNewMessage] = useState("");
 
-  // Hook pour gérer les messages de la conversation
   const {
     messages,
     isLoading: messagesLoading,

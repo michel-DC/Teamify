@@ -20,12 +20,9 @@ interface MessageListProps {
   currentUserId?: string;
   isLoading?: boolean;
   onDeleteMessage?: (messageId: string) => void;
-  isGroupConversation?: boolean; // Nouvelle prop pour identifier les conversations de groupe
+  isGroupConversation?: boolean;
 }
 
-/**
- * Composant pour afficher la liste des messages responsive
- */
 export const MessageList = ({
   messages,
   currentUserId,
@@ -35,16 +32,12 @@ export const MessageList = ({
 }: MessageListProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  /**
-   * Faire défiler vers le bas automatiquement
-   */
   useEffect(() => {
     if (scrollAreaRef.current) {
       const scrollElement = scrollAreaRef.current.querySelector(
         "[data-radix-scroll-area-viewport]"
       );
       if (scrollElement) {
-        // Attendre un tick pour s'assurer que le DOM est mis à jour
         setTimeout(() => {
           scrollElement.scrollTop = scrollElement.scrollHeight;
         }, 0);

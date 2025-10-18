@@ -4,7 +4,6 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Configuration Prisma optimisée pour Railway
 const createPrismaClient = () => {
   return new PrismaClient({
     log:

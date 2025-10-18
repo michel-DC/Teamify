@@ -2,17 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { decodeInvitationCode } from "@/lib/invitation-utils";
 
-/**
- * @param Traitement de la réponse à une invitation
- *
- * Met à jour le statut de l'invitation et enregistre la date de réponse
- */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { invitationId: invitationCode, status } = body;
 
-    // Validation des données
     if (!invitationCode || !status) {
       return NextResponse.json(
         { error: "Code d'invitation et statut requis" },
@@ -27,7 +21,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Décoder le code d'invitation
     const decodedCode = decodeInvitationCode(invitationCode);
 
     if (!decodedCode) {
@@ -39,7 +32,6 @@ export async function POST(request: NextRequest) {
 
     const { invitationId, eventCode } = decodedCode;
 
-    // Vérifier que l'invitation existe et n'a pas déjà été répondue
     const existingInvitation = await prisma.invitation.findFirst({
       where: {
         invitationId,
@@ -64,7 +56,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier que l'événement existe et n'est pas annulé
     if (!existingInvitation.event || existingInvitation.event.isCancelled) {
       return NextResponse.json(
         { error: "Cet événement n'est plus disponible" },
@@ -72,7 +63,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Mettre à jour l'invitation
     const updatedInvitation = await prisma.invitation.update({
       where: { id: existingInvitation.id },
       data: {

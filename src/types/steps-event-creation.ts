@@ -1,10 +1,8 @@
-export interface EventFormData {
-  // Étape 1: Informations de base
+export interface EventFormData 
+{
   title: string;
   description: string;
   category: string;
-
-  // Étape 2: Dates et lieu
   startDate: string;
   endDate: string;
   location: string;
@@ -13,17 +11,11 @@ export interface EventFormData {
     lon: number;
     displayName: string;
   };
-
-  // Étape 3: Capacité et budget
   capacity: string;
   budget: string;
   status: string;
-
-  // Étape 4: Configuration
   isPublic: boolean;
   orgId: string;
-
-  // Fichier image
   image?: File;
   imageUrl?: string;
 }
@@ -35,7 +27,8 @@ export type EventCreationStep =
   | "configuration"
   | "summary";
 
-export interface EventStepConfig {
+export interface EventStepConfig
+{
   id: EventCreationStep;
   title: string;
   description: string;

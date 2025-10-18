@@ -1,4 +1,5 @@
-export interface StepProps {
+export interface StepProps 
+{
   next?: () => void;
   prev?: () => void;
   exit?: () => void;
@@ -18,7 +19,8 @@ export interface StepProps {
     imageUrl?: string;
   };
   setFormData: React.Dispatch<
-    React.SetStateAction<{
+    React.SetStateAction<
+    {
       name: string;
       bio: string;
       profileImage: string;
@@ -32,6 +34,7 @@ export interface StepProps {
       } | null;
       file?: File;
       imageUrl?: string;
-    }>
+    }
+    >
   >;
 }

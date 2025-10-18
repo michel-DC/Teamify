@@ -9,17 +9,13 @@ import Step4 from "./Step4"; // localisation
 import Step5 from "./Step5"; // type d'organisation
 import Step6 from "./Step6"; // mission
 import FinalStep from "./FinalStep";
-import { Moon, Sun } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { useOrganization } from "@/hooks/useOrganization";
 import { redirect } from "next/navigation";
-import { useTheme } from "@/components/theme-provider";
-import { Button } from "@/components/ui/button";
 
 export default function StepWizard() {
   const [step, setStep] = useState(1);
-  const { theme, setTheme } = useTheme();
   const { organizations, loading } = useOrganization();
 
   useEffect(() => {
@@ -36,10 +32,6 @@ export default function StepWizard() {
     }
   }, [organizations, loading]);
 
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -131,17 +123,6 @@ export default function StepWizard() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <Button
-        onClick={toggleTheme}
-        className="fixed top-4 right-4 p-2 rounded-full bg-card hover:bg-accent transition-colors duration-200"
-        aria-label="Toggle theme"
-      >
-        {theme === "light" ? (
-          <Moon className="w-5 h-5 text-foreground" />
-        ) : (
-          <Sun className="w-5 h-5 text-foreground" />
-        )}
-      </Button>
 
       <div className="max-w-2xl w-full p-6 bg-card rounded-lg border border-border shadow-sm space-y-6 overflow-hidden">
         <div className="text-muted-foreground text-sm">Étape {step} sur 8</div>

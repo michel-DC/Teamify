@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-/**
- * Route pour récupérer les détails d'une invitation d'organisation
- * Retourne les informations de l'organisation et de l'inviteur
- */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ code: string }> }
@@ -19,7 +15,6 @@ export async function GET(
       );
     }
 
-    // Recherche de l'invitation par le code
     const invitation = await prisma.organizationInvite.findUnique({
       where: { inviteCode: code },
       include: {

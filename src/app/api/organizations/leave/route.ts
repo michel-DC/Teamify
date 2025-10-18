@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * API pour quitter une organisation
- * Permet aux membres (ADMIN, MEMBER) de quitter une organisation
- */
 export async function POST(request: NextRequest) {
   try {
     const currentUser = await getCurrentUser();
@@ -22,7 +18,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier que l'utilisateur est membre de l'organisation
     const membership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -42,7 +37,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Empêcher le propriétaire de quitter l'organisation
     if (membership.role === "OWNER") {
       return NextResponse.json(
         {
@@ -53,7 +47,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Supprimer le membre de l'organisation
     await prisma.organizationMember.delete({
       where: {
         organizationId_userUid: {
@@ -63,7 +56,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Mettre à jour le nombre de membres de l'organisation
     await prisma.organization.update({
       where: { id: parseInt(organizationId) },
       data: {

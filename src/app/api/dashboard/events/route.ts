@@ -50,10 +50,8 @@ export async function POST(req: Request) {
   const file = formData.get("file") as File;
   const orgId = parseInt(formData.get("orgId") as string);
 
-  // Calcul automatique du statut basé sur les dates
   const status = calculateEventStatus(startDate, endDate);
 
-  // Parse locationCoords si fourni
   let locationCoords: any = null;
   if (locationCoordsRaw) {
     try {
@@ -82,7 +80,6 @@ export async function POST(req: Request) {
   });
 
   try {
-    // Vérifier que l'utilisateur a accès à l'organisation
     const hasAccess = await hasOrganizationAccess(user.uid, orgId);
     if (!hasAccess) {
       return NextResponse.json(
@@ -120,7 +117,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Vérifie si le code d'événement existe déjà
     const existingEvent = await prisma.event.findUnique({
       where: { eventCode },
     });
@@ -134,9 +130,7 @@ export async function POST(req: Request) {
 
     const publicId = nanoid(12);
 
-    // Crée l'événement et l'entrée EventByCode en transaction
     const event = await prisma.$transaction(async (tx) => {
-      // Crée d'abord l'entrée dans EventByCode
       await tx.eventByCode.create({
         data: {
           eventCode,
@@ -146,7 +140,6 @@ export async function POST(req: Request) {
         },
       });
 
-      // Puis crée l'événement
       const newEvent = await tx.event.create({
         data: {
           publicId,
@@ -168,7 +161,6 @@ export async function POST(req: Request) {
         },
       });
 
-      // Incrémente le compteur d'événements de l'organisation
       await tx.organization.update({
         where: { id: orgId },
         data: {
@@ -181,7 +173,6 @@ export async function POST(req: Request) {
       return newEvent;
     });
 
-    // Créer des notifications pour tous les membres de l'organisation
     try {
       await createNotificationForOrganizationMembers(orgId, {
         notificationName: "Nouvel événement créé",

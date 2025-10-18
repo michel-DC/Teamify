@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
-// récupération des invitations pour l'événement en fonction de son slug
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ slug: string }> }
@@ -19,7 +18,6 @@ export async function GET(
 
     const { slug } = await params;
 
-    // Récupérer l'événement avec son organisation
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
@@ -40,7 +38,6 @@ export async function GET(
       );
     }
 
-    // Vérifier que l'utilisateur a accès à l'organisation de l'événement
     const hasAccess = await hasOrganizationAccess(
       user.uid,
       event.organization.id
@@ -53,7 +50,6 @@ export async function GET(
       );
     }
 
-    // Récupérer les invitations pour cet événement
     const invitations = await prisma.invitation.findMany({
       where: {
         eventCode: event.eventCode,

@@ -5,9 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/**
- * Formate le statut d'un événement pour l'affichage en français
- */
 export const formatEventStatus = (status: string): string => {
   switch (status) {
     case "A_VENIR":
@@ -23,9 +20,6 @@ export const formatEventStatus = (status: string): string => {
   }
 };
 
-/**
- * Formate une date au format français JJ/MM/AAAA
- */
 export const formatDateToFrench = (
   date: Date | string | null | undefined
 ): string => {

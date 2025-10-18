@@ -2,9 +2,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { getPusherClient } from "@/lib/pusher";
 import type { Channel } from "pusher-js";
 
-/**
- * Types pour les événements Pusher
- */
 export interface PusherMessageEvent {
   id: string;
   content: string;
@@ -28,9 +25,6 @@ export interface PusherConversationJoinedEvent {
   timestamp: string;
 }
 
-/**
- * Options pour le hook usePusher
- */
 export interface UsePusherOptions {
   autoConnect?: boolean;
   onMessage?: (data: PusherMessageEvent) => void;
@@ -39,9 +33,6 @@ export interface UsePusherOptions {
   onError?: (error: any) => void;
 }
 
-/**
- * Hook pour gérer la connexion Pusher
- */
 export const usePusher = (options: UsePusherOptions = {}) => {
   const {
     autoConnect = true,
@@ -61,7 +52,6 @@ export const usePusher = (options: UsePusherOptions = {}) => {
   const onConversationJoinedRef = useRef(onConversationJoined);
   const onErrorRef = useRef(onError);
 
-  // Mise à jour des refs
   useEffect(() => {
     onMessageRef.current = onMessage;
   }, [onMessage]);
@@ -78,9 +68,6 @@ export const usePusher = (options: UsePusherOptions = {}) => {
     onErrorRef.current = onError;
   }, [onError]);
 
-  /**
-   * Se connecter à un canal Pusher
-   */
   const connectToChannel = useCallback((channelName: string) => {
     if (channelRef.current) {
       channelRef.current.unbind_all();
@@ -96,7 +83,6 @@ export const usePusher = (options: UsePusherOptions = {}) => {
       const channel = client.subscribe(channelName);
       channelRef.current = channel;
 
-      // Écouter les événements de connexion
       channel.bind("pusher:subscription_succeeded", () => {
         setIsConnected(true);
         setIsConnecting(false);
@@ -111,9 +97,7 @@ export const usePusher = (options: UsePusherOptions = {}) => {
         onErrorRef.current?.(error);
       });
 
-      // Écouter les événements personnalisés
       channel.bind("new-message", (data: PusherMessageEvent) => {
-        // Transformer le message Pusher au format attendu par le composant
         const transformedMessage = {
           id: data.id,
           content: data.content,
@@ -147,9 +131,6 @@ export const usePusher = (options: UsePusherOptions = {}) => {
     }
   }, []);
 
-  /**
-   * Se déconnecter du canal
-   */
   const disconnect = useCallback(() => {
     if (channelRef.current) {
       channelRef.current.unbind_all();
@@ -165,12 +146,8 @@ export const usePusher = (options: UsePusherOptions = {}) => {
     setIsConnecting(false);
   }, []);
 
-  /**
-   * Se connecter automatiquement si activé
-   */
   useEffect(() => {
     if (autoConnect) {
-      // Se connecter au canal général par défaut
       connectToChannel("chat-channel");
     }
 
@@ -179,9 +156,6 @@ export const usePusher = (options: UsePusherOptions = {}) => {
     };
   }, [autoConnect, connectToChannel, disconnect]);
 
-  /**
-   * Nettoyage à la déconnexion
-   */
   useEffect(() => {
     return () => {
       disconnect();

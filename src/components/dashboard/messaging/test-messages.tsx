@@ -9,9 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Send, Wifi, WifiOff } from "lucide-react";
 
-/**
- * Composant de test pour les messages avec Pusher et sauvegarde en base
- */
 export const TestMessagesComponent = () => {
   const [testMessage, setTestMessage] = useState("");
   const [conversationId, setConversationId] = useState("test-conversation");
@@ -24,13 +21,11 @@ export const TestMessagesComponent = () => {
     ]);
   };
 
-  // Hook pour récupérer les messages
   const { messages, isLoading, addMessage } = useMessages({
     conversationId,
     autoFetch: true,
   });
 
-  // Hook Pusher pour écouter les nouveaux messages
   const { isConnected, connectToChannel, disconnect } = usePusher({
     onMessage: (message) => {
       addLog(`📨 Message reçu via Pusher: ${message.content}`);
@@ -41,7 +36,6 @@ export const TestMessagesComponent = () => {
     },
   });
 
-  // Se connecter au canal de la conversation
   useEffect(() => {
     if (isConnected) {
       connectToChannel(`conversation-${conversationId}`);

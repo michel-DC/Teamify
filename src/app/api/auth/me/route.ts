@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * Route API pour vérifier l'authentification de l'utilisateur actuel
- */
 export async function GET() {
   try {
     const user = await getCurrentUser();
@@ -12,7 +9,6 @@ export async function GET() {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    // Retourner les informations de l'utilisateur (sans le mot de passe)
     return NextResponse.json({
       user: {
         uid: user.uid,

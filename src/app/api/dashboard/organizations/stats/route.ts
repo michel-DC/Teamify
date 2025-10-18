@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
 
     console.log("API Stats: Utilisateur authentifié:", user.uid);
 
-    // Récupérer le publicId de l'organisation active depuis les paramètres de la requête
     const { searchParams } = new URL(request.url);
     const organizationPublicId = searchParams.get("organizationPublicId");
 
@@ -32,7 +31,6 @@ export async function GET(request: NextRequest) {
       organizationPublicId
     );
 
-    // Récupérer l'organisation spécifique
     const activeOrganization = await prisma.organization.findFirst({
       where: {
         publicId: organizationPublicId,
@@ -79,7 +77,6 @@ export async function GET(request: NextRequest) {
       activeOrganization.publicId
     );
 
-    // Déterminer le rôle de l'utilisateur dans l'organisation
     let userRole = "MEMBER";
     if (activeOrganization.ownerUid === user.uid) {
       userRole = "OWNER";
@@ -92,7 +89,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Calculer les statistiques simples pour la sidebar
     const stats = {
       userRole,
       memberCount: activeOrganization.memberCount,

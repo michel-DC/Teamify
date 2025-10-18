@@ -55,7 +55,7 @@ export const CreateConversationDialog = ({
 
     try {
       const response = await fetch(
-        `/api/users/search?email=${encodeURIComponent(email.trim())}`,
+        `/api/user/search?email=${encodeURIComponent(email.trim())}`,
         {
           method: "GET",
           credentials: "include",
