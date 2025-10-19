@@ -8,13 +8,16 @@ import { Footer } from "@/components/layout/Footer";
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen">
+    <div 
+      className="min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: "url('/images/background/background.svg')"
+      }}
+    >
       <Navbar />
-      <HeroSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <TestimonialsSection />
-      <CTASection />
+      <div className="m-80">
+        
+      </div>
       <Footer />
     </div>
   );

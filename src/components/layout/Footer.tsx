@@ -1,269 +1,195 @@
 "use client";
-import React from "react";
-import Link from "next/link";
+
+import { Facebook, Linkedin, Github, Mail, Instagram } from "lucide-react";
+import { toast } from "sonner";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  ArrowRight, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Twitter, 
-  Linkedin, 
-  Github,
-  Calendar,
-  Users,
-  MessageSquare,
-  BarChart3
-} from "lucide-react";
-import { cn } from "@/lib/utils";
 
-export const Footer = () => {
-  const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    product: [
-      { name: "Fonctionnalités", href: "#features" },
-      { name: "Comment ça marche", href: "#how-it-works" },
-      { name: "Témoignages", href: "#testimonials" },
-      { name: "Tarifs", href: "#pricing" },
-    ],
-    company: [
-      { name: "À propos", href: "/about" },
-      { name: "Blog", href: "/blog" },
-      { name: "Carrières", href: "/careers" },
-      { name: "Contact", href: "/contact" },
-    ],
-    resources: [
-      { name: "Documentation", href: "/docs" },
-      { name: "Support", href: "/support" },
-      { name: "API", href: "/api" },
-      { name: "Statut", href: "/status" },
-    ],
-    legal: [
-      { name: "Mentions légales", href: "/legal-notice" },
-      { name: "Politique de confidentialité", href: "/privacy-policy" },
-      { name: "Conditions d'utilisation", href: "/terms-of-use" },
-      { name: "Cookies", href: "/cookies" },
-    ],
+export function Footer() {
+  const handleSupportClick = (service: string) => {
+    toast.info(`Service ${service} bientôt disponible !`, {
+      description: "Cette fonctionnalité sera ajoutée dans une prochaine mise à jour.",
+      duration: 3000,
+    });
   };
 
-  const socialLinks = [
-    { name: "Twitter", href: "https://twitter.com/teamify", icon: Twitter },
-    { name: "LinkedIn", href: "https://linkedin.com/company/teamify", icon: Linkedin },
-    { name: "GitHub", href: "https://github.com/michel-dc/Teamify", icon: Github },
-  ];
-
-  const features = [
-    { icon: Calendar, name: "Événements" },
-    { icon: Users, name: "Équipes" },
-    { icon: MessageSquare, name: "Messagerie" },
-    { icon: BarChart3, name: "Analytics" },
-  ];
-
   return (
-    <footer className="relative w-full bg-gradient-to-b from-slate-900 to-black text-white">
-      {/* Background Grid */}
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-0 [background-size:40px_40px] select-none",
-          "[background-image:linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)]"
-        )}
-      />
-
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-12">
-          {/* Brand Section */}
-          <div className="lg:col-span-1">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <Link href="/" className="flex items-center mb-6">
-                <Image
-                  width={120}
-                  height={40}
-                  src="/images/logo/noir-rb.png"
-                  alt="Teamify Logo"
-                  className="object-contain h-10 w-auto"
-                />
-              </Link>
-              <p className="text-gray-300 mb-6 leading-relaxed">
-                Simplifiez l'organisation de vos événements avec Teamify. 
-                La plateforme complète pour gérer vos équipes et vos projets.
-              </p>
-              
-              {/* Feature Icons */}
-              <div className="flex flex-wrap gap-3 mb-6">
-                {features.map((feature, index) => (
-                  <motion.div
-                    key={feature.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10"
-                  >
-                    <feature.icon className="w-4 h-4 text-purple-400" />
-                    <span className="text-sm text-gray-300">{feature.name}</span>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* CTA Button */}
-              <Button
-                asChild
-                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-300"
-              >
-                <Link href="/auth/login" className="flex items-center gap-2">
-                  Commencer gratuitement
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </motion.div>
+    <footer className="bg-[#101010] text-white border-t border-[#2a2a2a] rounded-t-3xl shadow-lg">
+      <div className="max-w-7xl mx-auto px-6 pt-12 pb-4">
+        <div className="text-left sm:text-center mb-12">
+          <div className="flex justify-center mb-4">
+            <Image src="/images/logo/favicon-text-light.svg" alt="Teamify" width={180} height={180} />
           </div>
-
-          {/* Links Sections */}
-          <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {/* Product */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              viewport={{ once: true }}
+          <p className="text-base sm:text-lg text-gray-300 mb-2 text-center">
+            Prêt à transformer la gestion de vos événements ?<br />
+            Commencez dès maintenant !
+          </p>
+          <div className="mt-6 flex justify-center">
+            <Button
+              asChild
+              className="px-6 py-3"
             >
-              <h3 className="text-lg font-semibold mb-4 text-white">Produit</h3>
-              <ul className="space-y-3">
-                {footerLinks.product.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-gray-300 hover:text-purple-400 transition-colors duration-200"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Company */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-lg font-semibold mb-4 text-white">Entreprise</h3>
-              <ul className="space-y-3">
-                {footerLinks.company.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-gray-300 hover:text-purple-400 transition-colors duration-200"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Resources */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-lg font-semibold mb-4 text-white">Ressources</h3>
-              <ul className="space-y-3">
-                {footerLinks.resources.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-gray-300 hover:text-purple-400 transition-colors duration-200"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
-
-            {/* Legal */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-lg font-semibold mb-4 text-white">Légal</h3>
-              <ul className="space-y-3">
-                {footerLinks.legal.map((link) => (
-                  <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-gray-300 hover:text-purple-400 transition-colors duration-200"
-                    >
-                      {link.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </motion.div>
+              <a href="/dashboard">
+                Ça se passe juste ici
+              </a>
+            </Button>
           </div>
         </div>
 
-        {/* Bottom Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          viewport={{ once: true }}
-          className="border-t border-white/10 pt-8"
-        >
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            {/* Copyright */}
-            <div className="text-gray-400 text-sm">
-              <p>&copy; {currentYear} Teamify. Tous droits réservés.</p>
-            </div>
+        <div className="border-t border-[#2a2a2a] my-8" />
 
-            {/* Social Links */}
-            <div className="flex items-center gap-4">
-              <span className="text-gray-400 text-sm">Suivez-nous :</span>
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={social.name}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  viewport={{ once: true }}
-                  className="p-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200 group"
-                >
-                  <social.icon className="w-4 h-4 text-gray-400 group-hover:text-purple-400 transition-colors" />
-                </motion.a>
-              ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Teamify</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              La plateforme de gestion d'événements qui simplifie l'organisation en équipe. 
+              Créez, planifiez et gérez vos événements avec facilité.
+            </p>
+            <div className="flex gap-3">
+              <a
+                href="https://linkedin.com/in/micheldjoumessi"
+                target="_blank"
+                rel="noopener"
+                aria-label="LinkedIn"
+                className="hover:text-[#7C3AED] transition-colors"
+              >
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a
+                href="https://github.com/michel-DC"
+                target="_blank"
+                rel="noopener"
+                aria-label="Github"
+                className="hover:text-[#7C3AED] transition-colors"
+              >
+                <Github className="w-5 h-5" />
+              </a>
+              <a
+                href="mailto:contact@onlinemichel.dev"
+                target="_blank"
+                rel="noopener"
+                aria-label="Mail"
+                className="hover:text-[#7C3AED] transition-colors"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
             </div>
-
-            {/* Badge */}
-            <Badge
-              variant="secondary"
-              className="bg-green-500/20 text-green-300 border-green-500/30 px-3 py-1 text-xs"
-            >
-              🚀 Disponible maintenant
-            </Badge>
           </div>
-        </motion.div>
+
+          {/* Section Produit */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Produit</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a href="#features" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Fonctionnalités
+                </a>
+              </li>
+              <li>
+                <a href="#pricing" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Tarifs
+                </a>
+              </li>
+              <li>
+                <a href="#testimonials" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Témoignages
+                </a>
+              </li>
+              <li>
+                <a href="/demo" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Démo
+                </a>
+              </li>
+              <li>
+                <a href="/api" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  API
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Section Support */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Support</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Centre d'aide")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Centre d'aide
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Documentation")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Documentation
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Tutoriels")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Tutoriels
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Communauté")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Communauté
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Statut des services")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Statut des services
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          {/* Section Legal */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Légal</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <a href="/legal-notice" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Mentions légales
+                </a>
+              </li>
+              <li>
+                <a href="/privacy-policy" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Politique de confidentialité
+                </a>
+              </li>
+              <li>
+                <a href="/cookies-policy" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Politique de cookies
+                </a>
+              </li>
+              <li>
+                <a href="/cgu" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  CGU
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="border-t border-[#2a2a2a] my-8" />
+
+        <div className="mt-8 text-center text-gray-400 text-xs">
+          Design & Dev With <span className="text-red-400">♥</span> by Michel -
+         {` ${new Date().getFullYear()} `}
+        </div>
       </div>
     </footer>
   );
-};
+}
