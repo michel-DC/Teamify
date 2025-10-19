@@ -1,101 +1,137 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faInfoCircle,
-  faCogs,
-  faNewspaper,
-  faQuestionCircle,
-  faSignInAlt,
-} from "@fortawesome/free-solid-svg-icons";
+import { Menu, X, ArrowRight, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { UserAuthButton } from "@/components/pages/landing/user-auth-button";
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const navLinks = [
-    { href: "/about", text: "À Propos", icon: faInfoCircle },
-    { href: "/services", text: "Services", icon: faCogs },
-    { href: "/blog", text: "Blog", icon: faNewspaper },
-    { href: "/faq", text: "FAQ", icon: faQuestionCircle },
-    {
-      href: "/auth/login",
-      text: "Connexion",
-      prefetch: false,
-      icon: faSignInAlt,
-    },
+    { href: "#features", text: "Fonctionnalités" },
+    { href: "#how-it-works", text: "Comment ça marche" },
+    { href: "#testimonials", text: "Témoignages" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full backdrop-blur-xl bg-black/50">
-      <div className="container px-4 mx-auto">
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={cn(
+        "fixed top-0 z-50 w-full transition-all duration-300",
+        isScrolled
+          ? "backdrop-blur-xl bg-black/80 border-b border-white/10"
+          : "backdrop-blur-sm bg-black/20"
+      )}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="w-auto h-12">
-            <Link href="/">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <div className="relative">
               <Image
-                width={500}
-                height={100}
+                width={120}
+                height={40}
                 src="/images/logo/noir-rb.png"
                 alt="Teamify Logo"
-                className="object-contain w-full h-full"
+                className="object-contain h-10 w-auto"
               />
-            </Link>
-          </div>
+            </div>
+          </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden space-x-4 md:flex">
-            {navLinks.map((link, index) => (
-              <React.Fragment key={link.href}>
-                <Link
-                  href={link.href}
-                  className="flex items-center text-gray-300 cursor-pointer hover:text-indigo-500"
-                  prefetch={link.prefetch}
-                >
-                  <FontAwesomeIcon icon={link.icon} className="mr-2" />
-                  {link.text}
-                </Link>
-                {index < navLinks.length - 1 && (
-                  <span className="text-gray-300">|</span>
-                )}
-              </React.Fragment>
+          <div className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
+              >
+                {link.text}
+              </Link>
             ))}
+          </div>
+
+          {/* Desktop CTA */}
+          <div className="hidden md:flex items-center space-x-4">
+            <UserAuthButton />
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={toggleMenu}
-            className="p-2 text-gray-300 cursor-pointer md:hidden hover:text-indigo-500 focus:outline-none"
+            className="md:hidden p-2 text-gray-300 hover:text-white transition-colors duration-200"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         {/* Mobile Menu */}
-        {isOpen && (
-          <div className="pb-4 md:hidden">
-            <div className="flex flex-col mt-4 space-y-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="flex items-center px-4 py-2 text-gray-300 hover:text-indigo-500"
-                  onClick={toggleMenu}
-                  prefetch={link.prefetch}
-                >
-                  <FontAwesomeIcon icon={link.icon} className="mr-2" />
-                  {link.text}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+              className="md:hidden overflow-hidden"
+            >
+              <div className="py-4 space-y-4 border-t border-white/10">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="block px-4 py-2 text-gray-300 hover:text-white transition-colors duration-200"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {link.text}
+                  </Link>
+                ))}
+                <div className="px-4 pt-4 space-y-3">
+                  <Button
+                    asChild
+                    variant="ghost"
+                    className="w-full justify-start text-gray-300 hover:text-white hover:bg-white/10"
+                  >
+                    <Link href="/auth/login" onClick={() => setIsOpen(false)}>
+                      <User className="w-4 h-4 mr-2" />
+                      Connexion
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
+                  >
+                    <Link href="/auth/login" onClick={() => setIsOpen(false)}>
+                      Commencer gratuitement
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </nav>
+    </motion.nav>
   );
 };
