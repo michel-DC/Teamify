@@ -15,9 +15,7 @@ export function LandingPage() {
       }}
     >
       <Navbar />
-      <div className="m-80">
-        
-      </div>
+      <HeroSection />
       <Footer />
     </div>
   );

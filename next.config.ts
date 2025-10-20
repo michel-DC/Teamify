@@ -32,9 +32,6 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   output: "standalone",
-  experimental: {
-    serverComponentsExternalPackages: ["@prisma/client"],
-  },
   typescript: {
     ignoreBuildErrors: true,
   },

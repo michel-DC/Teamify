@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { gsap } from "gsap";
+import Link from "next/link";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -73,7 +74,7 @@ export function Navbar() {
     <nav ref={navbarRef} className="w-full px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 py-1.5 sm:py-2 md:py-3 lg:py-3 xl:py-4 bg-white-500 ">
       <div className="border border-gray-300 rounded-full max-w-6xl xl:max-w-7xl w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 py-1.5 sm:py-2 md:py-3 lg:py-3 xl:py-4 flex items-center justify-between gap-x-1 sm:gap-x-3 md:gap-x-6 lg:gap-x-8 xl:gap-x-10 relative z-50 backdrop-blur-md">
         <div className="flex items-center space-x-2">
-          <a href="/">
+          <Link href="/">
             <Image
               src="/images/logo/favicon.svg"
               alt="Teamify"
@@ -88,40 +89,40 @@ export function Navbar() {
               height={32}
               className="hidden md:block"
             />
-          </a>
+          </Link>
         </div>
 
         <div className="hidden md:flex items-center gap-x-3 lg:gap-x-6 xl:gap-x-10">
-          <a
+          <Link
             href="#features"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
             Fonctionnalités
-          </a>
-          <a
+          </Link>
+          <Link
             href="#for-you"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
             Pour vous
-          </a>
-          <a
+          </Link>
+          <Link
             href="#pricing"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
             Tarifs
-          </a>
-          <a
+          </Link>
+          <Link
             href="#faq"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
             FAQ
-          </a>
-          <a
+          </Link>
+          <Link 
             href="#testimonials"
               className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
             Témoignages
-          </a>
+          </Link>
         </div>
 
         <div className="hidden md:block">
@@ -155,10 +156,10 @@ export function Navbar() {
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <a href="/dashboard" className="flex items-center cursor-pointer">
+                      <Link href="/dashboard" className="flex items-center cursor-pointer">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         <span>Dashboard</span>
-                      </a>
+                      </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600 cursor-pointer">
                       <LogOut className="mr-2 h-4 w-4" />
@@ -171,10 +172,10 @@ export function Navbar() {
                   className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 text-xs sm:text-sm"
                   asChild
                 >
-                  <a href="/auth/register">
+                  <Link href="/auth/register">
                     Essayer Gratuitement
                     <CircleChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" />
-                  </a>
+                  </Link>
                 </Button>
               )}
             </>
@@ -202,41 +203,41 @@ export function Navbar() {
             transition={{ duration: 0.3 }}
           >
             <div className="flex flex-col space-y-1 sm:space-y-2">
-              <a
+              <Link   
                 href="#features"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
                 Fonctionnalités
-              </a>
-              <a
+              </Link>
+                  <Link
                 href="#for-you"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
                 Pour vous
-              </a>
-              <a
+              </Link>
+                <Link
                 href="#pricing"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
                 Tarifs
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#faq"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
                 FAQ
-              </a>
-              <a
+              </Link>
+              <Link
                 href="#testimonials"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
                 Témoignages
-              </a>
+              </Link>
               {!isLoading && (
                 <>
                   {isAuthenticated ? (
@@ -281,10 +282,10 @@ export function Navbar() {
                       asChild
                       className="flex items-center gap-2 px-2 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm mt-2"
                     >
-                      <a href="/auth/register" onClick={toggleMenu}>
+                      <Link href="/auth/register" onClick={toggleMenu}>
                         Essayer Gratuitement
                         <CircleChevronRight className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                      </a>
+                      </Link>
                     </Button>
                   )}
                 </>
