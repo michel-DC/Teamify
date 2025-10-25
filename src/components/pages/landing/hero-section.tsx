@@ -10,7 +10,7 @@ import Image from "next/image";
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[80vh] flex items-center justify-center w-full pt-2">
+    <section className="relative min-h-[80vh] flex items-center justify-center w-full pt-16">
       <div className="relative z-10 w-full max-w-4xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="text-center">
           {/* Badge */}
@@ -142,11 +142,18 @@ export function HeroSection() {
           >
             <div className="relative w-full max-w-6xl mx-auto overflow-hidden">
               <Image
-                src="/images/demo/dashboard.png"
+                src="/images/demo/laptop.svg"
                 alt="Dashboard Teamify - Interface de gestion d'événements"
                 width={1920}
                 height={1080}
-                className="w-full h-auto rounded-2xl shadow-2xl border border-gray-200"
+                className="rounded-2xl shadow-2xl border border-gray-200"
+                style={{ 
+                  width: '100%', 
+                  height: 'auto', 
+                  maxWidth: 'none',
+                  transform: 'scale(1)',
+                  transformOrigin: 'center'
+                }}
                 priority
               />
             </div>
