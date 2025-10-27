@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -20,6 +20,7 @@ import {
   Settings
 } from "lucide-react";
 import Image from "next/image";
+import { FeatureDetailModal } from "./feature-detail-modal";
 
 const features = [
   {
@@ -97,8 +98,18 @@ const features = [
 ];
 
 export function FeaturesSection() {
+  const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
+
+  function handleFeatureClick(featureTitle: string) {
+    setSelectedFeature(featureTitle);
+  }
+
+  function handleCloseModal() {
+    setSelectedFeature(null);
+  }
+
   return (
-    <section className="py-16 sm:py-20 lg:py-24 bg-white">
+    <section className="py-16 sm:py-20 lg:py-24">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -133,16 +144,16 @@ export function FeaturesSection() {
           {/* Conteneur principal avec effet de spirale */}
           <div className="relative max-w-6xl mx-auto">
             {/* Ligne de connexion spirale - cachée sur mobile */}
-            <div className="hidden lg:block absolute top-0 left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-[#7C3AED]/20 via-[#7C3AED]/40 to-[#7C3AED]/20 rounded-full"></div>
+            <div className="hidden lg:block absolute top-8 left-1/2 transform -translate-x-1/2 w-1 h-[calc(100%-4rem)] bg-gradient-to-b from-[#7C3AED]/20 via-[#7C3AED]/40 to-[#7C3AED]/20 rounded-full"></div>
             
             {/* Features en spirale */}
-            <div className="space-y-16 sm:space-y-20 lg:space-y-32">
+            <div className="space-y-8 sm:space-y-12 lg:space-y-20">
               {features.map((feature, index) => (
                 <motion.div
                   key={feature.title}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -100 : 100 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8, delay: index * 0.15 }}
+                  initial={{ opacity: 0, y: -30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
                   viewport={{ once: true }}
                   className="relative"
                 >
@@ -201,7 +212,10 @@ export function FeaturesSection() {
 
                       {/* CTA */}
                       <div className="pt-2 sm:pt-4">
-                        <button className="bg-[#7C3AED] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold hover:bg-[#7C3AED]/90 transition-all duration-300 hover:scale-105 shadow-lg text-sm sm:text-base">
+                        <button 
+                          onClick={() => handleFeatureClick(feature.title)}
+                          className="bg-[#7C3AED] text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-semibold hover:bg-[#7C3AED]/90 transition-colors duration-300 shadow-lg text-sm sm:text-base cursor-pointer"
+                        >
                           En savoir plus
                         </button>
                       </div>
@@ -209,7 +223,7 @@ export function FeaturesSection() {
                   </div>
 
                   {/* Point de connexion sur la ligne centrale - caché sur mobile */}
-                  <div className="hidden lg:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#7C3AED] rounded-full border-4 border-white shadow-lg"></div>
+                  <div className="hidden lg:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#7C3AED] rounded-full border-4 border-white shadow-lg z-10"></div>
                 </motion.div>
               ))}
             </div>
@@ -221,6 +235,15 @@ export function FeaturesSection() {
         </div>
 
       </div>
+
+      {/* Modal pour les détails des fonctionnalités */}
+      {selectedFeature && (
+        <FeatureDetailModal
+          isOpen={!!selectedFeature}
+          onClose={handleCloseModal}
+          featureTitle={selectedFeature}
+        />
+      )}
     </section>
   );
 }
