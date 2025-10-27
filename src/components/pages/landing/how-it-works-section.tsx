@@ -124,7 +124,7 @@ export function HowItWorksSection() {
                   <div className="relative w-full lg:w-1/2">
                     <div className="relative group">
                       {/* Image principale */}
-                      <div className="relative h-56 sm:h-64 lg:h-72 rounded-2xl overflow-hidden bg-gray-100 shadow-xl">
+                      <div className="relative h-48 sm:h-52 lg:h-60 rounded-2xl overflow-hidden bg-gray-100 shadow-xl">
                         <img
                           src={step.image}
                           alt={`${step.title} - Interface Teamify`}
@@ -133,8 +133,8 @@ export function HowItWorksSection() {
                       </div>
 
                       {/* Éléments décoratifs */}
-                      <div className="hidden sm:block absolute -bottom-4 -left-4 w-16 h-16 bg-[#7C3AED]/20 rounded-full blur-xl"></div>
-                      <div className="hidden sm:block absolute top-1/2 -right-8 w-12 h-12 bg-blue-500/20 rounded-full blur-lg"></div>
+                      <div className="hidden sm:block absolute -bottom-2 left-2 w-12 h-12 bg-[#7C3AED]/20 rounded-full blur-xl"></div>
+                      <div className="hidden sm:block absolute top-1/2 right-2 w-8 h-8 bg-blue-500/20 rounded-full blur-lg"></div>
                     </div>
                   </div>
 
@@ -182,8 +182,8 @@ export function HowItWorksSection() {
 
 
         {/* Éléments décoratifs de fond */}
-        <div className="hidden sm:block absolute top-20 -left-20 w-40 h-40 bg-[#7C3AED]/5 rounded-full blur-3xl"></div>
-        <div className="hidden sm:block absolute bottom-20 -right-20 w-60 h-60 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="hidden sm:block absolute top-20 left-0 w-32 h-32 bg-[#7C3AED]/5 rounded-full blur-3xl"></div>
+        <div className="hidden sm:block absolute bottom-20 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl"></div>
       </div>
     </section>
   );

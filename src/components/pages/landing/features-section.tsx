@@ -4,12 +4,6 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Calendar, 
-  Users, 
-  MessageSquare, 
-  Bell, 
-  Search, 
-  BarChart3, 
   Shield, 
   Zap,
   CheckCircle,
@@ -23,7 +17,7 @@ import { FeatureDetailModal } from "./feature-detail-modal";
 
 const features = [
   {
-    icon: Calendar,
+    emoji: "📅",
     title: "Création d'Événements",
     description: "Créez, planifiez et gérez vos événements avec des outils puissants. Suivi en temps réel, invitations automatiques et gestion des participants.",
     color: "text-blue-500",
@@ -34,7 +28,7 @@ const features = [
     features: ["Planification avancée", "Invitations automatiques", "Suivi en temps réel"]
   },
   {
-    icon: Users,
+    emoji: "👥",
     title: "Création d'Organisations",
     description: "Créez vos organisations avec des rôles personnalisés. Gérez les permissions, invitez des membres et structurez vos projets.",
     color: "text-green-500",
@@ -45,7 +39,7 @@ const features = [
     features: ["Rôles personnalisés", "Gestion des permissions", "Invitations d'équipe"]
   },
   {
-    icon: MessageSquare,
+    emoji: "💬",
     title: "Messagerie Temps Réel",
     description: "Communiquez instantanément avec votre équipe. Conversations privées et de groupe avec notifications en temps réel.",
     color: "text-purple-500",
@@ -56,7 +50,7 @@ const features = [
     features: ["Messages instantanés", "Conversations de groupe", "Notifications temps réel"]
   },
   {
-    icon: Bell,
+    emoji: "🔔",
     title: "Système de Notifications",
     description: "Restez informé en temps réel. Notifications push, emails automatiques et alertes personnalisées pour tous vos événements.",
     color: "text-orange-500",
@@ -67,7 +61,7 @@ const features = [
     features: ["Notifications push", "Emails automatiques", "Alertes personnalisées"]
   },
   {
-    icon: Search,
+    emoji: "🔍",
     title: "Recherche Intelligente",
     description: "Trouvez instantanément ce que vous cherchez. Recherche globale, filtrage avancé et suggestions intelligentes.",
     color: "text-indigo-500",
@@ -78,7 +72,7 @@ const features = [
     features: ["Recherche globale", "Filtrage avancé", "Suggestions intelligentes"]
   },
   {
-    icon: BarChart3,
+    emoji: "📊",
     title: "Analytics & Tableau de Bord",
     description: "Analysez vos performances avec des métriques détaillées. Tableaux de bord personnalisables et rapports en temps réel.",
     color: "text-emerald-500",
@@ -146,10 +140,10 @@ export function FeaturesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="relative"
+                className="relative h-full"
               >
                 {/* Feature Card */}
-                <div className={`relative ${feature.bgColor} ${feature.borderColor} border rounded-2xl p-6 sm:p-8 hover:shadow-lg transition-all duration-300 cursor-pointer group`}
+                <div className={`relative ${feature.bgColor} ${feature.borderColor} border rounded-2xl p-6 sm:p-8 hover:shadow-lg transition-all duration-300 cursor-pointer group h-full flex flex-col`}
                      onClick={() => handleFeatureClick(feature.title)}>
                   
                   {/* Badge */}
@@ -164,7 +158,7 @@ export function FeaturesSection() {
                   {/* Icon */}
                   <div className="mb-4">
                     <div className={`w-12 h-12 ${feature.bgColor} ${feature.borderColor} border rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
-                      <feature.icon className={`w-6 h-6 ${feature.color}`} />
+                      <span className="text-2xl">{feature.emoji}</span>
                     </div>
                   </div>
 
@@ -179,7 +173,7 @@ export function FeaturesSection() {
                   </p>
 
                   {/* Features List */}
-                  <div className="space-y-2 mb-6">
+                  <div className="space-y-2 mb-6 flex-grow">
                     {feature.features.map((item, itemIndex) => (
                       <div key={itemIndex} className="flex items-center gap-2">
                         <div className={`w-1.5 h-1.5 ${feature.dotColor} rounded-full flex-shrink-0`}></div>
@@ -189,7 +183,7 @@ export function FeaturesSection() {
                   </div>
 
                   {/* Progress Indicator */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-auto">
                     <div className="flex items-center gap-1">
                       {features.map((_, dotIndex) => (
                         <div 
@@ -209,16 +203,14 @@ export function FeaturesSection() {
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </div>
 
-                {/* Point de connexion sur la ligne - caché sur mobile */}
-                <div className="hidden lg:block absolute top-20 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-[#7C3AED] rounded-full border-2 border-white shadow-lg z-10"></div>
               </motion.div>
             ))}
           </div>
         </div>
 
         {/* Éléments décoratifs de fond */}
-        <div className="hidden sm:block absolute top-20 -left-20 w-40 h-40 bg-[#7C3AED]/5 rounded-full blur-3xl"></div>
-        <div className="hidden sm:block absolute bottom-20 -right-20 w-60 h-60 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div className="hidden sm:block absolute top-20 left-0 w-32 h-32 bg-[#7C3AED]/5 rounded-full blur-3xl"></div>
+        <div className="hidden sm:block absolute bottom-20 right-0 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl"></div>
       </div>
 
       {/* Modal pour les détails des fonctionnalités */}

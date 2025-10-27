@@ -11,12 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Calendar, 
-  Users, 
-  MessageSquare, 
-  Bell, 
-  Search, 
-  BarChart3,
   CheckCircle,
   ArrowRight,
   Star,
@@ -30,7 +24,7 @@ interface FeatureDetail {
   title: string;
   description: string;
   detailedDescription: string;
-  icon: React.ComponentType<any>;
+  emoji: string;
   color: string;
   bgColor: string;
   borderColor: string;
@@ -48,7 +42,7 @@ const featureDetails: Record<string, FeatureDetail> = {
     title: "Création d'Événements",
     description: "Créez, planifiez et gérez vos événements avec des outils puissants.",
     detailedDescription: "Transformez votre façon d'organiser des événements avec notre plateforme complète. De la planification initiale à l'analyse post-événement, Teamify vous accompagne à chaque étape.",
-    icon: Calendar,
+    emoji: "📅",
     color: "text-blue-400",
     bgColor: "bg-blue-500/10",
     borderColor: "border-blue-500/20",
@@ -79,7 +73,7 @@ const featureDetails: Record<string, FeatureDetail> = {
     title: "Création d'Organisations",
     description: "Créez vos organisations avec des rôles personnalisés.",
     detailedDescription: "Structurez vos équipes et projets avec un système de rôles flexible. Gérez les permissions, invitez des membres et créez une hiérarchie adaptée à vos besoins organisationnels.",
-    icon: Users,
+    emoji: "👥",
     color: "text-green-400",
     bgColor: "bg-green-500/10",
     borderColor: "border-green-500/20",
@@ -110,7 +104,7 @@ const featureDetails: Record<string, FeatureDetail> = {
     title: "Messagerie Temps Réel",
     description: "Communiquez instantanément avec votre équipe.",
     detailedDescription: "Restez connecté avec votre équipe grâce à notre système de messagerie en temps réel. Conversations privées, groupes de discussion et notifications instantanées pour une communication fluide.",
-    icon: MessageSquare,
+    emoji: "💬",
     color: "text-purple-400",
     bgColor: "bg-purple-500/10",
     borderColor: "border-purple-500/20",
@@ -141,7 +135,7 @@ const featureDetails: Record<string, FeatureDetail> = {
     title: "Système de Notifications",
     description: "Restez informé en temps réel.",
     detailedDescription: "Ne manquez jamais une information importante avec notre système de notifications intelligent. Personnalisez vos alertes selon vos préférences et restez toujours à jour.",
-    icon: Bell,
+    emoji: "🔔",
     color: "text-orange-400",
     bgColor: "bg-orange-500/10",
     borderColor: "border-orange-500/20",
@@ -172,7 +166,7 @@ const featureDetails: Record<string, FeatureDetail> = {
     title: "Recherche Intelligente",
     description: "Trouvez instantanément ce que vous cherchez.",
     detailedDescription: "Localisez rapidement toute information avec notre moteur de recherche avancé. Filtres intelligents, suggestions contextuelles et recherche globale pour une efficacité maximale.",
-    icon: Search,
+    emoji: "🔍",
     color: "text-indigo-400",
     bgColor: "bg-indigo-500/10",
     borderColor: "border-indigo-500/20",
@@ -203,7 +197,7 @@ const featureDetails: Record<string, FeatureDetail> = {
     title: "Analytics & Tableau de Bord",
     description: "Analysez vos performances avec des métriques détaillées.",
     detailedDescription: "Prenez des décisions éclairées grâce à nos tableaux de bord analytiques. Métriques en temps réel, rapports personnalisés et insights pour optimiser vos performances.",
-    icon: BarChart3,
+    emoji: "📊",
     color: "text-emerald-400",
     bgColor: "bg-emerald-500/10",
     borderColor: "border-emerald-500/20",
@@ -243,8 +237,6 @@ export function FeatureDetailModal({ isOpen, onClose, featureTitle }: FeatureDet
   
   if (!feature) return null;
 
-  const IconComponent = feature.icon;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-6xl max-h-[90vh] overflow-y-auto">
@@ -259,10 +251,10 @@ export function FeatureDetailModal({ isOpen, onClose, featureTitle }: FeatureDet
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex items-center gap-4"
+              className="flex items-center gap-4 space-y-8"
             >
               <div className={`p-3 rounded-xl ${feature.bgColor} ${feature.borderColor} border`}>
-                <IconComponent className={`w-6 h-6 ${feature.color}`} />
+                <span className="text-2xl">{feature.emoji}</span>
               </div>
               <div>
                 <DialogTitle className="text-2xl font-bold text-[#262626]">

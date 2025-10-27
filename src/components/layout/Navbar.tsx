@@ -71,7 +71,7 @@ export function Navbar() {
   };
 
   return (
-    <nav ref={navbarRef} className="w-full px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 py-1.5 sm:py-2 md:py-3 lg:py-3 xl:py-4 bg-white-500 ">
+    <nav ref={navbarRef} className="fixed top-0 left-0 w-full z-50 px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 py-1.5 sm:py-2 md:py-3 lg:py-3 xl:py-4 bg-white-500 ">
       <div className="border border-gray-300 rounded-full max-w-6xl xl:max-w-7xl w-full mx-auto px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12 py-1.5 sm:py-2 md:py-3 lg:py-3 xl:py-4 flex items-center justify-between gap-x-1 sm:gap-x-3 md:gap-x-6 lg:gap-x-8 xl:gap-x-10 relative z-50 backdrop-blur-md">
         <div className="flex items-center space-x-2">
           <Link href="/">
@@ -197,7 +197,7 @@ export function Navbar() {
 
         {isMenuOpen && (
           <motion.div
-            className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-lg translate-y-2 py-3 sm:py-4 px-3 sm:px-4 md:hidden w-full z-50"
+            className="absolute top-full left-0 right-0 bg-white shadow-lg rounded-lg translate-y-2 py-3 sm:py-4 px-3 sm:px-4 md:hidden w-full z-99"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}

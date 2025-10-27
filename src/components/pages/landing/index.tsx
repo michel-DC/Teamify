@@ -1,6 +1,7 @@
 import { HeroSection } from "./hero-section";
 import { FeaturesSection } from "./features-section";
 import { HowItWorksSection } from "./how-it-works-section";
+import { OrganizationsEventsSection } from "./organizations-events-section";
 import { TestimonialsSection } from "./testimonials-section";
 import { CTASection } from "./cta-section";
 import { Navbar } from "@/components/layout/Navbar";
@@ -9,15 +10,22 @@ import { Footer } from "@/components/layout/Footer";
 export function LandingPage() {
   return (
     <div 
-      className="min-h-screen"
+      className="min-h-screen pt-24"
+      style={
+        {
+          backgroundImage: "url('/images/background/background.svg')",
+        }
+      }
     >
       <Navbar />
       <div className="mb-16">
         <HeroSection />
-      </div>
-      <HowItWorksSection />
-      <FeaturesSection />
-      <Footer />
+        </div>
+        <HowItWorksSection />
+        <OrganizationsEventsSection />
+        <FeaturesSection />
+        <TestimonialsSection />
+        <Footer />
     </div>
   );
 }

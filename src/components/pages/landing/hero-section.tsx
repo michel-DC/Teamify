@@ -146,7 +146,7 @@ export function HeroSection() {
                 alt="Dashboard Teamify - Interface de gestion d'événements"
                 width={1920}
                 height={1080}
-                className="rounded-2xl shadow-2xl border border-gray-200"
+                className="rounded-2xl shadow-2xl"
                 style={{ 
                   width: '100%', 
                   height: 'auto', 
