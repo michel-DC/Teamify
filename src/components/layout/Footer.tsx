@@ -1,99 +1,206 @@
-import React from "react";
-import { cn } from "@/lib/utils";
+"use client";
 
-export const Footer = () => {
+import { Facebook, Linkedin, Github, Mail, Instagram } from "lucide-react";
+import { toast } from "sonner";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+
+export function Footer() {
+  const handleSupportClick = (service: string) => {
+    toast.info(`Service ${service} bientôt disponible !`, {
+      description: "Cette fonctionnalité sera ajoutée dans une prochaine mise à jour.",
+      duration: 3000,
+    });
+  };
+
   return (
-    <footer className="relative w-full bg-black/[0.96] text-white py-12 flex justify-center">
-      <div
-        className={cn(
-          "pointer-events-none absolute inset-0 [background-size:40px_40px] select-none",
-          "[background-image:linear-gradient(to_right,#171717_1px,transparent_1px),linear-gradient(to_bottom,#171717_1px,transparent_1px)]"
-        )}
-      />
-      <div className="px-4 w-full max-w-7xl z-99">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4">
-          <div>
-            <h3 className="mb-4 text-xl font-bold">Teamify</h3>
-            <p className="text-gray-400">
-              Simplifiez l&apos;organisation de vos événements avec Teamify.
+    <footer className="bg-[#101010] text-white border-t border-[#2a2a2a] rounded-t-3xl shadow-lg">
+      <div className="max-w-7xl mx-auto px-6 pt-12 pb-4">
+        <div className="text-left sm:text-center mb-12">
+          <div className="flex justify-center mb-4">
+            <Image src="/images/logo/favicon-text-light.svg" alt="Teamify" width={180} height={180} />
+          </div>
+          <p className="text-base sm:text-lg text-gray-300 mb-2 text-center">
+            Prêt à transformer la gestion de vos événements ?<br />
+            Commencez dès maintenant !
+          </p>
+          <div className="mt-6 flex justify-center">
+            <Button
+              asChild
+              className="px-6 py-3"
+            >
+              <Link href="/dashboard">
+                Ça se passe juste ici
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        <div className="border-t border-[#2a2a2a] my-8" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Teamify</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">
+              La plateforme de gestion d'événements qui simplifie l'organisation en équipe. 
+              Créez, planifiez et gérez vos événements avec facilité.
             </p>
+            <div className="flex gap-3">
+              <Link 
+                href="https://linkedin.com/in/micheldjoumessi"
+                target="_blank"
+                rel="noopener"
+                aria-label="LinkedIn"
+                className="hover:text-[#7C3AED] transition-colors"
+              >
+                <Linkedin className="w-5 h-5" />
+              </Link>
+                <Link 
+                href="https://github.com/michel-DC"
+                target="_blank"
+                rel="noopener"
+                aria-label="Github"
+                className="hover:text-[#7C3AED] transition-colors"
+              >
+                <Github className="w-5 h-5" />
+              </Link>
+              <Link 
+                href="mailto:contact@onlinemichel.dev"
+                target="_blank"
+                rel="noopener"
+                aria-label="Mail"
+                className="hover:text-[#7C3AED] transition-colors"
+              >
+                <Mail className="w-5 h-5" />
+              </Link>
+            </div>
           </div>
-          <div>
-            <h3 className="mb-4 text-xl font-bold">Liens utiles</h3>
-            <ul className="text-gray-400">
-              <li className="mb-2">
-                <a href="/about" className="hover:text-indigo-500">
-                  À propos
-                </a>
+
+          {/* Section Produit */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Produit</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/#how-it-works" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Comment ?
+                </Link>
               </li>
-              <li className="mb-2">
-                <a href="/contact" className="hover:text-indigo-500">
-                  Contact
-                </a>
+              <li>
+                <Link href="/#for-you" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Pour vous
+                </Link>
               </li>
-              <li className="mb-2">
-                <a href="/privacy" className="hover:text-indigo-500">
-                  Politique de confidentialité
-                </a>
+              <li>
+                <Link href="/#features" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Fonctionnalités
+                </Link>
+              </li>
+              <li>
+                <Link href="/#impact" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Impact
+                </Link>
+              </li>
+              <li>
+                <Link href="/#for-you" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Pour vous
+                </Link>
+              </li>
+              <li>
+                <Link href="/#testimonials" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Témoignages
+                </Link>
+              </li>
+              <li>
+                <Link href="/#faq" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  FAQ
+                </Link>
               </li>
             </ul>
           </div>
-          <div>
-            <h3 className="mb-4 text-xl font-bold">Ressources</h3>
-            <ul className="text-gray-400">
-              <li className="mb-2">
-                <a href="/blog" className="hover:text-indigo-500">
-                  Blog
-                </a>
+
+          {/* Section Support */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Support</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Centre d'aide")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Centre d'aide
+                </button>
               </li>
-              <li className="mb-2">
-                <a href="/docs" className="hover:text-indigo-500">
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Documentation")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
                   Documentation
-                </a>
+                </button>
               </li>
-              <li className="mb-2">
-                <a href="/support" className="hover:text-indigo-500">
-                  Support
-                </a>
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Tutoriels")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Tutoriels
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Communauté")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Communauté
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={() => handleSupportClick("Statut des services")}
+                  className="text-gray-400 hover:text-[#635BFF] transition-colors cursor-pointer"
+                >
+                  Statut des services
+                </button>
               </li>
             </ul>
           </div>
-          <div>
-            <h3 className="mb-4 text-xl font-bold">Suivez-nous</h3>
-            <ul className="text-gray-400">
-              <li className="mb-2">
-                <a
-                  href="https://twitter.com/teamify"
-                  className="hover:text-indigo-500"
-                >
-                  Twitter
-                </a>
+
+          {/* Section Legal */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-white">Légal</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/legal-notice" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Mentions légales
+                </Link>
               </li>
-              <li className="mb-2">
-                <a
-                  href="https://facebook.com/teamify"
-                  className="hover:text-indigo-500"
-                >
-                  Facebook
-                </a>
+              <li>
+                <Link href="/privacy-policy" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Politique de confidentialité
+                </Link>
               </li>
-              <li className="mb-2">
-                <a
-                  href="https://linkedin.com/company/teamify"
-                  className="hover:text-indigo-500"
-                >
-                  LinkedIn
-                </a>
+              <li>
+                <Link href="/cookies-policy" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Politique de cookies
+                </Link>
+              </li>
+              <li>
+                  <Link href="/cgu" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  CGU
+                </Link>
               </li>
             </ul>
           </div>
         </div>
-        <div className="mt-8 text-center text-gray-400">
-          <p>
-            &copy; {new Date().getFullYear()} Teamify. Tous droits réservés.
-          </p>
+
+        <div className="border-t border-[#2a2a2a] my-8" />
+
+        <div className="mt-8 text-center text-gray-400 text-xs">
+          Design & Dev With <span className="text-red-400">♥</span> by Michel -
+         {` ${new Date().getFullYear()} `}
         </div>
       </div>
     </footer>
   );
-};
+}

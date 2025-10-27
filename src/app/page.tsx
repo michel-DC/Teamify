@@ -1,4 +1,4 @@
-import DevelopmentPage from "@/app/pages/home/page-developement";
+import DevelopmentPage from "@/components/pages/development/page-developement";
 
 export default function Home() {
   return (

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, RefreshCw } from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "react-day-picker";
 
 export default function Error({
   error,
@@ -20,6 +22,8 @@ export default function Error({
   }, [error]);
 
   return (
+    <>
+    <Navbar />
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center max-w-4xl mx-auto px-6">
         {/* Illustration SVG */}
@@ -75,5 +79,7 @@ export default function Error({
         </div>
       </div>
     </div>
-  );
+    <Footer />
+    </>
+    );
 }
