@@ -3,6 +3,7 @@
 import { Facebook, Linkedin, Github, Mail, Instagram } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export function Footer() {
@@ -29,9 +30,9 @@ export function Footer() {
               asChild
               className="px-6 py-3"
             >
-              <a href="/dashboard">
+              <Link href="/dashboard">
                 Ça se passe juste ici
-              </a>
+              </Link>
             </Button>
           </div>
         </div>
@@ -46,7 +47,7 @@ export function Footer() {
               Créez, planifiez et gérez vos événements avec facilité.
             </p>
             <div className="flex gap-3">
-              <a
+              <Link 
                 href="https://linkedin.com/in/micheldjoumessi"
                 target="_blank"
                 rel="noopener"
@@ -54,8 +55,8 @@ export function Footer() {
                 className="hover:text-[#7C3AED] transition-colors"
               >
                 <Linkedin className="w-5 h-5" />
-              </a>
-              <a
+              </Link>
+                <Link 
                 href="https://github.com/michel-DC"
                 target="_blank"
                 rel="noopener"
@@ -63,8 +64,8 @@ export function Footer() {
                 className="hover:text-[#7C3AED] transition-colors"
               >
                 <Github className="w-5 h-5" />
-              </a>
-              <a
+              </Link>
+              <Link 
                 href="mailto:contact@onlinemichel.dev"
                 target="_blank"
                 rel="noopener"
@@ -72,7 +73,7 @@ export function Footer() {
                 className="hover:text-[#7C3AED] transition-colors"
               >
                 <Mail className="w-5 h-5" />
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -81,29 +82,34 @@ export function Footer() {
             <h3 className="text-lg font-semibold text-white">Produit</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="#features" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                <Link href="/#how-it-works" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Comment ?
+                </Link>
+              </li>
+              <li>
+                <Link href="/#for-you" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Pour vous
+                </Link>
+              </li>
+              <li>
+                <Link href="/#features" className="text-gray-400 hover:text-[#635BFF] transition-colors">
                   Fonctionnalités
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#pricing" className="text-gray-400 hover:text-[#635BFF] transition-colors">
-                  Tarifs
-                </a>
+                <Link href="/#for-you" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Pour vous
+                </Link>
               </li>
               <li>
-                <a href="#testimonials" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                <Link href="/#testimonials" className="text-gray-400 hover:text-[#635BFF] transition-colors">
                   Témoignages
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/demo" className="text-gray-400 hover:text-[#635BFF] transition-colors">
-                  Démo
-                </a>
-              </li>
-              <li>
-                <a href="/api" className="text-gray-400 hover:text-[#635BFF] transition-colors">
-                  API
-                </a>
+                <Link href="/#faq" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  FAQ
+                </Link>
               </li>
             </ul>
           </div>
@@ -160,24 +166,24 @@ export function Footer() {
             <h3 className="text-lg font-semibold text-white">Légal</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <a href="/legal-notice" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                <Link href="/legal-notice" className="text-gray-400 hover:text-[#635BFF] transition-colors">
                   Mentions légales
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/privacy-policy" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                <Link href="/privacy-policy" className="text-gray-400 hover:text-[#635BFF] transition-colors">
                   Politique de confidentialité
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/cookies-policy" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                <Link href="/cookies-policy" className="text-gray-400 hover:text-[#635BFF] transition-colors">
                   Politique de cookies
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/cgu" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  <Link href="/cgu" className="text-gray-400 hover:text-[#635BFF] transition-colors">
                   CGU
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

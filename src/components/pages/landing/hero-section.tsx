@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import SideCursors from "@/components/pages/landing/cursor";
 import { Calendar, Check } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,6 +12,7 @@ import Image from "next/image";
 export function HeroSection() {
   return (
     <section className="relative min-h-[80vh] flex items-center justify-center w-full pt-16">
+      <SideCursors />
       <div className="relative z-10 w-full max-w-4xl mx-auto px-3 sm:px-6 lg:px-8">
         <div className="text-center">
           {/* Badge */}
@@ -26,7 +28,7 @@ export function HeroSection() {
             >
               <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full mr-2"></div>
               <span className="hidden sm:inline">Plateforme de gestion d'événements nouvelle génération</span>
-              <span className="sm:hidden">Nouvelle génération</span>
+              <span className="sm:hidden">Plateforme de gestion d'événements</span>
             </Badge>
           </motion.div>
 

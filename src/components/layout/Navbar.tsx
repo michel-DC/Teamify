@@ -94,34 +94,34 @@ export function Navbar() {
 
         <div className="hidden md:flex items-center gap-x-3 lg:gap-x-6 xl:gap-x-10">
           <Link
-            href="#features"
+            href="/#how-it-works"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
-            Fonctionnalités
+            Comment ?
           </Link>
           <Link
-            href="#for-you"
+            href="/#for-you"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
             Pour vous
           </Link>
           <Link
-            href="#pricing"
+            href="/#features"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
-            Tarifs
+            Fonctionnalités
           </Link>
           <Link
-            href="#faq"
+            href="/#testimonials"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
-            FAQ
+            Témoignages
           </Link>
           <Link 
-            href="#testimonials"
+            href="/#faq"
               className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
-            Témoignages
+            FAQ
           </Link>
         </div>
 
@@ -204,39 +204,39 @@ export function Navbar() {
           >
             <div className="flex flex-col space-y-1 sm:space-y-2">
               <Link   
-                href="#features"
+                href="/#how-it-works"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
-                Fonctionnalités
+                Comment ?
               </Link>
                   <Link
-                href="#for-you"
+                href="/#for-you"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
                 Pour vous
               </Link>
                 <Link
-                href="#pricing"
+                href="/#features"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
-                Tarifs
+                Fonctionnalités
               </Link>
               <Link
-                href="#faq"
-                className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
-                onClick={toggleMenu}
-              >
-                FAQ
-              </Link>
-              <Link
-                href="#testimonials"
+                href="/#testimonials"
                 className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
                 onClick={toggleMenu}
               >
                 Témoignages
+              </Link>
+              <Link
+                href="/#faq"
+                className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
+                onClick={toggleMenu}
+              >
+                FAQ
               </Link>
               {!isLoading && (
                 <>

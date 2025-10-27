@@ -216,7 +216,7 @@ export function TestimonialsSection() {
   return (
     <section
       id="testimonials"
-      className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-gray-50 to-white relative overflow-hidden"
+      className="py-16 sm:py-20 lg:py-24 relative overflow-hidden"
     >
       <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
