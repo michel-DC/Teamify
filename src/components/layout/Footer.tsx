@@ -97,6 +97,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/#impact" className="text-gray-400 hover:text-[#635BFF] transition-colors">
+                  Impact
+                </Link>
+              </li>
+              <li>
                 <Link href="/#for-you" className="text-gray-400 hover:text-[#635BFF] transition-colors">
                   Pour vous
                 </Link>

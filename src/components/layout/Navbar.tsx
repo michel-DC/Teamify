@@ -112,6 +112,12 @@ export function Navbar() {
             Fonctionnalités
           </Link>
           <Link
+            href="/#impact"
+            className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
+          >
+            Impact
+          </Link>
+          <Link
             href="/#testimonials"
             className="text-[#262626] hover:text-[#7C3AED] transition-colors font-medium text-xs lg:text-sm xl:text-base"
           >
@@ -223,6 +229,13 @@ export function Navbar() {
                 onClick={toggleMenu}
               >
                 Fonctionnalités
+              </Link>
+              <Link
+                href="/#impact"
+                className="text-[#262626] hover:text-[#7C3AED] transition-colors py-1.5 sm:py-2 font-medium text-sm sm:text-base"
+                onClick={toggleMenu}
+              >
+                Impact
               </Link>
               <Link
                 href="/#testimonials"

@@ -2,6 +2,7 @@ import { HeroSection } from "./hero-section";
 import { FeaturesSection } from "./features-section";
 import { HowItWorksSection } from "./how-it-works-section";
 import { OrganizationsEventsSection } from "./organizations-events-section";
+import { ImpactSection } from "./impact-section";
 import { TestimonialsSection } from "./testimonials-section";
 import { FAQSection } from "./faq-section";
 import { CTASection } from "./cta-section";
@@ -30,6 +31,9 @@ export function LandingPage() {
         </div>
         <div id="features">
         <FeaturesSection />
+        </div>
+        <div id="impact">
+        <ImpactSection />
         </div>
         <div id="testimonials">
         <TestimonialsSection />
