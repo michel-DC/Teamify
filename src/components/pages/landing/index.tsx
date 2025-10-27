@@ -15,6 +15,7 @@ export function LandingPage() {
       <div className="mb-16">
         <HeroSection />
       </div>
+      <HowItWorksSection />
       <FeaturesSection />
       <Footer />
     </div>
