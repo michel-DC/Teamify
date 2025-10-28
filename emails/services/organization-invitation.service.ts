@@ -22,7 +22,7 @@ export class OrganizationInvitationService {
       const { data: resendData, error } = await resend.emails.send({
         from: "L'équipe Teamify <contact@onlinemichel.dev>",
         to: [email],
-        subject: `Invitation à rejoindre ${data.organizationName}`,
+        subject: `Invitation à rejoindre l'organisation ${data.organizationName}`,
         html: htmlContent,
         headers: {
           "X-Profile-Image":
