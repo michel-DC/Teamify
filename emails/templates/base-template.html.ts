@@ -1,3 +1,7 @@
+const emailAssetBaseUrl = (process.env.NEXT_PUBLIC_APP_URL && !process.env.NEXT_PUBLIC_APP_URL.includes("localhost"))
+  ? process.env.NEXT_PUBLIC_APP_URL
+  : "https://teamify.onlinemichel.dev";
+
 export const baseEmailStyles = `
   body {
     margin: 0;
@@ -37,16 +41,14 @@ export const baseEmailHeader = `
         <table role="presentation" width="600" class="container" style="max-width:600px;">
           <tr>
             <td align="left" style="padding:0 16px;">
-              <img src="${process.env.NEXT_PUBLIC_APP_URL || "https://teamify.onlinemichel.dev"}/images/logo/email-dark.png"
+              <img src="${emailAssetBaseUrl}/images/logo/email-dark.png"
                    alt="Teamify"
                    width="120"
-                   class="email-header-image-dark"
-                   style="display:block;">
-              <img src="${process.env.NEXT_PUBLIC_APP_URL || "https://teamify.onlinemichel.dev"}/images/logo/email-light.png"
+                   class="email-header-image-dark">
+              <img src="${emailAssetBaseUrl}/images/logo/email-light.png"
                    alt="Teamify"
                    width="120"
-                   class="email-header-image-light"
-                   style="display:block;">
+                   class="email-header-image-light">
             </td>
           </tr>
         </table>
@@ -64,17 +66,15 @@ export const baseEmailFooter = `
           <tr>
             <td align="center" style="padding:32px 32px 20px 32px; font-size:9px; color:#6b7280; background-color:#f9f9f9;">
               <!-- Logo centré en haut du footer -->
-              <a href="https://teamify.onlinemichel.dev" style="display:inline-block; margin-bottom:16px;">
-                <img src="${process.env.NEXT_PUBLIC_APP_URL || "https://teamify.onlinemichel.dev"}/images/logo/favicon-email-dark.png"
+              <a href="${emailAssetBaseUrl}" style="display:inline-block; margin-bottom:16px;">
+                <img src="${emailAssetBaseUrl}/images/logo/favicon-email-dark.png"
                      alt="Teamify"
                      width="80"
-                     class="email-footer-image-dark"
-                     style="display:block; margin:0 auto;">
-                <img src="${process.env.NEXT_PUBLIC_APP_URL || "https://teamify.onlinemichel.dev"}/images/logo/favicon-email-light.png"
+                     class="email-footer-image-dark">
+                <img src="${emailAssetBaseUrl}/images/logo/favicon-email-light.png"
                      alt="Teamify"
                      width="80"
-                     class="email-footer-image-light"
-                     style="display:block; margin:0 auto;">
+                     class="email-footer-image-light">
               </a>
               <p style="margin:0 0 10px 0; text-align:left;">
                 Cet email a été envoyé automatiquement depuis la plateforme Teamify.<br>
