@@ -57,7 +57,7 @@ export function Footer() {
                 <Linkedin className="w-5 h-5" />
               </Link>
                 <Link 
-                href="https://github.com/michel-DC"
+                href="https://github.com/michel-DC/Teamify"
                 target="_blank"
                 rel="noopener"
                 aria-label="Github"
