@@ -15,30 +15,20 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { EventCategory } from "@prisma/client";
-import { ArrowLeft, Save } from "lucide-react";
-import { Calendar, MapPin } from "lucide-react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { fr } from "date-fns/locale";
-import { CloudflareImageUpload } from "@/components/ui/cloudflare-image-upload";
 
-/**
- * Mappage des catégories d'événements vers des labels français
- */
-const categoryLabels: Record<EventCategory, string> = {
-  REUNION: "Réunion",
-  SEMINAIRE: "Séminaire",
-  CONFERENCE: "Conférence",
-  FORMATION: "Formation",
-  ATELIER: "Atelier",
-  NETWORKING: "Networking",
-  CEREMONIE: "Cérémonie",
-  EXPOSITION: "Exposition",
-  CONCERT: "Concert",
-  SPECTACLE: "Spectacle",
-  AUTRE: "Autre",
-};
+enum EventCategory {
+  REUNION = "REUNION",
+  SEMINAIRE = "SEMINAIRE",
+  CONFERENCE = "CONFERENCE",
+  FORMATION = "FORMATION",
+  ATELIER = "ATELIER",
+  NETWORKING = "NETWORKING",
+  CEREMONIE = "CEREMONIE",
+  EXPOSITION = "EXPOSITION",
+  CONCERT = "CONCERT",
+  SPECTACLE = "SPECTACLE",
+  AUTRE = "AUTRE",
+}
 
 interface LocationResult {
   display_name: string;

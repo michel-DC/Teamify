@@ -4,7 +4,28 @@ import { EventFormData } from "../../../../../types/steps-event-creation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { EventCategory, EventStatus } from "@prisma/client";
+
+// enum locale EventCategory & EventStatus
+enum EventCategory {
+  REUNION = "REUNION",
+  SEMINAIRE = "SEMINAIRE",
+  CONFERENCE = "CONFERENCE",
+  FORMATION = "FORMATION",
+  ATELIER = "ATELIER",
+  NETWORKING = "NETWORKING",
+  CEREMONIE = "CEREMONIE",
+  EXPOSITION = "EXPOSITION",
+  CONCERT = "CONCERT",
+  SPECTACLE = "SPECTACLE",
+  AUTRE = "AUTRE",
+}
+
+enum EventStatus {
+  A_VENIR = "A_VENIR",
+  EN_COURS = "EN_COURS",
+  TERMINE = "TERMINE",
+  ANNULE = "ANNULE",
+}
 
 interface SummaryStepProps {
   formData: EventFormData;

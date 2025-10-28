@@ -4,17 +4,16 @@ import { EventFormData } from "../../../../../types/steps-event-creation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
-import { EventStatus } from "@prisma/client";
 import { calculateEventStatus } from "@/lib/event-status-utils";
 import { Badge } from "@/components/ui/badge";
 import React from "react";
 
-interface Step3Props {
-  formData: EventFormData;
-  updateFormData: (data: Partial<EventFormData>) => void;
-  onNext: () => void;
-  onPrev: () => void;
-  isStepComplete: boolean;
+// enum locale EventStatus
+enum EventStatus {
+  A_VENIR = "A_VENIR",
+  EN_COURS = "EN_COURS",
+  TERMINE = "TERMINE",
+  ANNULE = "ANNULE",
 }
 
 /**
