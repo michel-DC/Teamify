@@ -1,9 +1,9 @@
-import DevelopmentPage from "@/components/pages/development/page-developement";
+import { LandingPage } from "@/components/pages/landing";
 
 export default function Home() {
   return (
-    <div>
-      <DevelopmentPage />
-    </div>
+    <>
+      <LandingPage />
+    </>
   );
 }
