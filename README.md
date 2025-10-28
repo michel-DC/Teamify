@@ -1,4 +1,4 @@
-# Teamify
+# _Teamify._ Make. Organize. Collaborate.
 
 ![Teamify Landing page](/README.png)
 
