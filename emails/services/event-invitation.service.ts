@@ -19,7 +19,7 @@ export class EventInvitationService {
       const { data: resendData, error } = await resend.emails.send({
         from: "L'équipe Teamify <contact@onlinemichel.dev>",
         to: [email],
-        subject: `Invitation à l'événement : ${data.eventName}`,
+        subject: `Invitation à l'événement ${data.eventName}`,
         html: htmlContent,
         headers: {
           "X-Profile-Image":
