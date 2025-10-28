@@ -6,7 +6,21 @@ import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { EventCategory } from "@prisma/client";
+
+// enum locale EventCategory
+export enum EventCategory {
+  REUNION = "REUNION",
+  SEMINAIRE = "SEMINAIRE",
+  CONFERENCE = "CONFERENCE",
+  FORMATION = "FORMATION",
+  ATELIER = "ATELIER",
+  NETWORKING = "NETWORKING",
+  CEREMONIE = "CEREMONIE",
+  EXPOSITION = "EXPOSITION",
+  CONCERT = "CONCERT",
+  SPECTACLE = "SPECTACLE",
+  AUTRE = "AUTRE",
+}
 
 interface Step1Props {
   formData: EventFormData;

@@ -315,13 +315,6 @@ export const LoginForm = ({
                       <Label htmlFor="password" className="text-sm sm:text-base">
                         Mot de passe
                       </Label>
-                      <Link
-                        href="/auth/forgot"
-                        className="text-xs sm:text-sm underline-offset-4 hover:underline text-muted-foreground hover:text-primary"
-                        prefetch={false}
-                      >
-                        Mot de passe oublié ?
-                      </Link>
                     </div>
                     <div className="relative">
                       <Input

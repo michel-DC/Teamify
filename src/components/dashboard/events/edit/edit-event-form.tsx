@@ -20,7 +20,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast, Toaster } from "sonner";
 import { Calendar, MapPin, Users, Euro, Tag, Eye, EyeOff } from "lucide-react";
-import { EventCategory, EventStatus } from "@prisma/client";
+
+enum EventCategory {
+  REUNION = "REUNION",
+  SEMINAIRE = "SEMINAIRE",
+  CONFERENCE = "CONFERENCE",
+  FORMATION = "FORMATION",
+  ATELIER = "ATELIER",
+  NETWORKING = "NETWORKING",
+  CEREMONIE = "CEREMONIE",
+  EXPOSITION = "EXPOSITION",
+  CONCERT = "CONCERT",
+  SPECTACLE = "SPECTACLE",
+  AUTRE = "AUTRE",
+}
+enum EventStatus {
+  A_VENIR = "A_VENIR",
+  EN_COURS = "EN_COURS",
+  TERMINE = "TERMINE",
+  ANNULE = "ANNULE",
+}
 
 const eventSchema = z.object({
   title: z.string().min(3, "Le titre doit contenir au moins 3 caractères"),
