@@ -25,9 +25,6 @@ export async function GET(
       );
     }
 
-    /**
-     * Récupération de l'organisation par son publicId
-     */
     const organization = await prisma.organization.findFirst({
       where: {
         publicId: publicId,
@@ -46,9 +43,6 @@ export async function GET(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation (propriétaire OU membre)
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, organization.id);
 
     if (!hasAccess) {

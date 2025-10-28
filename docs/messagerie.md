@@ -17,11 +17,11 @@
 
 ## Vue d'ensemble
 
-Le système de messagerie de Teamify est une solution complète de communication en temps réel basée sur Socket.IO, intégrée dans une architecture Next.js moderne. Cette fonctionnalité permet aux utilisateurs de communiquer instantanément au sein d'organisations, de groupes d'événements, ou en conversations privées, offrant une expérience utilisateur fluide et réactive.
+Le système de messagerie de Teamify est une solution complète de communication en temps réel basée sur Pusher, intégrée dans une architecture Next.js moderne. Cette fonctionnalité permet aux utilisateurs de communiquer instantanément au sein d'organisations, de groupes d'événements, ou en conversations privées, offrant une expérience utilisateur fluide et réactive.
 
 ### Technologies Utilisées
 
-- **Socket.IO** : Framework principal pour la communication en temps réel
+- **Pusher** : Service de communication en temps réel
 - **Next.js 14** : Framework React avec App Router
 - **Prisma** : ORM pour la gestion de base de données
 - **PostgreSQL** : Base de données relationnelle
@@ -34,25 +34,25 @@ Le système de messagerie de Teamify est une solution complète de communication
 
 ### Fonctionnalités
 
-#### 🚀 Création Automatique
+#### Création Automatique
 
 - **Création automatique** : Une conversation de groupe est créée automatiquement lors de la création d'une organisation
 - **Ajout automatique des membres** : Les nouveaux membres rejoignant l'organisation sont automatiquement ajoutés à la conversation de groupe
 - **Synchronisation** : Les membres sont synchronisés automatiquement entre l'organisation et la conversation de groupe
 
-#### 💬 Messagerie Temps Réel
+#### Messagerie Temps Réel
 
-- **Messages instantanés** : Communication en temps réel via Socket.IO
+- **Messages instantanés** : Communication en temps réel via Pusher
 - **Interface responsive** : Optimisée pour mobile et desktop
 - **Gestion des états** : Indicateurs de connexion et de statut
 
-#### 👥 Gestion des Membres
+#### Gestion des Membres
 
 - **Liste des membres** : Affichage de tous les participants avec leurs rôles
 - **Rôles** : Distinction entre administrateurs et membres
 - **Informations détaillées** : Nom, avatar, date d'adhésion
 
-#### 🎨 Interface Utilisateur
+#### Interface Utilisateur
 
 - **Design cohérent** : Même esthétique que la messagerie privée
 - **Composants modulaires** : Architecture réutilisable et maintenable
@@ -122,7 +122,7 @@ graph TB
         C --> I[MessageList]
 
         J[useGroupConversations Hook] --> A
-        K[useSocket Hook] --> A
+        K[usePusher Hook] --> A
         L[useAuth Hook] --> A
     end
 
@@ -147,9 +147,9 @@ graph TB
     end
 
     subgraph "Temps Réel"
-        FF[Socket.IO Server] --> GG[Gestion Messages]
+        FF[Pusher Service] --> GG[Gestion Messages]
         FF --> HH[Gestion Connexions]
-        FF --> II[Gestion Rooms]
+        FF --> II[Gestion Channels]
     end
 
     A --> M
@@ -175,7 +175,7 @@ sequenceDiagram
     participant U as Utilisateur
     participant A as API Create Org
     participant DB as Base de Données
-    participant S as Socket.IO
+    participant S as Pusher
 
     U->>A: Créer Organisation
     A->>DB: Créer Organisation
@@ -192,7 +192,7 @@ sequenceDiagram
     participant U as Utilisateur
     participant A as API Invite
     participant DB as Base de Données
-    participant S as Socket.IO
+    participant S as Pusher
 
     U->>A: Accepter Invitation
     A->>DB: Ajouter à Organisation
@@ -207,7 +207,7 @@ sequenceDiagram
 sequenceDiagram
     participant U as Utilisateur
     participant F as Frontend
-    participant S as Socket.IO
+    participant S as Pusher
     participant DB as Base de Données
 
     U->>F: Saisir Message
@@ -245,7 +245,7 @@ sequenceDiagram
 | Hook                    | Responsabilité               | Retour                                |
 | ----------------------- | ---------------------------- | ------------------------------------- |
 | `useGroupConversations` | Gestion conversations groupe | `conversations`, `isLoading`, `error` |
-| `useSocket`             | Communication temps réel     | `sendMessage`, `isConnected`          |
+| `usePusher`             | Communication temps réel     | `sendMessage`, `isConnected`          |
 | `useAuth`               | Authentification             | `user`, `checkAuth`                   |
 | `useActiveOrganization` | Organisation active          | `activeOrganization`                  |
 
@@ -260,67 +260,75 @@ Le système de messagerie suit une architecture en couches bien définie :
 1. **Couche Présentation** : Composants React pour l'interface utilisateur
 2. **Couche Logique Métier** : Hooks personnalisés et gestion d'état
 3. **Couche API** : Endpoints REST pour les opérations CRUD
-4. **Couche Temps Réel** : Serveur Socket.IO pour la communication instantanée
+4. **Couche Temps Réel** : Service Pusher pour la communication instantanée
 5. **Couche Données** : Base de données PostgreSQL avec Prisma ORM
 
-### Serveur Socket.IO
+### Service Pusher
 
 #### Configuration et Initialisation
 
 ```typescript
-export function initializeSocketIO(httpServer?: NetServer) {
-  const io = new SocketIOServer(httpServer, {
-    cors: {
-      origin:
-        process.env.NODE_ENV === "production"
-          ? process.env.NEXT_PUBLIC_APP_URL
-          : "http://localhost:3000",
-      methods: ["GET", "POST"],
-      credentials: true,
-    },
-    transports: ["websocket", "polling"],
-  });
+// Configuration côté serveur
+export const pusherServer = new Pusher({
+  appId: process.env.PUSHER_APP_ID!,
+  key: process.env.PUSHER_KEY!,
+  secret: process.env.PUSHER_SECRET!,
+  cluster: process.env.PUSHER_CLUSTER!,
+  useTLS: true,
+});
 
-  // Middleware d'authentification
-  io.use(async (socket, next) => {
-    // Vérification du token JWT
-    // Validation de l'utilisateur en base
-  });
+// Configuration côté client
+export function getPusherClient(): PusherClient {
+  if (typeof window === "undefined") {
+    throw new Error("Pusher client ne peut être utilisé que côté client");
+  }
 
-  return io;
+  if (!pusherClient) {
+    const key = process.env.NEXT_PUBLIC_PUSHER_KEY;
+    const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER;
+
+    if (!key || !cluster) {
+      throw new Error("Variables d'environnement Pusher manquantes");
+    }
+
+    pusherClient = new PusherClient(key, {
+      cluster,
+      useTLS: true,
+    });
+  }
+  return pusherClient;
 }
 ```
 
 #### Authentification et Sécurité
 
-Le système implémente une authentification robuste au niveau Socket.IO :
+Le système implémente une authentification robuste avec Pusher :
 
-1. **Vérification du Token JWT** : Chaque connexion doit fournir un token valide
-2. **Validation Utilisateur** : Vérification de l'existence de l'utilisateur en base
-3. **Gestion des Erreurs** : Rejet des connexions non autorisées
+1. **Variables d'Environnement** : Configuration sécurisée des clés Pusher
+2. **Validation Côté Client** : Vérification de la disponibilité des variables
+3. **Gestion des Erreurs** : Gestion des erreurs de connexion et d'authentification
 
 #### Gestion des Connexions
 
 Lorsqu'un utilisateur se connecte :
 
-1. **Rejoindre la Room Utilisateur** : `socket.join(\`user:${userId}\`)`
-2. **Chargement des Conversations** : Récupération de toutes les conversations de l'utilisateur
-3. **Rejoindre les Rooms de Conversation** : `socket.join(\`conversation:${conversationId}\`)`
+1. **Initialisation du Client** : Création du client Pusher avec les bonnes variables
+2. **Connexion aux Canaux** : Souscription aux canaux de conversation spécifiques
+3. **Gestion des États** : Suivi de l'état de connexion et des erreurs
 
-#### Événements Socket.IO
+#### Événements Pusher
 
 ##### Événements Client vers Serveur
 
-- **`message:send`** : Envoi d'un nouveau message
-- **`conversation:join`** : Rejoindre une conversation
-- **`conversation:leave`** : Quitter une conversation
-- **`message:read`** : Marquer un message comme lu
+- **`new-message`** : Envoi d'un nouveau message
+- **`message-read`** : Marquer un message comme lu
+- **`conversation-joined`** : Rejoindre une conversation
 
 ##### Événements Serveur vers Client
 
-- **`message:new`** : Nouveau message reçu
-- **`message:read`** : Confirmation de lecture d'un message
-- **`conversation:joined`** : Confirmation de participation à une conversation
+- **`new-message`** : Nouveau message reçu
+- **`message-read`** : Confirmation de lecture d'un message
+- **`conversation-joined`** : Confirmation de participation à une conversation
 - **`error`** : Gestion des erreurs
 
 ---
@@ -531,15 +539,14 @@ messaging/
 
 ### Hooks Personnalisés
 
-#### useSocket Hook
+#### usePusher Hook
 
-Le hook `useSocket` centralise toute la logique de communication Socket.IO :
+Le hook `usePusher` centralise toute la logique de communication Pusher :
 
 ```typescript
-export const useSocket = (options: UseSocketOptions = {}) => {
+export const usePusher = (options: UsePusherOptions = {}) => {
   const {
-    autoConnect = true,
-    currentUserId,
+    autoConnect = false,
     onMessage,
     onMessageRead,
     onConversationJoined,
@@ -550,21 +557,15 @@ export const useSocket = (options: UseSocketOptions = {}) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentChannelName, setCurrentChannelName] = useState<string | null>(
+    null
+  );
 
   // Fonctions principales
-  const connect = useCallback(() => {
+  const connectToChannel = useCallback((channelName: string) => {
     /* ... */
   });
   const disconnect = useCallback(() => {
-    /* ... */
-  });
-  const sendMessage = useCallback(() => {
-    /* ... */
-  });
-  const joinConversation = useCallback(() => {
-    /* ... */
-  });
-  const leaveConversation = useCallback(() => {
     /* ... */
   });
 
@@ -572,12 +573,9 @@ export const useSocket = (options: UseSocketOptions = {}) => {
     isConnected,
     isConnecting,
     error,
-    connect,
+    connectToChannel,
     disconnect,
-    sendMessage,
-    joinConversation,
-    leaveConversation,
-    markMessageAsRead,
+    currentChannel: currentChannelName,
   };
 };
 ```
@@ -1063,11 +1061,13 @@ useEffect(() => {
 #### Stratégies de Gestion
 
 ```typescript
-// Gestion des erreurs Socket.IO
-socket.on("connect_error", (error) => {
-  setError(error.message);
-  setIsConnecting(false);
+// Gestion des erreurs Pusher
+pusherClient.connection.bind("error", (error: any) => {
+  console.error("❌ Erreur de connexion Pusher:", error);
+  setError(`Erreur de connexion: ${error.message || error}`);
   setIsConnected(false);
+  setIsConnecting(false);
+  onErrorRef.current?.(error);
 });
 
 // Gestion des erreurs API
@@ -1135,11 +1135,77 @@ try {
 
 ---
 
+## Correction du Problème de Connexion Pusher
+
+### Problème Identifié
+
+Le système de messagerie rencontrait un problème en production où l'input de messagerie restait désactivé malgré l'affichage du statut "connecté".
+
+### Cause Racine
+
+Le problème était dans la logique de connexion des composants `ConversationView` et `GroupConversationView` :
+
+```typescript
+// ❌ LOGIQUE INCORRECTE (cercle vicieux)
+useEffect(() => {
+  if (conversationId && isConnected) {
+    // ← Problème ici !
+    connectToChannel(`conversation-${conversationId}`);
+  }
+}, [conversationId, isConnected, connectToChannel, disconnect]);
+```
+
+**Pourquoi c'était incorrect :**
+
+1. `isConnected` est `false` au début
+2. On ne peut pas se connecter tant que `isConnected` n'est pas `true`
+3. Mais `isConnected` ne devient `true` que si on se connecte au canal
+4. **Cercle vicieux : impossible de se connecter !**
+
+### Solution Appliquée
+
+Correction de la logique de connexion dans les deux composants :
+
+```typescript
+// ✅ LOGIQUE CORRIGÉE
+useEffect(() => {
+  if (conversationId) {
+    const channelName = `conversation-${conversationId}`;
+    console.log(`🔌 Connexion à la conversation: ${channelName}`);
+    connectToChannel(channelName);
+  } else {
+    console.log("🔌 Aucune conversation sélectionnée, déconnexion");
+    disconnect();
+  }
+
+  return () => {
+    if (conversationId) {
+      console.log("🔌 Nettoyage de la connexion");
+      disconnect();
+    }
+  };
+}, [conversationId, connectToChannel, disconnect]);
+```
+
+### Fichiers Modifiés
+
+1. ✅ `src/components/dashboard/messaging/conversation-view.tsx`
+2. ✅ `src/components/dashboard/messaging/groups/group-conversation-view.tsx`
+
+### Résultat
+
+✅ **Problème résolu** : L'input de messagerie est maintenant activé en production
+✅ **Connexion automatique** : Les canaux de conversation se connectent automatiquement
+✅ **Gestion des états** : Les états de connexion sont correctement gérés
+✅ **Performance optimisée** : Plus de dépendances circulaires
+
+---
+
 ## Conclusion
 
 Le système de messagerie de Teamify représente une solution complète et moderne pour la communication en temps réel. Son architecture modulaire, sa robustesse et ses optimisations en font un système évolutif capable de s'adapter aux besoins croissants de l'application.
 
-L'utilisation de Socket.IO pour la communication temps réel, combinée à une API REST pour la persistance des données, offre le meilleur des deux mondes : performance et fiabilité. L'architecture en composants React facilite la maintenance et l'évolution du code, tandis que TypeScript assure la robustesse du système.
+L'utilisation de Pusher pour la communication temps réel, combinée à une API REST pour la persistance des données, offre le meilleur des deux mondes : performance et fiabilité. L'architecture en composants React facilite la maintenance et l'évolution du code, tandis que TypeScript assure la robustesse du système.
 
 Cette implémentation constitue une base solide pour développer des fonctionnalités de communication avancées et répondre aux besoins futurs de l'application Teamify.
 

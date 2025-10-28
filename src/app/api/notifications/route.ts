@@ -6,9 +6,6 @@ import {
   markAllNotificationsAsRead,
 } from "@/lib/notification-service";
 
-/**
- * Récupère les notifications de l'utilisateur connecté
- */
 export async function GET(request: Request) {
   try {
     const user = await getCurrentUser();
@@ -21,15 +18,12 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get("limit") || "50");
     const unreadOnly = searchParams.get("unreadOnly") === "true";
 
-    // Récupérer les notifications
     const notifications = await getUserNotifications(user.uid, limit);
 
-    // Filtrer les notifications non lues si demandé
     const filteredNotifications = unreadOnly
       ? notifications.filter((notification) => !notification.isRead)
       : notifications;
 
-    // Récupérer le nombre de notifications non lues
     const unreadCount = await getUnreadNotificationsCount(user.uid);
 
     return NextResponse.json({
@@ -43,9 +37,6 @@ export async function GET(request: Request) {
   }
 }
 
-/**
- * Marque toutes les notifications comme lues
- */
 export async function PATCH(request: Request) {
   try {
     const user = await getCurrentUser();

@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-/**
- * Vérifier si une conversation privée existe déjà entre l'utilisateur actuel et un autre utilisateur
- */
 export async function GET(req: NextRequest) {
   try {
     const user = await getCurrentUser();
@@ -22,7 +19,6 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Vérifier si une conversation privée existe déjà entre ces deux utilisateurs
     const existingConversation = await prisma.conversation.findFirst({
       where: {
         type: "PRIVATE",
@@ -48,7 +44,6 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    // Vérifier que la conversation contient exactement les deux utilisateurs
     const hasBothUsers =
       existingConversation?.members.some(
         (member: any) => member.userId === user.uid

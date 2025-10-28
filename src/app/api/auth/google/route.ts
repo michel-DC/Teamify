@@ -8,10 +8,6 @@ import type {
   GoogleTokenResponse,
 } from "@/types/google-auth";
 
-/**
- * Route API pour l'authentification Google OAuth
- * Gère la connexion et l'inscription via Google
- */
 export async function POST(req: Request) {
   const start = Date.now();
 
@@ -26,7 +22,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Échanger le code contre un token d'accès
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: {
@@ -54,7 +49,6 @@ export async function POST(req: Request) {
     const tokenData: GoogleTokenResponse = await tokenResponse.json();
     const { access_token } = tokenData;
 
-    // Récupérer les informations de l'utilisateur
     const userResponse = await fetch(
       "https://www.googleapis.com/oauth2/v2/userinfo",
       {
@@ -74,7 +68,6 @@ export async function POST(req: Request) {
 
     const googleUser: GoogleUserInfo = await userResponse.json();
 
-    // Vérifier si l'utilisateur existe déjà
     let user = await prisma.user.findFirst({
       where: {
         OR: [{ email: googleUser.email }, { googleId: googleUser.id }],
@@ -82,9 +75,6 @@ export async function POST(req: Request) {
     });
 
     if (user) {
-      // Cas 1: Utilisateur existant → connexion
-
-      // Mettre à jour les informations Google si nécessaire
       if (!user.googleId) {
         await prisma.user.update({
           where: { uid: user.uid },
@@ -96,9 +86,6 @@ export async function POST(req: Request) {
         });
       }
     } else {
-      // Cas 2: Nouvel utilisateur → création
-
-      // Générer un mot de passe sécurisé pour les utilisateurs Google
       const securePassword = `google_${
         googleUser.id
       }_${Date.now()}_${Math.random().toString(36).substring(2)}`;
@@ -112,24 +99,22 @@ export async function POST(req: Request) {
             googleUser.family_name ||
             googleUser.name?.split(" ").slice(1).join(" ") ||
             "",
-          password: securePassword, // Mot de passe sécurisé pour les utilisateurs Google
+          password: securePassword,
           googleId: googleUser.id,
           profileImage: googleUser.picture,
         },
       });
     }
 
-    // Générer le token JWT
     const token = await generateToken(user.uid);
 
     const cookie = serialize("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 jours
+      maxAge: 60 * 60 * 24 * 7,
     });
 
-    // Vérifier si l'utilisateur a une organisation
     const organizationsCount = await prisma.organization.count({
       where: { ownerUid: user.uid },
     });

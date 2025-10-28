@@ -2,9 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * Génère un code d'événement unique de 8 caractères en majuscules
- */
 function generateEventCode(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let result = "";
@@ -14,9 +11,6 @@ function generateEventCode(): string {
   return result;
 }
 
-/**
- * Vérifie si un code d'événement existe déjà dans la base de données
- */
 async function isEventCodeUnique(code: string): Promise<boolean> {
   try {
     console.log(`🔍 Vérification de l'unicité du code: ${code}`);
@@ -52,7 +46,6 @@ export async function GET() {
 
     console.log("🔄 Début de la génération de code unique...");
 
-    // Génère un code unique avec un maximum de tentatives
     do {
       eventCode = generateEventCode();
       attempts++;

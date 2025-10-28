@@ -21,9 +21,6 @@ export async function GET(
 
     const { slug } = await params;
 
-    /**
-     * Recherche par eventCode ou publicId
-     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
@@ -46,9 +43,6 @@ export async function GET(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -92,9 +86,6 @@ export async function PATCH(
       userUid: user.uid,
     });
 
-    /**
-     * Recherche par eventCode ou publicId
-     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
@@ -113,9 +104,6 @@ export async function PATCH(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -125,7 +113,6 @@ export async function PATCH(
       );
     }
 
-    // Traitement des FormData
     const formData = await request.formData();
 
     console.log("[PATCH] FormData reçues:", {
@@ -143,14 +130,8 @@ export async function PATCH(
       hasFile: !!formData.get("file"),
     });
 
-    /**
-     * @param Préparation des données pour la mise à jour
-     *
-     * Traite et valide les données reçues avant la mise à jour
-     */
     const updateData: any = {};
 
-    // Traitement des champs de base
     if (formData.get("title"))
       updateData.title = formData.get("title") as string;
     if (formData.get("description") !== null)
@@ -160,7 +141,6 @@ export async function PATCH(
     if (formData.get("isPublic") !== null)
       updateData.isPublic = formData.get("isPublic") === "true";
 
-    // Traitement des coordonnées de localisation
     const locationCoordsRaw = formData.get("locationCoords") as string | null;
     if (locationCoordsRaw) {
       try {
@@ -171,7 +151,6 @@ export async function PATCH(
       }
     }
 
-    // Traitement des dates
     if (formData.get("startDate")) {
       updateData.startDate = new Date(formData.get("startDate") as string);
     }
@@ -179,7 +158,6 @@ export async function PATCH(
       updateData.endDate = new Date(formData.get("endDate") as string);
     }
 
-    // Recalcul automatique du statut si les dates ont été modifiées
     if (updateData.startDate || updateData.endDate) {
       const startDate = updateData.startDate || event.startDate;
       const endDate = updateData.endDate || event.endDate;
@@ -193,7 +171,6 @@ export async function PATCH(
       }
     }
 
-    // Traitement des nombres
     if (formData.get("capacity") !== null) {
       updateData.capacity = parseInt(formData.get("capacity") as string) || 0;
     }
@@ -202,7 +179,6 @@ export async function PATCH(
       updateData.budget = budgetValue ? parseFloat(budgetValue) : null;
     }
 
-    // Traitement des enums (sauf le statut qui est maintenant calculé automatiquement)
     if (
       formData.get("category") &&
       Object.values(EventCategory).includes(
@@ -212,7 +188,6 @@ export async function PATCH(
       updateData.category = formData.get("category") as EventCategory;
     }
 
-    // Traitement de l'image
     const imageUrl = formData.get("imageUrl") as string;
     if (imageUrl) {
       updateData.imageUrl = imageUrl;
@@ -220,9 +195,6 @@ export async function PATCH(
 
     console.log("[PATCH] Données de mise à jour:", updateData);
 
-    /**
-     * Mise à jour de l'événement
-     */
     const updatedEvent = await prisma.event.update({
       where: {
         id: event.id,
@@ -244,7 +216,6 @@ export async function PATCH(
       status: updatedEvent.status,
     });
 
-    // Créer des notifications pour tous les membres de l'organisation
     try {
       await createNotificationForOrganizationMembers(event.orgId, {
         notificationName: "Événement modifié",
@@ -257,7 +228,6 @@ export async function PATCH(
         "Erreur lors de la création des notifications:",
         notificationError
       );
-      // Ne pas faire échouer la modification de l'événement si les notifications échouent
     }
 
     return NextResponse.json({ event: updatedEvent }, { status: 200 });
@@ -289,9 +259,6 @@ export async function PUT(
 
     const { slug } = await params;
 
-    /**
-     * Recherche par eventCode ou publicId
-     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
@@ -305,9 +272,6 @@ export async function PUT(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -319,9 +283,6 @@ export async function PUT(
 
     const body = await request.json();
 
-    /**
-     * Mise à jour de l'événement
-     */
     const updatedEvent = await prisma.event.update({
       where: {
         id: event.id,
@@ -337,7 +298,6 @@ export async function PUT(
       },
     });
 
-    // Recalcul automatique du statut si les dates ont été modifiées
     if (updatedEvent.startDate || updatedEvent.endDate) {
       const startDate = updatedEvent.startDate || event.startDate;
       const endDate = updatedEvent.endDate || event.endDate;
@@ -380,9 +340,6 @@ export async function DELETE(
 
     const { slug } = await params;
 
-    /**
-     * Recherche par eventCode ou publicId
-     */
     const event = await prisma.event.findFirst({
       where: {
         OR: [{ eventCode: slug }, { publicId: slug }],
@@ -396,9 +353,6 @@ export async function DELETE(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation de l'événement
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, event.orgId);
 
     if (!hasAccess) {
@@ -408,19 +362,13 @@ export async function DELETE(
       );
     }
 
-    /**
-     * Suppression de l'événement avec suppression en cascade
-     * automatique des todos et invitations
-     */
     await prisma.$transaction(async (tx) => {
-      // Supprime l'événement (cascade automatique pour EventByCode, todos, invitations)
       await tx.event.delete({
         where: {
           id: event.id,
         },
       });
 
-      // Décrémente le compteur d'événements de l'organisation
       await tx.organization.update({
         where: { id: event.orgId },
         data: {

@@ -38,16 +38,16 @@ interface UserData {
 }
 
 /**
- * Génère les initiales à partir du nom de l'utilisateur
+ * Génère l'initiale à partir de la première lettre de l'email
  */
-const generateInitials = (name: string): string => {
-  return name
-    .split(" ")
-    .map((word) => word.charAt(0))
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-};
+function generateInitials(email: string): string {
+  if (!email || email.trim() === "") {
+    return "?";
+  }
+  
+  const firstLetter = email.trim().charAt(0).toUpperCase();
+  return firstLetter || "?";
+}
 
 export function NavUser({
   user,
@@ -163,7 +163,7 @@ export function NavUser({
     window.location.href = "/auth/login";
   };
 
-  const userInitials = generateInitials(userData.name);
+  const userInitials = generateInitials(userData.email);
 
   return (
     <DropdownMenu>
@@ -173,7 +173,7 @@ export function NavUser({
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
         >
           <Avatar className="h-8 w-8 rounded-lg">
-            {userData.avatar ? (
+            {userData.avatar && userData.avatar.trim() !== "" ? (
               <AutoSignedImage
                 src={userData.avatar}
                 alt={userData.name}
@@ -206,7 +206,7 @@ export function NavUser({
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">
-              {userData.avatar ? (
+              {userData.avatar && userData.avatar.trim() !== "" ? (
                 <AutoSignedImage
                   src={userData.avatar}
                   alt={userData.name}

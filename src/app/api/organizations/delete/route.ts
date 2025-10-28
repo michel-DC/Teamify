@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-/**
- * API pour supprimer une organisation
- * Permet aux propriétaires de marquer une organisation comme supprimée
- * et supprime tous les membres de l'organisation
- */
 export async function POST(request: NextRequest) {
   try {
     const currentUser = await getCurrentUser();
@@ -23,7 +18,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier que l'utilisateur est propriétaire de l'organisation
     const membership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -50,7 +44,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Marquer l'organisation comme supprimée
     await prisma.organization.update({
       where: { id: parseInt(organizationId) },
       data: {
@@ -58,7 +51,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Supprimer tous les membres de l'organisation
     await prisma.organizationMember.deleteMany({
       where: {
         organizationId: parseInt(organizationId),

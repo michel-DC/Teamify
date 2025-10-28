@@ -25,7 +25,6 @@ export async function GET(
       );
     }
 
-    // Vérifier que l'utilisateur a accès à cette organisation
     const hasAccess = await hasOrganizationAccess(user.uid, organizationId);
 
     if (!hasAccess) {
@@ -35,7 +34,6 @@ export async function GET(
       );
     }
 
-    // Récupérer l'organisation
     const organization = await prisma.organization.findFirst({
       where: {
         id: organizationId,
@@ -49,11 +47,6 @@ export async function GET(
       );
     }
 
-    /**
-     * @param Récupération des membres depuis la colonne JSON
-     *
-     * Transforme les données JSON en format utilisable par le frontend
-     */
     const membersData = (organization.members as any[]) || [];
     const members: Array<{
       id: string;
@@ -65,10 +58,8 @@ export async function GET(
       role: string;
     }> = [];
 
-    // Traiter chaque membre du JSON
     membersData.forEach((memberData: any) => {
       if (memberData.uid && memberData.firstname && memberData.lastname) {
-        // Nouveau format avec uid, firstname, lastname
         members.push({
           id: memberData.uid,
           name: `${memberData.firstname} ${memberData.lastname}`,
@@ -82,7 +73,6 @@ export async function GET(
               : "Membre",
         });
       } else if (memberData.members) {
-        // Ancien format avec liste de noms (pour compatibilité)
         if (Array.isArray(memberData.members)) {
           memberData.members.forEach((memberName: string) => {
             members.push({
@@ -96,7 +86,6 @@ export async function GET(
           });
         }
       } else if (memberData.owner) {
-        // Ancien format avec propriétaire spécifique (pour compatibilité)
         members.push({
           id: `owner_${memberData.owner.toLowerCase().replace(/\s+/g, "_")}`,
           name: memberData.owner,
@@ -142,7 +131,6 @@ export async function POST(
       );
     }
 
-    // Vérifier que l'utilisateur est le propriétaire de cette organisation
     const organization = await prisma.organization.findFirst({
       where: {
         id: organizationId,
@@ -157,14 +145,8 @@ export async function POST(
       );
     }
 
-    /**
-     * @param Ajout d'un nouveau membre à l'organisation
-     *
-     * Utilise le nouveau format avec uid, firstname, lastname, email
-     */
     const currentMembers = (organization.members as any[]) || [];
 
-    // Nouveau format pour les membres
     const newMember = {
       uid: body.uid || `member_${Date.now()}`,
       firstname: body.firstname || body.memberName || "",
@@ -178,7 +160,6 @@ export async function POST(
 
     const updatedMembers = [...currentMembers, newMember];
 
-    // Mettre à jour l'organisation
     const updatedOrganization = await prisma.organization.update({
       where: {
         id: organizationId,

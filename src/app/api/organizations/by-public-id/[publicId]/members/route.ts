@@ -25,7 +25,6 @@ export async function GET(
       );
     }
 
-    // Récupérer l'organisation par son publicId
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -37,7 +36,6 @@ export async function GET(
       );
     }
 
-    // Vérifier que l'utilisateur a accès à cette organisation
     const userMembership = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -54,11 +52,6 @@ export async function GET(
       );
     }
 
-    /**
-     * Récupération des membres depuis la table OrganizationMember
-     *
-     * Récupère les vrais membres avec leurs rôles et informations utilisateur
-     */
     const organizationMembers = await prisma.organizationMember.findMany({
       where: { organizationId: organization.id },
       include: {
@@ -74,7 +67,6 @@ export async function GET(
       orderBy: { createdAt: "asc" },
     });
 
-    // Transformer les données pour le frontend
     const members = organizationMembers.map((member) => ({
       id: member.id,
       userUid: member.userUid,
@@ -117,7 +109,6 @@ export async function POST(
       );
     }
 
-    // Récupérer l'organisation par son publicId
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -129,11 +120,8 @@ export async function POST(
       );
     }
 
-    // Vérifier que l'utilisateur a les permissions pour ajouter des membres
     if (organization.ownerUid === user.uid) {
-      // L'utilisateur est le propriétaire, il peut ajouter des membres
     } else {
-      // Vérifier si l'utilisateur est membre avec un rôle approprié
       const userMembership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userUid: {
@@ -157,11 +145,6 @@ export async function POST(
       }
     }
 
-    /**
-     * Ajout d'un nouveau membre à l'organisation
-     *
-     * Ajoute le membre dans la table OrganizationMember
-     */
     const { userUid, role = "MEMBER" } = body;
 
     if (!userUid) {
@@ -171,7 +154,6 @@ export async function POST(
       );
     }
 
-    // Vérifier que l'utilisateur existe
     const userToAdd = await prisma.user.findUnique({
       where: { uid: userUid },
     });
@@ -183,7 +165,6 @@ export async function POST(
       );
     }
 
-    // Vérifier que l'utilisateur n'est pas déjà membre
     const existingMember = await prisma.organizationMember.findUnique({
       where: {
         organizationId_userUid: {
@@ -200,7 +181,6 @@ export async function POST(
       );
     }
 
-    // Ajouter le membre
     const newMember = await prisma.organizationMember.create({
       data: {
         organizationId: organization.id,
@@ -219,7 +199,6 @@ export async function POST(
       },
     });
 
-    // Mettre à jour le compteur de membres dans l'organisation
     await prisma.organization.update({
       where: { id: organization.id },
       data: {
@@ -229,7 +208,6 @@ export async function POST(
       },
     });
 
-    // Créer des notifications pour les OWNER et ADMIN
     try {
       await createNotificationForOrganizationOwnersAndAdmins(organization.id, {
         notificationName: "Nouveau membre ajouté à l'organisation",
@@ -249,7 +227,6 @@ export async function POST(
         "Erreur lors de la création des notifications pour les OWNER/ADMIN:",
         notificationError
       );
-      // Ne pas faire échouer l'ajout du membre si les notifications échouent
     }
 
     return NextResponse.json(

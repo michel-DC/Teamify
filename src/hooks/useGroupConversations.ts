@@ -4,9 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "./useAuth";
 import { useActiveOrganization } from "./useActiveOrganization";
 
-/**
- * Interface pour les conversations de groupe
- */
 export interface GroupConversation {
   id: string;
   type: "GROUP";
@@ -42,17 +39,11 @@ export interface GroupConversation {
   unreadCount: number;
 }
 
-/**
- * Options pour le hook useGroupConversations
- */
 interface UseGroupConversationsOptions {
   autoFetch?: boolean;
   autoSync?: boolean;
 }
 
-/**
- * Hook pour gérer les conversations de groupe d'une organisation
- */
 export const useGroupConversations = (
   options: UseGroupConversationsOptions = {}
 ) => {
@@ -65,9 +56,6 @@ export const useGroupConversations = (
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Récupère les conversations de groupe de l'organisation
-   */
   const fetchGroupConversations = useCallback(async () => {
     if (!isAuthenticated || !activeOrganization) {
       return;
@@ -108,9 +96,6 @@ export const useGroupConversations = (
     }
   }, [isAuthenticated, activeOrganization]);
 
-  /**
-   * Synchronise les membres de la conversation de groupe
-   */
   const syncGroupMembers = useCallback(async () => {
     if (!activeOrganization) {
       return false;
@@ -134,7 +119,6 @@ export const useGroupConversations = (
 
       const data = await response.json();
 
-      // Mettre à jour la conversation dans la liste
       if (data.conversation) {
         setConversations([data.conversation]);
       }
@@ -151,9 +135,6 @@ export const useGroupConversations = (
     }
   }, [activeOrganization]);
 
-  /**
-   * Met à jour le titre de la conversation de groupe
-   */
   const updateGroupConversationTitle = useCallback(
     async (title: string) => {
       if (!activeOrganization) {
@@ -179,7 +160,6 @@ export const useGroupConversations = (
 
         const data = await response.json();
 
-        // Mettre à jour la conversation dans la liste
         if (data.conversation) {
           setConversations([data.conversation]);
         }
@@ -201,9 +181,6 @@ export const useGroupConversations = (
     [activeOrganization]
   );
 
-  /**
-   * Vérification de l'authentification au montage
-   */
   useEffect(() => {
     const verifyAuth = async () => {
       const authResult = await checkAuth();
@@ -213,21 +190,14 @@ export const useGroupConversations = (
     verifyAuth();
   }, [checkAuth]);
 
-  /**
-   * Récupération automatique des conversations de groupe
-   */
   useEffect(() => {
     if (autoFetch && isAuthenticated && activeOrganization) {
       fetchGroupConversations();
     }
   }, [autoFetch, isAuthenticated, activeOrganization, fetchGroupConversations]);
 
-  /**
-   * Synchronisation automatique des membres quand l'organisation change
-   */
   useEffect(() => {
     if (autoSync && isAuthenticated && activeOrganization) {
-      // Délai pour s'assurer que l'organisation est bien chargée
       const timer = setTimeout(() => {
         syncGroupMembers();
       }, 1000);

@@ -4,9 +4,6 @@ import { getCurrentUser } from "@/lib/auth";
 
 export async function GET() {
   try {
-    /**
-     * Récupération de l'utilisateur connecté
-     */
     const user = await getCurrentUser();
 
     if (!user) {
@@ -17,10 +14,6 @@ export async function GET() {
     console.log("API Organizations: Utilisateur authentifié:", user.uid);
 
     try {
-      /**
-       * Récupération des organisations dont l'utilisateur est propriétaire
-       * avec le rôle OWNER
-       */
       const ownedOrganizations = await prisma.organization.findMany({
         where: {
           ownerUid: user.uid,
@@ -46,7 +39,6 @@ export async function GET() {
         ownedOrganizations.length
       );
 
-      // Ajouter le rôle OWNER aux organisations dont l'utilisateur est propriétaire
       const ownedWithRole = ownedOrganizations.map((org) => ({
         ...org,
         role: "OWNER",
@@ -93,11 +85,10 @@ export async function GET() {
         memberOrganizations.length
       );
 
-      // Extraire le rôle de l'utilisateur dans chaque organisation
       const memberWithRole = memberOrganizations.map((org) => ({
         ...org,
         role: org.organizationMembers[0]?.role || "MEMBER",
-        organizationMembers: undefined, // Supprimer ce champ de la réponse
+        organizationMembers: undefined,
       }));
 
       /**
@@ -106,7 +97,6 @@ export async function GET() {
        */
       const allOrganizations = [...ownedWithRole];
 
-      // Ajouter les organisations dont l'utilisateur est membre mais pas propriétaire
       memberWithRole.forEach((memberOrg) => {
         const isAlreadyIncluded = allOrganizations.some(
           (org) => org.id === memberOrg.id

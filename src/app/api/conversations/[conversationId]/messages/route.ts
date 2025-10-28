@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-/**
- * Route API pour récupérer les messages d'une conversation
- */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ conversationId: string }> }
@@ -17,14 +14,12 @@ export async function GET(
       conversationId
     );
 
-    // Vérifier l'authentification
     const user = await getCurrentUser();
     if (!user) {
       console.log("[conversations/messages] Utilisateur non authentifié");
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
-    // Vérifier que l'utilisateur est membre de la conversation
     const membership = await prisma.conversationMember.findUnique({
       where: {
         conversationId_userId: {
@@ -44,7 +39,6 @@ export async function GET(
       );
     }
 
-    // Récupérer les messages de la conversation
     const messages = await prisma.message.findMany({
       where: {
         conversationId,
@@ -85,9 +79,6 @@ export async function GET(
   }
 }
 
-/**
- * Route API pour créer un nouveau message dans une conversation
- */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ conversationId: string }> }
@@ -103,7 +94,6 @@ export async function POST(
     const body = await request.json();
     const { content, attachments } = body;
 
-    // Vérifier l'authentification
     const user = await getCurrentUser();
     if (!user) {
       console.log("[conversations/messages] Utilisateur non authentifié");
@@ -117,7 +107,6 @@ export async function POST(
       );
     }
 
-    // Vérifier que l'utilisateur est membre de la conversation
     const membership = await prisma.conversationMember.findUnique({
       where: {
         conversationId_userId: {
@@ -137,7 +126,6 @@ export async function POST(
       );
     }
 
-    // Créer le message en base
     const message = await prisma.message.create({
       data: {
         conversationId,

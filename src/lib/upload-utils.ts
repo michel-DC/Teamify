@@ -1,6 +1,3 @@
-/**
- * @param Types pour l'upload d'images
- */
 export interface UploadResponse {
   success: boolean;
   url: string;
@@ -20,11 +17,6 @@ export interface SignedUrlResponse {
   originalUrl: string;
 }
 
-/**
- * @param Upload d'une image vers Cloudflare R2
- *
- * Envoie un fichier image vers l'API d'upload et retourne l'URL signée
- */
 export async function uploadImage(
   file: File,
   type: "organization" | "event",
@@ -49,11 +41,6 @@ export async function uploadImage(
   return data;
 }
 
-/**
- * @param Génération d'une URL signée pour une image existante
- *
- * Génère une URL signée temporaire pour accéder à une image privée
- */
 export async function generateSignedUrlForImage(
   imageUrl: string,
   expiresIn: number = 15 * 60
@@ -80,9 +67,6 @@ export async function generateSignedUrlForImage(
   return data;
 }
 
-/**
- * @param Validation d'un fichier image côté client
- */
 export function validateImageFile(
   file: File,
   maxSizeMB: number = 10
@@ -90,7 +74,6 @@ export function validateImageFile(
   isValid: boolean;
   error?: string;
 } {
-  // Validation du type
   const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
   if (!allowedTypes.includes(file.type)) {
     return {
@@ -99,7 +82,6 @@ export function validateImageFile(
     };
   }
 
-  // Validation de la taille
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   if (file.size > maxSizeBytes) {
     return {
@@ -111,16 +93,10 @@ export function validateImageFile(
   return { isValid: true };
 }
 
-/**
- * @param Vérification si une URL est signée
- */
 export function isSignedUrl(url: string): boolean {
   return url.includes("X-Amz-Algorithm") || url.includes("X-Amz-Signature");
 }
 
-/**
- * @param Calcul du temps restant avant expiration d'une URL signée
- */
 export function getTimeUntilExpiration(url: string): number | null {
   try {
     const urlObj = new URL(url);

@@ -16,9 +16,6 @@ export async function PUT(
 
     const { publicId } = params;
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -30,14 +27,8 @@ export async function PUT(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a les permissions pour modifier l'organisation
-     */
-    // Vérifier d'abord si l'utilisateur est le propriétaire direct
     if (organization.ownerUid === user.uid) {
-      // L'utilisateur est le propriétaire, il a tous les droits
     } else {
-      // Vérifier si l'utilisateur est membre avec un rôle approprié
       const userMembership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userUid: {
@@ -74,9 +65,6 @@ export async function PUT(
 
     let profileImagePath = null;
 
-    /**
-     * Traitement de l'image de profil si fournie
-     */
     if (profileImage && profileImage.size > 0) {
       try {
         const uploadResult = await uploadImage(profileImage, "organization");
@@ -90,9 +78,6 @@ export async function PUT(
       }
     }
 
-    /**
-     * Mise à jour de l'organisation
-     */
     const updateData: any = {
       name,
       bio: bio || null,
@@ -157,9 +142,6 @@ export async function DELETE(
 
     const { publicId } = params;
 
-    /**
-     * Récupération de l'organisation par son ID public
-     */
     const organization = await prisma.organization.findUnique({
       where: { publicId },
     });
@@ -171,14 +153,8 @@ export async function DELETE(
       );
     }
 
-    /**
-     * Vérification que l'utilisateur est propriétaire de l'organisation
-     */
-    // Vérifier d'abord si l'utilisateur est le propriétaire direct
     if (organization.ownerUid === user.uid) {
-      // L'utilisateur est le propriétaire, il peut supprimer
     } else {
-      // Vérifier si l'utilisateur est membre avec le rôle OWNER
       const userMembership = await prisma.organizationMember.findUnique({
         where: {
           organizationId_userUid: {
@@ -196,9 +172,6 @@ export async function DELETE(
       }
     }
 
-    /**
-     * Suppression de l'organisation (avec cascade automatique grâce au schéma Prisma)
-     */
     await prisma.organization.delete({
       where: { id: organization.id },
     });

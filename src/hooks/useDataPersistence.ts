@@ -8,30 +8,12 @@ import { useEventsStore } from "@/store/eventsStore";
 import { useActiveOrganizationStore } from "@/store/activeOrganizationStore";
 
 interface DataPersistenceOptions {
-  /**
-   * @param Chaîne de caractères à rechercher dans l'URL pour déterminer si les données doivent être conservées
-   */
   requiredPathSegment?: string;
-  /**
-   * @param Si true, vide également les cookies d'authentification
-   */
   clearAuthCookies?: boolean;
-  /**
-   * @param Si true, affiche des logs de débogage
-   */
   debug?: boolean;
-  /**
-   * @param Si false, désactive complètement la fonctionnalité
-   */
   enabled?: boolean;
 }
 
-/**
- * @param Hook de gestion de la persistance des données
- *
- * Gère automatiquement le vidage des données persistées
- * selon la présence d'un segment d'URL spécifique
- */
 export function useDataPersistence(options: DataPersistenceOptions = {}) {
   const {
     requiredPathSegment = "dashboard",
@@ -46,19 +28,12 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
   const { resetStore: resetEvents } = useEventsStore();
   const { clearActiveOrganization } = useActiveOrganizationStore();
 
-  /**
-   * @param Fonction de vidage des données persistées
-   *
-   * Vide tous les stores Zustand, localStorage, sessionStorage et cookies
-   */
   const clearPersistedData = useCallback(() => {
-    // Vidage des stores Zustand
     resetSidebar();
     resetOrganizations();
     resetEvents();
     clearActiveOrganization();
 
-    // Vidage du localStorage
     try {
       const keysToRemove = [
         "sidebar-storage",
@@ -67,7 +42,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
         "active-organization-storage",
       ];
 
-      // Ajouter les clés d'authentification seulement si demandé
       if (clearAuthCookies) {
         keysToRemove.push("isLoggedIn", "hasOrganization", "token");
       }
@@ -82,7 +56,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
       );
     }
 
-    // Vidage de la sessionStorage
     try {
       sessionStorage.clear();
     } catch (error) {
@@ -92,7 +65,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
       );
     }
 
-    // Vidage des cookies
     try {
       const cookiesToRemove = [
         "sidebar-data",
@@ -101,7 +73,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
         "user-preferences",
       ];
 
-      // Ajouter les cookies d'authentification seulement si demandé
       if (clearAuthCookies) {
         cookiesToRemove.push("token", "isLoggedIn", "hasOrganization");
       }
@@ -124,12 +95,6 @@ export function useDataPersistence(options: DataPersistenceOptions = {}) {
   ]);
 
   useEffect(() => {
-    /**
-     * @param Vérification de la présence du segment requis dans l'URL
-     *
-     * Si le segment n'est pas présent, vide toutes les données persistées
-     */
-    // Ne rien faire si la fonctionnalité est désactivée
     if (!enabled) {
       return;
     }

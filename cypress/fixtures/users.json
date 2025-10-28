@@ -1,0 +1,23 @@
+{
+  "validUser": {
+    "firstname": "Test",
+    "lastname": "User",
+    "email": "test@example.com",
+    "passwordHash": "TestPassword123!"
+  },
+  "invalidUser": {
+    "email": "invalid@example.com",
+    "password": "wrongpassword"
+  },
+  "existingUser": {
+    "firstname": "Existing",
+    "lastname": "User",
+    "email": "existing@example.com",
+    "passwordHash": "ExistingPassword123!"
+  },
+  "googleUser": {
+    "name": "Google User",
+    "email": "google@example.com",
+    "image": "https://example.com/avatar.jpg"
+  }
+}

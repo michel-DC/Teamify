@@ -4,9 +4,6 @@ import { getCurrentUser, hasOrganizationAccess } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    /**
-     * Récupération de l'utilisateur connecté
-     */
     const user = await getCurrentUser();
 
     if (!user) {
@@ -16,9 +13,6 @@ export async function GET(request: Request) {
       );
     }
 
-    /**
-     * Récupération du paramètre d'organisation depuis l'URL
-     */
     const { searchParams } = new URL(request.url);
     const organizationPublicId = searchParams.get("organizationId");
 
@@ -29,9 +23,6 @@ export async function GET(request: Request) {
       );
     }
 
-    /**
-     * Récupération de l'organisation par son publicId
-     */
     const organization = await prisma.organization.findFirst({
       where: {
         publicId: organizationPublicId,
@@ -45,9 +36,6 @@ export async function GET(request: Request) {
       );
     }
 
-    /**
-     * Vérification que l'utilisateur a accès à l'organisation (propriétaire OU membre)
-     */
     const hasAccess = await hasOrganizationAccess(user.uid, organization.id);
 
     if (!hasAccess) {
@@ -57,10 +45,6 @@ export async function GET(request: Request) {
       );
     }
 
-    /**
-     * Récupération des événements de l'organisation spécifiée
-     * (tous les événements de l'organisation, pas seulement ceux créés par l'utilisateur)
-     */
     const events = await prisma.event.findMany({
       where: {
         orgId: organization.id,

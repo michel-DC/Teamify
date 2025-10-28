@@ -4,13 +4,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
-    // Vérification de l'authentification
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // Récupération des paramètres de requête
     const { searchParams } = new URL(request.url);
     const userUids = searchParams.get("userUids");
 
@@ -18,10 +16,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "userUids requis" }, { status: 400 });
     }
 
-    // Conversion de la chaîne en tableau
     const uidArray = userUids.split(",");
 
-    // Récupération des utilisateurs avec leurs photos de profil
     const users = await prisma.user.findMany({
       where: {
         uid: {

@@ -12,11 +12,6 @@ interface UseProfileImagesReturn {
   refetch: () => void;
 }
 
-/**
- * Hook personnalisé pour récupérer les images de profil des utilisateurs
- * @param userUids - Tableau des UIDs des utilisateurs
- * @returns Objet contenant les images de profil, l'état de chargement et les erreurs
- */
 export function useProfileImages(userUids: string[]): UseProfileImagesReturn {
   const [profileImages, setProfileImages] = useState<
     Record<string, string | null>
@@ -34,7 +29,6 @@ export function useProfileImages(userUids: string[]): UseProfileImagesReturn {
       setLoading(true);
       setError(null);
 
-      // Construction de la chaîne de paramètres pour l'API
       const userUidsParam = userUids.join(",");
       const response = await fetch(
         `/api/user/get-all-profiles-images?userUids=${encodeURIComponent(
@@ -48,7 +42,6 @@ export function useProfileImages(userUids: string[]): UseProfileImagesReturn {
 
       const data = await response.json();
 
-      // Conversion du tableau en objet pour un accès rapide par UID
       const imagesMap: Record<string, string | null> = {};
       data.profileImages.forEach((item: ProfileImage) => {
         imagesMap[item.uid] = item.profileImage;

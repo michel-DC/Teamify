@@ -3,9 +3,6 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getCurrentUser } from "@/lib/auth";
 import { generateSignedImageUrl } from "@/lib/r2-utils";
 
-/**
- * @param Configuration du client S3 pour Cloudflare R2
- */
 const s3Client = new S3Client({
   region: "auto",
   endpoint: process.env.R2_ENDPOINT,
@@ -16,25 +13,16 @@ const s3Client = new S3Client({
   forcePathStyle: true,
 });
 
-/**
- * @param Validation du type de fichier image
- */
 const validateImageFile = (file: File): boolean => {
   const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
   return allowedTypes.includes(file.type);
 };
 
-/**
- * @param Validation de la taille du fichier (max 10MB)
- */
 const validateFileSize = (file: File, maxSizeMB: number = 10): boolean => {
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   return file.size <= maxSizeBytes;
 };
 
-/**
- * @param Génération d'un nom de fichier unique
- */
 const generateFileName = (originalName: string, type: string): string => {
   const timestamp = Date.now();
   const randomId = Math.random().toString(36).substring(2, 15);
@@ -44,13 +32,11 @@ const generateFileName = (originalName: string, type: string): string => {
 
 export async function POST(request: NextRequest) {
   try {
-    // Vérification de l'authentification
     const user = await getCurrentUser();
     if (!user) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // Vérification des variables d'environnement
     if (
       !process.env.R2_ACCESS_KEY_ID ||
       !process.env.R2_SECRET_ACCESS_KEY ||
@@ -71,10 +57,9 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
-    const type = formData.get("type") as string; // "organization" ou "event"
-    const expiresIn = parseInt(formData.get("expiresIn") as string) || 15 * 60; // 15 minutes par défaut
+    const type = formData.get("type") as string;
+    const expiresIn = parseInt(formData.get("expiresIn") as string) || 15 * 60;
 
-    // Validation des paramètres
     if (!file) {
       return NextResponse.json(
         { error: "Aucun fichier fourni" },
@@ -91,7 +76,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validation du fichier
     if (!validateImageFile(file)) {
       return NextResponse.json(
         { error: "Type de fichier non supporté. Utilisez JPEG, PNG ou WebP" },
@@ -106,11 +90,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Conversion du fichier en buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Génération du nom de fichier unique
     const fileName = generateFileName(file.name, type);
 
     console.log("Tentative d'upload vers R2:", {
@@ -120,20 +102,17 @@ export async function POST(request: NextRequest) {
       contentType: file.type,
     });
 
-    // Upload vers Cloudflare R2 (fichier privé)
     const uploadCommand = new PutObjectCommand({
       Bucket: process.env.R2_BUCKET!,
       Key: fileName,
       Body: buffer,
       ContentType: file.type,
-      // Pas de CacheControl pour les fichiers privés
     });
 
     await s3Client.send(uploadCommand);
 
     console.log("Upload réussi:", { fileName });
 
-    // Génération de l'URL signée
     const signedUrl = await generateSignedImageUrl(
       process.env.R2_BUCKET!,
       fileName,

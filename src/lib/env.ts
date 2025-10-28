@@ -1,6 +1,13 @@
-// Vérification des variables d'environnement requises
 export function validateEnv() {
-  const requiredEnvVars = ["DATABASE_URL"];
+  const requiredEnvVars = [
+    "DATABASE_URL",
+    "PUSHER_APP_ID",
+    "PUSHER_KEY",
+    "PUSHER_SECRET",
+    "PUSHER_CLUSTER",
+    "NEXT_PUBLIC_PUSHER_KEY",
+    "NEXT_PUBLIC_PUSHER_CLUSTER",
+  ];
 
   const missingVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
 
@@ -11,7 +18,6 @@ export function validateEnv() {
   }
 }
 
-// Appel de la validation en mode production
 if (process.env.NODE_ENV === "production") {
   validateEnv();
 }

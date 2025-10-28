@@ -1,24 +1,24 @@
-# 🗂️ Gestion de Persistance des Données - Teamify
+# Gestion de Persistance des Données - Teamify
 
-## 📋 Résumé
+## Résumé
 
 Nouvelle fonctionnalité ajoutée à l'application Teamify pour gérer automatiquement la persistance des données selon la navigation de l'utilisateur.
 
-## ✨ Fonctionnalités
+## Fonctionnalités
 
-### 🔄 Vidage automatique
+### Vidage automatique
 
 - **Surveillance de l'URL** : Vérifie automatiquement si l'URL contient le segment "dashboard"
 - **Vidage intelligent** : Vide les données si l'utilisateur quitte la section dashboard
 - **Préservation de l'auth** : Conserve les cookies d'authentification par défaut
 
-### 🛡️ Sécurité
+### Sécurité
 
 - **Gestion d'erreurs** : Traitement gracieux des erreurs de stockage
 - **Cookies protégés** : Préservation des cookies d'authentification
 - **Logs de débogage** : Affichage des logs en mode développement
 
-## 🏗️ Architecture
+## Architecture
 
 ### Composants créés
 
@@ -51,22 +51,22 @@ src/app/dashboard/layout.tsx
 ├── DataPersistenceManager (spécifique)
 ```
 
-## 📊 Données gérées
+## Données gérées
 
 ### Stores Zustand
 
-- ✅ `sidebar-storage` - Données de la sidebar
-- ✅ `organizations-storage` - Données des organisations
-- ✅ `events-storage` - Données des événements
-- ✅ `tasks-storage` - Données des tâches
+- `sidebar-storage` - Données de la sidebar
+- `organizations-storage` - Données des organisations
+- `events-storage` - Données des événements
+- `tasks-storage` - Données des tâches
 
 ### Stockage local
 
-- ✅ **localStorage** - Clés de persistance des stores
-- ✅ **sessionStorage** - Complètement vidé
-- ✅ **Cookies** - Cookies de données (sauf auth)
+- **localStorage** - Clés de persistance des stores
+- **sessionStorage** - Complètement vidé
+- **Cookies** - Cookies de données (sauf auth)
 
-## 🚀 Utilisation
+## Utilisation
 
 ### Automatique (recommandé)
 
@@ -100,7 +100,7 @@ function MonComposant() {
 }
 ```
 
-## 🧪 Tests et débogage
+## Tests et débogage
 
 ### Utilitaires disponibles
 
@@ -130,7 +130,7 @@ En mode développement, les logs sont automatiquement affichés :
 - Actions de vidage
 - Erreurs éventuelles
 
-## 📁 Fichiers créés/modifiés
+## Fichiers créés/modifiés
 
 ### Nouveaux fichiers
 
@@ -145,7 +145,7 @@ En mode développement, les logs sont automatiquement affichés :
 - `src/app/layout.tsx` - Ajout du DataPersistenceManager
 - `src/app/dashboard/layout.tsx` - Ajout du DataPersistenceManager
 
-## 🔧 Configuration
+## Configuration
 
 ### Options disponibles
 
@@ -159,7 +159,7 @@ En mode développement, les logs sont automatiquement affichés :
 
 - `NODE_ENV=development` : Active automatiquement les logs de débogage
 
-## 🎯 Cas d'usage
+## Cas d'usage
 
 ### Scénario typique
 
@@ -174,7 +174,7 @@ En mode développement, les logs sont automatiquement affichés :
 - **UX** : Expérience utilisateur cohérente
 - **Maintenance** : Gestion centralisée de la persistance
 
-## 🔮 Évolutions futures
+## Évolutions futures
 
 ### Fonctionnalités prévues
 
@@ -191,7 +191,7 @@ Le système est conçu pour être facilement extensible :
 - Nouvelles règles de persistance
 - Intégration avec d'autres systèmes
 
-## 📞 Support
+## Support
 
 Pour toute question ou problème :
 
@@ -201,4 +201,4 @@ Pour toute question ou problème :
 
 ---
 
-**Développé avec ❤️ pour Teamify**
+**Développé pour Teamify**

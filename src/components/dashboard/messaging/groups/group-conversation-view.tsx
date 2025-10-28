@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSocket } from "@/hooks/useSocket";
+import { usePusher } from "@/hooks/usePusher";
 import { useMessages } from "@/hooks/useMessages";
 import { useAutoSignedImage } from "@/hooks/useAutoSignedImage";
 import { MessageList } from "../message-list";
@@ -25,9 +25,6 @@ interface GroupConversationViewProps {
   onBackToConversations?: () => void;
 }
 
-/**
- * Vue d'une conversation de groupe responsive avec zone de messages et saisie
- */
 export const GroupConversationView = ({
   conversationId,
   conversation,
@@ -36,7 +33,6 @@ export const GroupConversationView = ({
 }: GroupConversationViewProps) => {
   const [newMessage, setNewMessage] = useState("");
 
-  // Hook pour gérer les messages de la conversation
   const {
     messages,
     isLoading: messagesLoading,
@@ -49,33 +45,37 @@ export const GroupConversationView = ({
 
   const {
     isConnected,
-    sendMessage,
     isConnecting,
-    error: socketError,
-    joinConversation,
-    leaveConversation,
-  } = useSocket({
-    currentUserId: user?.uid,
+    error: pusherError,
+    connectToChannel,
+    disconnect,
+  } = usePusher({
     onMessage: (message) => {
       addMessage(message);
     },
     onError: (error) => {
-      console.error("❌ Erreur Socket.IO dans GroupConversationView:", error);
+      console.error("❌ Erreur Pusher dans GroupConversationView:", error);
     },
   });
 
-  // Rejoindre la conversation quand elle change
+  // Rejoindre la conversation quand elle change - LOGIQUE CORRIGÉE
   useEffect(() => {
-    if (conversationId && isConnected) {
-      joinConversation(conversationId);
+    if (conversationId) {
+      const channelName = `conversation-${conversationId}`;
+      console.log(`🔌 Connexion à la conversation de groupe: ${channelName}`);
+      connectToChannel(channelName);
+    } else {
+      console.log("🔌 Aucune conversation de groupe sélectionnée, déconnexion");
+      disconnect();
     }
 
     return () => {
-      if (conversationId && isConnected) {
-        leaveConversation(conversationId);
+      if (conversationId) {
+        console.log("🔌 Nettoyage de la connexion de groupe");
+        disconnect();
       }
     };
-  }, [conversationId, isConnected, joinConversation, leaveConversation]);
+  }, [conversationId, connectToChannel, disconnect]);
 
   /**
    * Obtenir le nom d'affichage d'une conversation de groupe
@@ -117,7 +117,7 @@ export const GroupConversationView = ({
   /**
    * Envoyer un message
    */
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!newMessage.trim()) {
       return;
     }
@@ -126,13 +126,26 @@ export const GroupConversationView = ({
       return;
     }
 
-    const success = sendMessage({
-      conversationId,
-      content: newMessage.trim(),
-    });
+    try {
+      // Envoyer le message via l'API
+      const response = await fetch("/api/messages/send", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          conversationId: conversationId,
+          content: newMessage.trim(),
+          senderId: user?.uid || "unknown",
+        }),
+      });
 
-    if (success) {
-      setNewMessage("");
+      if (response.ok) {
+        setNewMessage("");
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message:", error);
     }
   };
 

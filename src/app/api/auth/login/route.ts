@@ -1,4 +1,3 @@
-// app/api/auth/login/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -10,7 +9,6 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json();
 
-    // Logs d'entrée (sans afficher les secrets)
     console.info("[login] incoming request", {
       hasEmail: Boolean(email),
       bodyParsedMs: Date.now() - start,
@@ -22,7 +20,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Champs requis" }, { status: 400 });
     }
 
-    // Health check Prisma
     try {
       const pingStart = Date.now();
       await prisma.$queryRaw`SELECT 1`;
@@ -53,19 +50,15 @@ export async function POST(req: Request) {
       );
     }
 
-    /**
-     * Génération du token avec l'UID utilisateur
-     */
     const token = await generateToken(user.uid);
 
     const cookie = serialize("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 jours
+      maxAge: 60 * 60 * 24 * 7,
     });
 
-    // Calcule si l'utilisateur possède déjà une organisation
     let hasOrganization = false;
     try {
       const countStart = Date.now();

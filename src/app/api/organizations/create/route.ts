@@ -22,7 +22,6 @@ export async function POST(req: Request) {
   const imageUrl = formData.get("imageUrl") as string | null;
   const locationRaw = formData.get("location") as string | null;
 
-  // Parse location JSON si fourni
   let location: unknown = null;
   if (locationRaw) {
     try {
@@ -39,7 +38,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
   }
 
-  // Validation du memberCount
   if (typeof memberCount !== "number" || memberCount < 1) {
     return NextResponse.json(
       { error: "Le nombre de membres doit être au moins 1" },
@@ -54,14 +52,7 @@ export async function POST(req: Request) {
       profileImage = imageUrl;
     }
 
-    /**
-     * @param Création de l'organisation avec le propriétaire dans les membres
-     *
-     * Inclut automatiquement le propriétaire dans la liste des membres avec ses informations complètes
-     * et crée une entrée dans OrganizationMember avec le rôle OWNER
-     */
     const organization = await prisma.$transaction(async (tx) => {
-      // Préparer les données du propriétaire pour la colonne members
       const ownerMember = {
         uid: user.uid,
         firstname: user.firstname || "",
@@ -79,11 +70,10 @@ export async function POST(req: Request) {
           mission,
           owner: { connect: { uid: user.uid } },
           location: location as any,
-          members: [ownerMember], // Inclure le propriétaire dans les membres
+          members: [ownerMember],
         },
       });
 
-      // Créer l'entrée dans OrganizationMember avec le rôle OWNER
       await tx.organizationMember.create({
         data: {
           userUid: user.uid,
@@ -97,7 +87,6 @@ export async function POST(req: Request) {
         data: { organizationCount: { increment: 1 } },
       });
 
-      // Créer automatiquement une conversation de groupe pour l'organisation
       await tx.conversation.create({
         data: {
           type: "GROUP",
@@ -106,7 +95,7 @@ export async function POST(req: Request) {
           members: {
             create: {
               userId: user.uid,
-              role: "ADMIN", // Le propriétaire de l'organisation est admin de la conversation
+              role: "ADMIN",
             },
           },
         },
@@ -115,7 +104,6 @@ export async function POST(req: Request) {
       return createdOrg;
     });
 
-    // Créer une notification pour l'utilisateur qui a créé l'organisation
     try {
       await createNotification({
         notificationName: "Organisation créée",
@@ -130,10 +118,8 @@ export async function POST(req: Request) {
         "Erreur lors de la création de la notification:",
         notificationError
       );
-      // Ne pas faire échouer la création de l'organisation si la notification échoue
     }
 
-    // Envoyer un email de bienvenue si c'est la première organisation de l'utilisateur
     try {
       if (user.organizationCount === 1) {
         const welcomeData = {
@@ -160,7 +146,6 @@ export async function POST(req: Request) {
         "Erreur lors de l'envoi de l'email de bienvenue:",
         welcomeEmailError
       );
-      // Ne pas faire échouer la création de l'organisation si l'email échoue
     }
 
     return NextResponse.json(

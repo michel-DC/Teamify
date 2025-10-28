@@ -5,9 +5,6 @@ import {
   deleteNotification,
 } from "@/lib/notification-service";
 
-/**
- * Marque une notification comme lue ou la supprime
- */
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -47,9 +44,6 @@ export async function PATCH(
   }
 }
 
-/**
- * Supprime une notification
- */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
